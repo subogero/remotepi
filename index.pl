@@ -14,8 +14,11 @@ if ($query eq 'S') {
     system "omxd", $query;
     print "</body></html>";
     exit 0;
+} elsif ($query =~ /^[NRr.pfFn]$/) {
+    print "</head><body></body></html>";
+    `omxd $query` if $query;
+    exit 0;
 }
-`omxd $query` if $query;
 
 print <<HTML;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,19 +33,20 @@ a:link { text-decoration:none }
 a:visited { text-decoration:none }
 </style>
 <script src="status.js"></script>
+<script src="controls.js"></script>
 </head>
 <body>
 <div class="st" id="st">Status</div>
 <script>getStatus();</script>
 <div class="con"><p>
-<a href="?N">[N]</a>
-<a href="?R">[R]</a>
-<a href="?r">[r]</a>
-<a href="?.">[.]</a>
-<a href="?p">[p]</a>
-<a href="?f">[f]</a>
-<a href="?F">[F]</a>
-<a href="?n">[n]</a>
+<button onclick="controls('N')">N</button>
+<button onclick="controls('R')">R</button>
+<button onclick="controls('r')">r</button>
+<button onclick="controls('.')">.</button>
+<button onclick="controls('p')">p</button>
+<button onclick="controls('f')">f</button>
+<button onclick="controls('F')">F</button>
+<button onclick="controls('n')">n</button>
 </p>
 <p>
 <a href="?/home">[Raspberry]</a>
