@@ -5,5 +5,6 @@ div.st {
   font-size:80%; font-weight:bold; text-align:center; line-height:200%
 }
 div.con { text-align:center }
+div.browse { display:none }
 a:link { text-decoration:none }
 a:visited { text-decoration:none }
