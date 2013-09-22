@@ -1,3 +1,4 @@
+/* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
 function getStatus() {
   var req = new XMLHttpRequest();
   req.onreadystatechange = function() {

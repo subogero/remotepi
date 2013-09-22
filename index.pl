@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 print <<HEAD;
 Content-type: text/html
 
