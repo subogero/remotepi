@@ -1,0 +1,8 @@
+body { font-family:Monospace; margin:0 }
+div.st {
+  background-color:#ffc040;
+  font-size:80%; font-weight:bold; text-align:center; line-height:200%
+}
+div.con { text-align:center }
+a:link { text-decoration:none }
+a:visited { text-decoration:none }
