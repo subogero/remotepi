@@ -6,5 +6,7 @@ div.st {
 }
 div.con { text-align:center }
 div.browse { display:none }
+#home { background-color:#c0ffc0 }
+#fm   { background-color:#c0d0ff }
 a:link { text-decoration:none }
 a:visited { text-decoration:none }
