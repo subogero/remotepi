@@ -1,8 +1,8 @@
 #!/usr/bin/perl
 # C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
-use HTML::Entities;
+use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
-sub browse_home;
+sub ls;
 
 # Common head part for normal page and AJAX responses
 print <<HEAD;
@@ -15,7 +15,7 @@ Content-type: text/html
 HEAD
 
 # Handle AJAX requests
-$get_req = $ENV{QUERY_STRING};
+$get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req eq 'S') {
     print "</head><body>";
     system "omxd", $get_req;
@@ -26,9 +26,9 @@ if ($get_req eq 'S') {
     `omxd $get_req` if $get_req;
     exit 0;
 } elsif ($get_req =~ /^home/) {
-    (my $dir = decode_entities $get_req) =~ s/^home //;
+    (my $dir = $get_req) =~ s/^home //;
     print "</head>";
-    browse_home $dir;
+    ls $dir;
     print "</html>";
     exit 0;
 } elsif ($get_req) {
@@ -40,6 +40,7 @@ if ($get_req eq 'S') {
 print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="status.js"></script>
+<script src="raspberry.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -51,7 +52,7 @@ if (open BODY, "body.html") {
 print "</html>\n";
 
 # Browse Raspberry Pi
-sub browse_home {
+sub ls {
     my $dir = shift;
     my $root;
     if (open CFG, "/etc/remotepi.cfg") {
@@ -61,7 +62,9 @@ sub browse_home {
     } else {
         $root = "/home";
     }
-    $dir = $dir =~ /^\./ ? $root : "$root/$dir";
+    # Return to root dir upon dangerous attempts
+    $dir = $dir =~ /^\./ ? $root : "$root$dir";
+    # Sanitize dir: remove double slashes, cd .. until really dir
     $dir =~ s|(.+)/.+|$1| while ! -d $dir;
     print "<body>\n";
     opendir DIR, $dir;
@@ -70,8 +73,16 @@ sub browse_home {
     foreach (sort @files) {
         next if /^\.$/;
         next if /^\.\w/;
-        next if /^\.\.$/ && $dir eq $root;
-        print "<p>$_</p>\n";
+        next if /^\.\.$/ && $dir eq "$root/";
+        if (-d "$dir/$_") {
+            print <<DIR;
+<p><a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a></p>
+DIR
+        } else {
+            print <<FILE;
+<p>$_</p>
+FILE
+        }
     }
     print "</body>\n";
 }
