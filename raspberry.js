@@ -1,7 +1,7 @@
 rpi = {};
 rpi.pwd = "/";
 
-rpi.run = function() {
+rpi.ls = function() {
   var req = new XMLHttpRequest();
   req.onreadystatechange = function() {
     if (req.readyState == 4 && req.status == 200) {
@@ -19,5 +19,5 @@ rpi.cd = function(dir) {
   } else {
     this.pwd += dir + "/";
   }
-  this.run();
+  this.ls();
 }

@@ -9,7 +9,7 @@ function browse(what) {
   var home = document.getElementById("home");
   var fm   = document.getElementById("fm");
   if (what == "home") {
-    rpi.run();
+    rpi.ls();
     home.style.display = 'block';
     fm.style.display = 'none';
   }
