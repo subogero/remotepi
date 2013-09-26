@@ -21,3 +21,10 @@ rpi.cd = function(dir) {
   }
   this.ls();
 }
+
+rpi.op = function(cmd, file) {
+  var req = new XMLHttpRequest();
+  var uri = "?" + cmd + " " + this.pwd + file;
+  req.open("GET", uri, true);
+  req.send();
+}

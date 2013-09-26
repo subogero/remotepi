@@ -4,6 +4,15 @@ use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 sub ls;
 
+# Get root directory
+if (open CFG, "/etc/remotepi.cfg") {
+    $root = <CFG>;
+    chomp $root;
+    close CFG;
+} else {
+    $root = "/home";
+}
+
 # Common head part for normal page and AJAX responses
 print <<HEAD;
 Content-type: text/html
@@ -21,9 +30,15 @@ if ($get_req eq 'S') {
     system "omxd", $get_req;
     print "</body></html>";
     exit 0;
-} elsif ($get_req =~ /^[NRr.pfFnxX]$/) {
+} elsif ($get_req =~ /^[NRr.pfFnxXhj]$/) {
     print "</head><body></body></html>";
     `omxd $get_req` if $get_req;
+    exit 0;
+} elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
+    my $cmd = $1;
+    my $file = "$root/$2";
+    `omxd $cmd "$file"`;
+    print "</head><body></body></html>";
     exit 0;
 } elsif ($get_req =~ /^home/) {
     (my $dir = $get_req) =~ s/^home //;
@@ -54,14 +69,6 @@ print "</html>\n";
 # Browse Raspberry Pi
 sub ls {
     my $dir = shift;
-    my $root;
-    if (open CFG, "/etc/remotepi.cfg") {
-        $root = <CFG>;
-        chomp $root;
-        close CFG;
-    } else {
-        $root = "/home";
-    }
     # Return to root dir upon dangerous attempts
     $dir = $dir =~ /^\./ ? $root : "$root$dir";
     # Sanitize dir: remove double slashes, cd .. until really dir
@@ -76,11 +83,22 @@ sub ls {
         next if /^\.\.$/ && $dir eq "$root/";
         if (-d "$dir/$_") {
             print <<DIR;
-<p><a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a></p>
+<p><a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
+<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
+<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
+<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
+</p>
 DIR
         } else {
             print <<FILE;
-<p>$_</p>
+<p>$_<br>
+<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
+<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
+<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
+<button onclick="rpi.op(&quot;I&quot;,&quot;$_&quot;)" title="now">I</button>
+<button onclick="rpi.op(&quot;H&quot;,&quot;$_&quot;)" title="HDMI now">H</button>
+<button onclick="rpi.op(&quot;J&quot;,&quot;$_&quot;)" title="Jack now">J</button>
+</p>
 FILE
         }
     }
