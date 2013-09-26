@@ -21,7 +21,7 @@ if ($get_req eq 'S') {
     system "omxd", $get_req;
     print "</body></html>";
     exit 0;
-} elsif ($get_req =~ /^[NRr.pfFn]$/) {
+} elsif ($get_req =~ /^[NRr.pfFnxX]$/) {
     print "</head><body></body></html>";
     `omxd $get_req` if $get_req;
     exit 0;
