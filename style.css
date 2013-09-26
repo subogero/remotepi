@@ -1,12 +1,14 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
-body { font-family:Monospace; margin:0 }
+body { background-color:black; color:white; font-family:Monospace; margin:0 }
 div.st {
-  background-color:#ffc040;
+  background-color:black; color:white;
   font-size:80%; font-weight:bold; text-align:center;
 }
+#id { display:block }
 div.con { background-color:black; text-align:center; margin:0 }
 div.browse { display:none }
-p.even { background-color:#eeeeee; margin:0; line-height:180%  }
-p.odd  { background-color:white;   margin:0; line-height:180%  }
-a:link { text-decoration:none }
-a:visited { text-decoration:none }
+p.even { background-color:#202020; margin:0; line-height:180% }
+p.odd  { background-color:#101010; margin:0; line-height:180% }
+a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
+a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }
+button { background-color:black; color:white; font-family:Monospace }

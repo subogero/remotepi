@@ -3,21 +3,25 @@
 <div class="st" id="st">Status</div>
 <script>getStatus();</script>
 <div class="con">
+<button onclick="browse('list')" title="Playlist">playlist</button>
+<button onclick="browse('home')" title="Local stuff">home</button>
+<button onclick="browse('fm')"   title="Internet Radio">rpi.fm</button>
+</div>
+<div class="con" id="list">
 <button onclick="controls('N')" title="Previous"    >N</button>
-<button onclick="controls('R')" title="Rewind 600s" >R</button>
-<button onclick="controls('r')" title="Rewind 30s"  >r</button>
 <button onclick="controls('.')" title="Repeat"      >.</button>
 <button onclick="controls('p')" title="Play/Pause"  >p</button>
+<button onclick="controls('n')" title="Next"        >n</button>
+<br>
+<button onclick="controls('R')" title="Rewind 600s" >R</button>
+<button onclick="controls('r')" title="Rewind 30s"  >r</button>
 <button onclick="controls('f')" title="Forward 30s" >f</button>
 <button onclick="controls('F')" title="Forward 600s">F</button>
-<button onclick="controls('n')" title="Next"        >n</button>
 <br>
 <button onclick="controls('x')" title="Delete track">x</button>
 <button onclick="controls('X')" title="Delete list" >X</button>
 <button onclick="controls('h')" title="HDMI Audio"  >h</button>
 <button onclick="controls('j')" title="Jack Audio"  >j</button>
-<button onclick="browse('home')" title="Local stuff">home</button>
-<button onclick="browse('fm')"   title="Internet Radio">rpi.fm</button>
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
 <div class="browse" id="fm">Internet Radio Stations</div>

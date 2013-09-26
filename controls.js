@@ -8,12 +8,19 @@ function controls(cmd) {
 function browse(what) {
   var home = document.getElementById("home");
   var fm   = document.getElementById("fm");
-  if (what == "home") {
+  if (what == "list") {
+    list.style.display = 'block';
+    home.style.display = 'none';
+    fm.style.display = 'none';
+  }
+  else if (what == "home") {
     rpi.ls();
+    list.style.display = 'none';
     home.style.display = 'block';
     fm.style.display = 'none';
   }
   else if (what == "fm") {
+    list.style.display = 'none';
     home.style.display = 'none';
     fm.style.display = 'block';
   }
