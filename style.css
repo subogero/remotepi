@@ -2,7 +2,7 @@
 body { font-family:Monospace; margin:0 }
 div.st {
   background-color:#ffc040;
-  font-size:80%; font-weight:bold; text-align:center; line-height:200%
+  font-size:80%; font-weight:bold; text-align:center;
 }
 div.con { text-align:center }
 div.browse { display:none }
