@@ -3,7 +3,7 @@ RemotePi -- remote control web app for Raspberry Pi omxd media player
 
 ## DESCRIPTION
 
-RemotePi is a remote control web app to browse cemusic/videos
+RemotePi is a remote control web app to browse music/videos
 on your Raspberry Pi and play them via the omxd playlist daemon.
 
 RemotePi is optimized for small smartphone screens.
