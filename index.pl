@@ -77,13 +77,15 @@ sub ls {
     opendir DIR, $dir;
     push @files, $_ while readdir DIR;
     closedir DIR;
+    my $class = 'even';
     foreach (sort @files) {
         next if /^\.$/;
         next if /^\.\w/;
         next if /^\.\.$/ && $dir eq "$root/";
+        print "<p class=\"$class\">";
         if (-d "$dir/$_") {
             print <<DIR;
-<p><a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
+<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
 <button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
 <button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
 <button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
@@ -91,7 +93,7 @@ sub ls {
 DIR
         } else {
             print <<FILE;
-<p>$_<br>
+$_<br>
 <button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
 <button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
 <button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
@@ -101,6 +103,7 @@ DIR
 </p>
 FILE
         }
+        $class = $class eq 'even' ? 'odd' : 'even';
     }
     print "</body>\n";
 }
