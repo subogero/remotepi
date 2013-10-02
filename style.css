@@ -1,8 +1,11 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
-body { background-color:black; color:white; font-family:Monospace; margin:0 }
+body {
+  background-color:black; color:white; font-family:Monospace;
+  margin:none; padding:none
+}
 button {
   background-color:black; color:white; font-family:Monospace;
-  border: 1px solid white; padding:none
+  border: 1px solid white; border-left:1px solid black; padding:none
 }
 div.st {
   background-color:black; color:white;
@@ -13,8 +16,8 @@ div.con button { color:white }
 button.tabhi { border-bottom:1px solid #404040; background-color:#404040 }
 button.tablo { border-bottom:1px solid white;   background-color:black }
 #list { background-color:#404040; display:none }
-#list button { background-color:#404040; color:white; font-size:500%;
-  border-top:none; border-left:none; border-right:none
+#list button { background-color:#404040; color:white; font-size:200%;
+  border-top:none; border-left:1px solid black
 }
 div.browse { display:none }
 #fm { background-color:#404040 }
