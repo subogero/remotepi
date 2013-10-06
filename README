@@ -19,9 +19,10 @@ Features:
 
 ## FILES
 
-### /etc/remotepi.cfg
+### /etc/omxd.conf
 
-Contains the root directory below which browsing is allowed for RemotePi.
+Omxd runs omxplayer as the user specified in this file.
+This user's home is the root directory for file browsing by RemotePi.
 If the file does not exist, the default root directory is /home.
 
 ## INSTALL

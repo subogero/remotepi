@@ -5,9 +5,11 @@ use CGI::Carp qw(fatalsToBrowser);
 sub ls;
 
 # Get root directory
-if (open CFG, "/etc/remotepi.cfg") {
+if (open CFG, "/etc/omxd.conf") {
     $root = <CFG>;
     chomp $root;
+    $root =~ s|user=|/home/|;
+    $root = "/home" unless -d $root;
     close CFG;
 } else {
     $root = "/home";
