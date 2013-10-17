@@ -3,7 +3,7 @@
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
-sub ls; sub fm;
+sub ls; sub fm; sub byalphanum;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -153,7 +153,7 @@ EOF
 $title</p><p class="$class">
 TITLE
     }
-    foreach (sort keys %list) {
+    foreach (sort byalphanum keys %list) {
         $class = $class eq 'even' ? 'odd' : 'even';
         unless  ($title) {
             print <<GENRE;
@@ -178,4 +178,9 @@ $list{$_}<br>
 STATION
         }
     }
+}
+
+sub byalphanum {
+    return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
+    return $a cmp $b;
 }
