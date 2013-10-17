@@ -2,7 +2,8 @@
 # C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
-sub ls;
+use IPC::Open2;
+sub ls; sub fm;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -46,6 +47,12 @@ if ($get_req eq 'S') {
     (my $dir = $get_req) =~ s/^home //;
     print "</head>";
     ls $dir;
+    print "</html>";
+    exit 0;
+} elsif ($get_req =~ /^fm/) {
+    (my $cmd = $get_req) =~ s/^fm *//;
+    print "</head>";
+    fm $cmd;
     print "</html>";
     exit 0;
 } elsif ($get_req) {
@@ -108,4 +115,67 @@ FILE
         $class = $class eq 'even' ? 'odd' : 'even';
     }
     print "</body>\n";
+}
+
+# Browse internet radio stations
+sub fm {
+    my $cmd = shift;
+    print <<EOF;
+<body><p class="even">
+<button onclick="fm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
+<button onclick="fm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
+</p><p class="odd">
+EOF
+    my $class = 'odd';
+    unless ($cmd) {
+        print "</body>\n";
+        return;
+    }
+    my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
+    print OUT $cmd;
+    close OUT;
+    my $title;
+    my %list;
+    while (<IN>) {
+        s/\r|\n//g;
+        if (/^[a-zA-Z]/) {
+            $title = $_;
+            %list = ();
+        } elsif (/^ *(\d+|[<>]) +(.+)$/) {
+            $list{$1} = $2;
+        }
+    }
+    close IN;
+    waitpid $pid, 0;
+    if ($title) {
+        $class = $class eq 'even' ? 'odd' : 'even';
+        print <<TITLE;
+$title</p><p class="$class">
+TITLE
+    }
+    foreach (sort keys %list) {
+        $class = $class eq 'even' ? 'odd' : 'even';
+        unless  ($title) {
+            print <<GENRE;
+<a href="javascript:void(0)" onclick="fm.addcmd(&quot;$_&quot;)">$list{$_}/</a>
+</p><p class="$class">
+GENRE
+        } elsif ($_ =~ /^[<>]$/) {
+            my $label = $_ eq '<' ? 'Previous' : 'Next';
+            print <<NAVI;
+<button onclick="fm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
+NAVI
+        } else {
+            print <<STATION;
+$list{$_}<br>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
+<button onclick="fm.addcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
+</p><p class="$class">
+STATION
+        }
+    }
 }
