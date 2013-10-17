@@ -30,6 +30,7 @@ function browse(what) {
     bfm.className = 'tablo';
   }
   else if (what == "fm") {
+    rpifm.sendcmds();
     list.style.display = 'none';
     blist.className = 'tablo';
     home.style.display = 'none';

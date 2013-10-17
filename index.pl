@@ -65,6 +65,7 @@ print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="status.js"></script>
 <script src="raspberry.js"></script>
+<script src="fm.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -122,8 +123,8 @@ sub fm {
     my $cmd = shift;
     print <<EOF;
 <body><p class="even">
-<button onclick="fm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
-<button onclick="fm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
+<button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
+<button onclick="rpifm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
 </p><p class="odd">
 EOF
     my $class = 'odd';
@@ -157,23 +158,23 @@ TITLE
         $class = $class eq 'even' ? 'odd' : 'even';
         unless  ($title) {
             print <<GENRE;
-<a href="javascript:void(0)" onclick="fm.addcmd(&quot;$_&quot;)">$list{$_}</a>
+<a href="javascript:void(0)" onclick="rpifm.addcmd(&quot;$_&quot;)">$list{$_}</a>
 </p><p class="$class">
 GENRE
         } elsif ($_ =~ /^[<>]$/) {
             my $label = $_ eq '<' ? 'Previous' : 'Next';
             print <<NAVI;
-<button onclick="fm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
 NAVI
         } else {
             print <<STATION;
 $list{$_}<br>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
-<button onclick="fm.addcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
+<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
 </p><p class="$class">
 STATION
         }
