@@ -157,7 +157,7 @@ TITLE
         $class = $class eq 'even' ? 'odd' : 'even';
         unless  ($title) {
             print <<GENRE;
-<a href="javascript:void(0)" onclick="fm.addcmd(&quot;$_&quot;)">$list{$_}/</a>
+<a href="javascript:void(0)" onclick="fm.addcmd(&quot;$_&quot;)">$list{$_}</a>
 </p><p class="$class">
 GENRE
         } elsif ($_ =~ /^[<>]$/) {
