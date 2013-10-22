@@ -3,7 +3,7 @@
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
-sub ls; sub fm; sub byalphanum;
+sub ls; sub fm; sub byalphanum; sub logger;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -184,4 +184,11 @@ STATION
 sub byalphanum {
     return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
     return $a cmp $b;
+}
+
+sub logger {
+    open LOG, ">>remotepi.log" or return;
+    my $msg = shift;
+    print LOG "\n", time(), " PID: $$\n", $msg, "\n";
+    close LOG;
 }
