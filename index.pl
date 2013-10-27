@@ -169,12 +169,12 @@ NAVI
         } else {
             print <<STATION;
 $list{$_}<br>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
-<button onclick="rpifm.addcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
 </p><p class="$class">
 STATION
         }

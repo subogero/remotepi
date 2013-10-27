@@ -2,6 +2,7 @@ rpifm = {};
 rpifm.cmds = "";
 
 rpifm.sendcmds = function() {
+  document.getElementById("fm").innerHTML = "Waiting for rpi.fm...";
   var req = new XMLHttpRequest();
   req.onreadystatechange = function() {
     if (req.readyState == 4 && req.status == 200) {
@@ -22,4 +23,12 @@ rpifm.addcmd = function() {
     this.cmds += (arguments[i] + "%0a");
   }
   this.sendcmds();
+}
+
+rpifm.lastcmd = function() {
+  for (var i = 0; i < arguments.length; i++) {
+    this.cmds += (arguments[i] + "%0a");
+  }
+  this.sendcmds();
+  this.cmds = "";
 }
