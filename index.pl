@@ -2,7 +2,8 @@
 # C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
-sub ls;
+use IPC::Open2;
+sub ls; sub fm; sub byalphanum; sub logger;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -48,6 +49,12 @@ if ($get_req eq 'S') {
     ls $dir;
     print "</html>";
     exit 0;
+} elsif ($get_req =~ /^fm/) {
+    (my $cmd = $get_req) =~ s/^fm *//;
+    print "</head>";
+    fm $cmd;
+    print "</html>";
+    exit 0;
 } elsif ($get_req) {
     print "<!-- $get_req -->\n";
     exit 0;
@@ -58,6 +65,7 @@ print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="status.js"></script>
 <script src="raspberry.js"></script>
+<script src="fm.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -108,4 +116,79 @@ FILE
         $class = $class eq 'even' ? 'odd' : 'even';
     }
     print "</body>\n";
+}
+
+# Browse internet radio stations
+sub fm {
+    my $cmd = shift;
+    print <<EOF;
+<body><p class="even">
+<button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
+<button onclick="rpifm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
+</p><p class="odd">
+EOF
+    my $class = 'odd';
+    unless ($cmd) {
+        print "</body>\n";
+        return;
+    }
+    my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
+    print OUT $cmd;
+    close OUT;
+    my $title;
+    my %list;
+    while (<IN>) {
+        s/\r|\n//g;
+        if (/^[a-zA-Z]/) {
+            $title = $_;
+            %list = ();
+        } elsif (/^ *(\d+|[<>]) +(.+)$/) {
+            $list{$1} = $2;
+        }
+    }
+    close IN;
+    waitpid $pid, 0;
+    if ($title) {
+        $class = $class eq 'even' ? 'odd' : 'even';
+        print <<TITLE;
+$title</p><p class="$class">
+TITLE
+    }
+    foreach (sort byalphanum keys %list) {
+        $class = $class eq 'even' ? 'odd' : 'even';
+        unless  ($title) {
+            print <<GENRE;
+<a href="javascript:void(0)" onclick="rpifm.addcmd(&quot;$_&quot;)">$list{$_}</a>
+</p><p class="$class">
+GENRE
+        } elsif ($_ =~ /^[<>]$/) {
+            my $label = $_ eq '<' ? 'Previous' : 'Next';
+            print <<NAVI;
+<button onclick="rpifm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
+NAVI
+        } else {
+            print <<STATION;
+$list{$_}<br>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
+<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
+</p><p class="$class">
+STATION
+        }
+    }
+}
+
+sub byalphanum {
+    return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
+    return $a cmp $b;
+}
+
+sub logger {
+    open LOG, ">>remotepi.log" or return;
+    my $msg = shift;
+    print LOG "\n", time(), " PID: $$\n", $msg, "\n";
+    close LOG;
 }
