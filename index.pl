@@ -31,6 +31,18 @@ $get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req eq 'S') {
     print "</head><body>";
     system "omxd", $get_req;
+    if (open PLAY, "/var/run/omxplay") {
+        my $class = 'even';
+        while (<PLAY>) {
+            if (s/^>\t//) {
+                print "<p class=\"now\">$_</p>\n";
+            } else {
+                print "<p class=\"$class\">$_</p>\n";
+            }
+            $class = $class eq 'even' ? 'odd' : 'even';
+        }
+        close PLAY;
+    }
     print "</body></html>";
     exit 0;
 } elsif ($get_req =~ /^[NRr.pfFnxXhj]$/) {
@@ -63,7 +75,6 @@ if ($get_req eq 'S') {
 # Or continue the normal page
 print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="status.js"></script>
 <script src="raspberry.js"></script>
 <script src="fm.js"></script>
 <script src="controls.js"></script>

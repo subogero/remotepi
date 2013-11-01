@@ -1,11 +1,28 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
-function controls(cmd) {
+con = {};
+con.refresh = false;
+
+con.send = function(cmd) {
   var req = new XMLHttpRequest();
   req.open("GET", "?" + cmd, true);
   req.send();
 }
 
-function browse(what) {
+con.getStatus = function() {
+  var req = new XMLHttpRequest();
+  req.onreadystatechange = function() {
+    if (req.readyState == 4 && req.status == 200) {
+      document.getElementById("st").innerHTML = req.responseText;
+    }
+  }
+  req.open("GET", "?S", true);
+  req.send();
+  if (this.refresh) {
+    setTimeout("con.getStatus()",2000);
+  }
+}
+
+con.browse = function(what) {
   var list = document.getElementById("list");
   var home = document.getElementById("home");
   var fm   = document.getElementById("fm");
@@ -19,6 +36,8 @@ function browse(what) {
     bhome.className = 'tablo';
     fm.style.display = 'none';
     bfm.className = 'tablo';
+    this.refresh = true;
+    this.getStatus();
   }
   else if (what == "home") {
     rpi.ls();
@@ -28,6 +47,7 @@ function browse(what) {
     bhome.className = 'tabhi';
     fm.style.display = 'none';
     bfm.className = 'tablo';
+    this.refresh = false;
   }
   else if (what == "fm") {
     rpifm.sendcmds();
@@ -37,5 +57,6 @@ function browse(what) {
     bhome.className = 'tablo';
     fm.style.display = 'block';
     bfm.className = 'tabhi';
+    this.refresh = false;
   }
 }

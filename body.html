@@ -1,27 +1,27 @@
 <!-- (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 -->
 <body>
-<div class="st" id="st">Status</div>
-<script>getStatus();</script>
+<script>con.getStatus();</script>
 <div class="con">
-<button id="blist" onclick="browse('list')" title="Playlist">playlist</button>
-<button id="bhome" onclick="browse('home')" title="Local stuff">home</button>
-<button id="bfm"   onclick="browse('fm')"   title="Internet Radio">rpi.fm</button>
+<button id="blist" onclick="con.browse('list')" title="Playlist">playlist</button>
+<button id="bhome" onclick="con.browse('home')" title="Local stuff">home</button>
+<button id="bfm"   onclick="con.browse('fm')"   title="Internet Radio">rpi.fm</button>
 </div>
 <div class="con" id="list">
-<button onclick="controls('N')" title="Previous"    ><pre>|&lt;&lt;</pre></button>
-<button onclick="controls('.')" title="Repeat"      ><pre> 0 </pre></button>
-<button onclick="controls('p')" title="Play/Pause"  ><pre>||&gt;</pre></button>
-<button onclick="controls('n')" title="Next"        ><pre>&gt;&gt;|</pre></button><br/>
-<button onclick="controls('R')" title="Rewind 600s" ><pre>&lt;&lt;&lt;</pre></button>
-<button onclick="controls('r')" title="Rewind 30s"  ><pre> &lt; </pre></button>
-<button onclick="controls('f')" title="Forward 30s" ><pre> &gt; </pre></button>
-<button onclick="controls('F')" title="Forward 600s"><pre>&gt;&gt;&gt;</pre></button><br/>
-<button onclick="controls('x')" title="Delete track"><pre>del</pre></button>
-<button onclick="controls('X')" title="Delete list" ><pre>DEL</pre></button>
-<button onclick="controls('h')" title="HDMI Audio"  ><pre>HDM</pre></button>
-<button onclick="controls('j')" title="Jack Audio"  ><pre>Jck</pre></button><br/>
+<button onclick="con.send('N')" title="Previous"    ><pre>|&lt;&lt;</pre></button>
+<button onclick="con.send('.')" title="Repeat"      ><pre> 0 </pre></button>
+<button onclick="con.send('p')" title="Play/Pause"  ><pre>||&gt;</pre></button>
+<button onclick="con.send('n')" title="Next"        ><pre>&gt;&gt;|</pre></button><br/>
+<button onclick="con.send('R')" title="Rewind 600s" ><pre>&lt;&lt;&lt;</pre></button>
+<button onclick="con.send('r')" title="Rewind 30s"  ><pre> &lt; </pre></button>
+<button onclick="con.send('f')" title="Forward 30s" ><pre> &gt; </pre></button>
+<button onclick="con.send('F')" title="Forward 600s"><pre>&gt;&gt;&gt;</pre></button><br/>
+<button onclick="con.send('x')" title="Delete track"><pre>del</pre></button>
+<button onclick="con.send('X')" title="Delete list" ><pre>DEL</pre></button>
+<button onclick="con.send('h')" title="HDMI Audio"  ><pre>HDM</pre></button>
+<button onclick="con.send('j')" title="Jack Audio"  ><pre>Jck</pre></button><br/>
+<div class="st" id="st">Status</div>
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
 <div class="browse" id="fm">Internet Radio Stations</div>
-<script>browse('list');</script>
+<script>con.browse('list');</script>
 </body>
