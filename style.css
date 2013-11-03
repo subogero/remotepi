@@ -28,3 +28,4 @@ p.odd  { background-color:#101010; margin:0; line-height:180% }
 p.now  { color:black; background-color:#c0c0c0; margin:0; line-height:180% }
 a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
 a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }
+hr { border:0; padding:0 }

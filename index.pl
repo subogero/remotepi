@@ -30,7 +30,9 @@ HEAD
 $get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req eq 'S') {
     print "</head><body>";
+    print '<p class="now">';
     system "omxd", $get_req;
+    print "</p><hr>";
     if (open PLAY, "/var/run/omxplay") {
         my $class = 'even';
         while (<PLAY>) {
