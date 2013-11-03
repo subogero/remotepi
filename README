@@ -1,10 +1,10 @@
-RemotePi -- remote control web app for Raspberry Pi omxd media player
-=====================================================================
+RemotePi -- Raspberry Pi media centre with remote control
+=========================================================
 
 ## DESCRIPTION
 
-RemotePi is a remote control web app to browse music/videos
-on your Raspberry Pi and play them via the omxd playlist daemon.
+RemotePi is a remote control web app to browse your RaspberryPi's music/videos
+or internet radio stations and play them via the omxd playlist daemon.
 
 RemotePi is optimized for small smartphone screens.
 
@@ -13,17 +13,10 @@ for MP3 tags in files. MP3 tags are evil and rude.
 
 Features: 
  - browse the Raspberry file system below a specified root dir
- - insert and append files or entire directories to the omxd playlist
+ - browse internet radio stations using rpi.fm
+ - insert and append files, stremas or entire directories to the omxd playlist
  - play files now on Jack or HDMI audio and then return to playlist
  - play/pause, repeat, previous/next in playlist, RW/FF.
-
-## FILES
-
-### /etc/omxd.conf
-
-Omxd runs omxplayer as the user specified in this file.
-This user's home is the root directory for file browsing by RemotePi.
-If the file does not exist, the default root directory is /home.
 
 ## INSTALL
 
@@ -31,15 +24,21 @@ If the file does not exist, the default root directory is /home.
 
 sudo apt-get install apache2
 
-### Install omxd and remotepi
+### Install omxd, rpi.fm and remotepi
 
-Make sure the packages git, gcc and make are installed.
+Make sure the packages curl, git, gcc and make are installed.
 
 git clone https://github.com/subogero/omxd.git
 cd omxd
 make
 sudo make install
 
+cd ..
+git clone https://github.com/subogero/rpi.fm.git
+cd rpi.fm
+sudo make install
+
+cd ..
 git clone https://github.com/subogero/remotepi.git
 chmod 757 remotepi # Make remotepi writable for www-data
 
@@ -72,3 +71,15 @@ home WiFi network. Enjoy.
 
 The buttons wear the name of the respctive omxd commands, see the tooltips,
 the "help" tab or omxd's README or man page.
+
+## FILES
+
+### /etc/omxd.conf
+
+Omxd runs omxplayer as the user specified in this file.
+This user's home is the root directory for file browsing by RemotePi.
+If the file does not exist, the default root directory is /home.
+
+### remotepi/.rpi.fm
+
+rpi.fm's genre cache and "My stations" database
