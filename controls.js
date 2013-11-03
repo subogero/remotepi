@@ -36,6 +36,8 @@ con.browse = function(what) {
     bhome.className = 'tablo';
     fm.style.display = 'none';
     bfm.className = 'tablo';
+    help.style.display = 'none';
+    bhelp.className = 'tablo';
     this.refresh = true;
     this.getStatus();
   }
@@ -47,6 +49,8 @@ con.browse = function(what) {
     bhome.className = 'tabhi';
     fm.style.display = 'none';
     bfm.className = 'tablo';
+    help.style.display = 'none';
+    bhelp.className = 'tablo';
     this.refresh = false;
   }
   else if (what == "fm") {
@@ -57,6 +61,19 @@ con.browse = function(what) {
     bhome.className = 'tablo';
     fm.style.display = 'block';
     bfm.className = 'tabhi';
+    help.style.display = 'none';
+    bhelp.className = 'tablo';
+    this.refresh = false;
+  }
+  else if (what == "help") {
+    list.style.display = 'none';
+    blist.className = 'tablo';
+    home.style.display = 'none';
+    bhome.className = 'tablo';
+    fm.style.display = 'none';
+    bfm.className = 'tablo';
+    help.style.display = 'block';
+    bhelp.className = 'tabhi';
     this.refresh = false;
   }
 }
