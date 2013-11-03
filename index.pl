@@ -45,7 +45,7 @@ if ($get_req eq 'S') {
     }
     print "</body></html>";
     exit 0;
-} elsif ($get_req =~ /^[NRr.pfFnxXhj]$/) {
+} elsif ($get_req =~ /^[NRr.pfFnxXhjdD]$/) {
     print "</head><body></body></html>";
     `omxd $get_req` if $get_req;
     exit 0;

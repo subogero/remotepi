@@ -70,5 +70,5 @@ service apache2 restart
 Point your PC/tablet/phone's browser to http://raspberry/remotepi on your
 home WiFi network. Enjoy.
 
-The buttons wear the name of the respctive omxd commands, see the tooltips
-or omxd's README or man page.
+The buttons wear the name of the respctive omxd commands, see the tooltips,
+the "help" tab or omxd's README or man page.

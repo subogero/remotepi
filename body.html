@@ -16,8 +16,12 @@
 <button onclick="con.send('r')" title="Rewind 30s"  ><pre> &lt; </pre></button>
 <button onclick="con.send('f')" title="Forward 30s" ><pre> &gt; </pre></button>
 <button onclick="con.send('F')" title="Forward 600s"><pre>&gt;&gt;&gt;</pre></button><br/>
+<button onclick="con.send('D')" title="Previous dir"><pre>||&lt;</pre></button>
 <button onclick="con.send('x')" title="Delete track"><pre>del</pre></button>
 <button onclick="con.send('X')" title="Delete list" ><pre>DEL</pre></button>
+<button onclick="con.send('d')" title="Next dir"    ><pre>&gt;||</pre></button><br/>
+<button onclick="con.send('m')" title="Next subs"   ><pre>sub</pre></button>
+<button onclick="con.send('k')" title="Next sound"  ><pre>&lt;))</pre></button>
 <button onclick="con.send('h')" title="HDMI Audio"  ><pre>HDM</pre></button>
 <button onclick="con.send('j')" title="Jack Audio"  ><pre>Jck</pre></button><br/>
 <div class="st" id="st">Status</div>
@@ -25,12 +29,30 @@
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
 <div class="browse" id="fm">Internet Radio Stations</div>
 <div class="browse" id="help">
-<p class="even"><button>i</button> Insert into playlist before actual</p>
-<p class="odd" ><button>a</button> Insert into playlist after actual</p>
-<p class="even"><button>A</button> Append to the end of the playlist</p>
-<p class="odd" ><button>I</button> Interrupt playlist, play now</p>
-<p class="even"><button>H</button> interrupt playlist, play on HDMI</p>
-<p class="odd" ><button>J</button> interrupt playlist, play on Jack</p>
+<p class="even">Browsing</p>
+<p class="odd" ><button>i</button> Insert into playlist before actual</p>
+<p class="even"><button>a</button> Insert into playlist after actual</p>
+<p class="odd" ><button>A</button> Append to the end of the playlist</p>
+<p class="even"><button>I</button> Interrupt playlist, play now</p>
+<p class="odd" ><button>H</button> interrupt playlist, play on HDMI</p>
+<p class="even"><button>J</button> interrupt playlist, play on Jack</p>
+<p class="odd" >Playlist</p>
+<p class="even"><button><pre>|&lt;&lt;</pre></button> Previous track</p>
+<p class="odd" ><button><pre> 0 </pre></button> Restart track</p>
+<p class="even"><button><pre>||&gt;</pre></button> Play/Pause</p>
+<p class="odd" ><button><pre>&gt;&gt;|</pre></button> Next track</p>
+<p class="even"><button><pre>&lt;&lt;&lt;</pre></button> Rewind 10min</p>
+<p class="odd" ><button><pre> &lt; </pre></button> Rewind 30s</p>
+<p class="even"><button><pre> &gt; </pre></button> Forward 30s</p>
+<p class="odd" ><button><pre>&gt;&gt;&gt;</pre></button> Forward 10min</p>
+<p class="even"><button><pre>||&lt;</pre></button> Previous directory</p>
+<p class="odd" ><button><pre>del</pre></button> Delete track from list</p>
+<p class="even"><button><pre>DEL</pre></button> Delete playlist</p>
+<p class="odd" ><button><pre>&gt;||</pre></button> Next directory</p>
+<p class="even"><button><pre>sub</pre></button> Next subtitle</p>
+<p class="odd" ><button><pre>&lt;))</pre></button> Next soundtrack</p>
+<p class="even"><button><pre>HDM</pre></button> HDMI audio</p>
+<p class="odd" ><button><pre>Jck</pre></button> Jack audio</p>
 </div>
 <script>con.browse('list');</script>
 </body>
