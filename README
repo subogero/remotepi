@@ -41,6 +41,7 @@ make
 sudo make install
 
 git clone https://github.com/subogero/remotepi.git
+chmod 757 remotepi # Make remotepi writable for www-data
 
 ### Configure Apache2
 
