@@ -31,11 +31,13 @@ $get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req eq 'S') {
     print "</head><body>";
     print '<p class="now">';
-    system "omxd", $get_req;
+    (my $status = `omxd S`) =~ s/$root//;
+    print $status;
     print "</p><hr>";
     if (open PLAY, "/var/run/omxplay") {
         my $class = 'even';
         while (<PLAY>) {
+            s/$root//;
             if (s/^>\t//) {
                 print "<p class=\"now\">$_</p>\n";
             } else {
@@ -53,7 +55,7 @@ if ($get_req eq 'S') {
     exit 0;
 } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
     my $cmd = $1;
-    my $file = "$root/$2";
+    my $file = "$root$2";
     `omxd $cmd "$file"`;
     print "</head><body></body></html>";
     exit 0;
