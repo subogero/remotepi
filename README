@@ -20,9 +20,10 @@ Features:
 
 ## INSTALL
 
-### Install and start Apache2 web server
+### Install and start Apache2 web server and RemotePi's dependencies
 
 sudo apt-get install apache2
+sudo apt-get install liburi-perl
 
 ### Install omxd, rpi.fm and remotepi
 
