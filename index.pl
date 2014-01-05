@@ -34,7 +34,7 @@ if ($get_req eq 'S') {
     (my $status = `omxd S`) =~ s/$root//;
     print $status;
     print "</p><hr>";
-    if (open PLAY, "/var/run/omxplay") {
+    if (open PLAY, "/var/local/omxplay") {
         my $class = 'even';
         while (<PLAY>) {
             s/$root//;
