@@ -29,11 +29,13 @@ HEAD
 # Handle AJAX requests
 $get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req eq 'S') {
-    print "</head><body>";
-    print '<p class="now">';
+    print "</head><body>\n";
+    print "<div id=\"nowplaying\">\n<p class=\"now\">";
     (my $status = `omxd S`) =~ s/$root//;
+    $status =~ m: (\d+)/(\d+):;
+    my $progress = ($2 == 0 ? 0 : int(100 * $1 / $2)) . '%';
     print $status;
-    print "</p><hr>";
+    print "</p>\n<div style=\"width:$progress\"></div>\n</div>";
     if (open PLAY, "/var/local/omxplay") {
         my $class = 'even';
         while (<PLAY>) {
