@@ -33,7 +33,7 @@ if ($get_req eq 'S') {
     print "<div id=\"nowplaying\">\n<p class=\"now\">";
     (my $status = `omxd S`) =~ s/$root//;
     $status =~ m: (\d+)/(\d+):;
-    my $progress = ($2 == 0 ? 0 : int(100 * $1 / $2)) . '%';
+    my $progress = ($2 == 0 ? 0 : 100 * $1 / $2) . '%';
     print $status;
     print "</p>\n<div style=\"width:$progress\"></div>\n</div>";
     if (open PLAY, "/var/local/omxplay") {
