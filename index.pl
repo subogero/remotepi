@@ -3,7 +3,7 @@
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
-sub ls; sub fm; sub byalphanum; sub logger;
+sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -71,6 +71,12 @@ if ($get_req eq 'S') {
     (my $cmd = $get_req) =~ s/^fm *//;
     print "</head>";
     fm $cmd;
+    print "</html>";
+    exit 0;
+} elsif ($get_req =~ /^yt/) {
+    (my $cmd = $get_req) =~ s/^yt *//;
+    print "</head>";
+    yt $cmd;
     print "</html>";
     exit 0;
 } elsif ($get_req) {
@@ -201,6 +207,9 @@ STATION
 sub byalphanum {
     return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
     return $a cmp $b;
+}
+
+sub yt {
 }
 
 sub logger {
