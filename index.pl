@@ -57,7 +57,8 @@ if ($get_req eq 'S') {
     exit 0;
 } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
     my $cmd = $1;
-    my $file = "$root$2";
+    my $file = $2;
+    my $file = "$root$file" unless $file =~ m|://|;
     `omxd $cmd "$file"`;
     print "</head><body></body></html>";
     exit 0;
