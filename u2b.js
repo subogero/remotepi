@@ -11,3 +11,10 @@ u2b.search = function(query) {
   req.open("GET", "?yt " + query, true);
   req.send();
 }
+
+u2b.op = function(cmd, file) {
+  var req = new XMLHttpRequest();
+  var uri = "?" + cmd + " " + file;
+  req.open("GET", uri, true);
+  req.send();
+}

@@ -58,7 +58,8 @@ if ($get_req eq 'S') {
 } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
     my $cmd = $1;
     my $file = $2;
-    my $file = "$root$file" unless $file =~ m|://|;
+    $file = "$root$file" unless $file =~ m|://|;
+    logger $get_req;
     `omxd $cmd "$file"`;
     print "</head><body></body></html>";
     exit 0;
@@ -212,7 +213,36 @@ sub byalphanum {
 }
 
 sub yt {
-    print shift;
+    my $query = shift;
+    my @hits;
+    my $i;
+    open U2B, "u2b $query |";
+    while (<U2B>) {
+        $i = $1 if /^\[(\d+)\]\n/;
+        next unless /^(\w+)=(.+)\n/;
+        $hits[$i]{$1} = $2;
+    }
+    close U2B;
+    print "<body>\n";
+    my $class = 'odd';
+    foreach (@hits) {
+        print <<VIDEO;
+<p class="$class">
+<img src="$_->{thumbnail}" style="float:right">
+$_->{title}
+<br>
+<button onclick="u2b.op(&quot;i&quot;,&quot;$_->{url}&quot;)" title="insert">i</button>
+<button onclick="u2b.op(&quot;a&quot;,&quot;$_->{url}&quot;)" title="add">a</button>
+<button onclick="u2b.op(&quot;A&quot;,&quot;$_->{url}&quot;)" title="append">A</button>
+<br>
+<button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
+<button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
+<button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
+</p>
+VIDEO
+        $class = $class eq 'even' ? 'odd' : 'even';
+    }
+    print "</body>\n";
 }
 
 sub logger {
