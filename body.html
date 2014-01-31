@@ -31,8 +31,8 @@
 <div class="browse" id="fm">Internet Radio Stations</div>
 <div class="browse" id="yt">Search YouTube<br>
 <form name="ytsearch">
-<input type="text" name="ytquery" size="30" maxlength="80">
-<input type="button" value="Go" onclick="u2b.search(this.form.ytquery.value)">
+<input type="text" name="ytq" size="35" maxlength="80"
+onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 </form>
 <div id="ythits"></div>
 </div>

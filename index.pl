@@ -212,6 +212,7 @@ sub byalphanum {
 }
 
 sub yt {
+    print shift;
 }
 
 sub logger {
