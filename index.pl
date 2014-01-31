@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
+# (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
@@ -90,6 +90,7 @@ print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="raspberry.js"></script>
 <script src="fm.js"></script>
+<script src="u2b.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>

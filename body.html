@@ -29,7 +29,13 @@
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
 <div class="browse" id="fm">Internet Radio Stations</div>
-<div class="browse" id="yt">YouTube</div>
+<div class="browse" id="yt">Search YouTube<br>
+<form name="ytsearch">
+<input type="text" name="ytquery" size="30" maxlength="80">
+<input type="button" value="Go" onclick="u2b.search(this.form.ytquery.value)">
+</form>
+<div id="ythits"></div>
+</div>
 <div class="browse" id="help">
 <p class="even">Browsing</p>
 <p class="odd" ><button>i</button> Insert into playlist before actual</p>

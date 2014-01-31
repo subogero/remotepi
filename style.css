@@ -7,6 +7,10 @@ button {
   background-color:black; color:white; font-family:Monospace;
   border: 1px solid white; padding:none
 }
+input[type=button] {
+  background-color:black; color:white; font-family:Monospace;
+  border: 1px solid white; padding:none
+}
 div.st {
   background-color:black; color:white;
   font-size:80%; font-weight:bold; text-align:left;
