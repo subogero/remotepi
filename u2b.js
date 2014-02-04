@@ -8,13 +8,13 @@ u2b.search = function(query) {
       document.getElementById("ythits").innerHTML = req.responseText;
     }
   }
-  req.open("GET", "?yt " + query, true);
+  req.open("GET", "?yt search " + query, true);
   req.send();
 }
 
 u2b.op = function(cmd, file) {
   var req = new XMLHttpRequest();
-  var uri = "?" + cmd + " " + file;
+  var uri = "?yt " + cmd + " " + file;
   req.open("GET", uri, true);
   req.send();
 }

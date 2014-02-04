@@ -58,8 +58,7 @@ if ($get_req eq 'S') {
 } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
     my $cmd = $1;
     my $file = $2;
-    $file = "$root$file" unless $file =~ m|://|;
-    logger $get_req;
+    $file = "$root$file";
     `omxd $cmd "$file"`;
     print "</head><body></body></html>";
     exit 0;
@@ -212,17 +211,35 @@ sub byalphanum {
     return $a cmp $b;
 }
 
+# Browse and play YouTube
 sub yt {
-    my $query = shift;
+    (my $cmd = shift) =~ /^(\S+) (.*)/;
+    my ($cmd, $query) = ($1, $2);
+    logger "yt $cmd $query";
+    # Playback command
+    if ($cmd ne 'search') {
+        my $stream = `youtube-dl -g "$query"`;
+        $stream =~ s/\n//;
+        `omxd $cmd "$stream"`;
+        return;
+    }
+    # Search command
     my @hits;
     my $i;
-    open U2B, "u2b $query |";
-    while (<U2B>) {
-        $i = $1 if /^\[(\d+)\]\n/;
-        next unless /^(\w+)=(.+)\n/;
-        $hits[$i]{$1} = $2;
+    $query =~ s/ /%20/g;
+    $query = "https://gdata.youtube.com/feeds/api/videos?q=$query";
+    my $xml = `curl $query 2>/dev/null`;
+    while ($xml =~ m|^.*?<entry>(.+?)</media:group>(.*)|s) {
+        $xml = $2;
+        my $vid = $1;
+        next unless $vid =~ m|<link .+?href='([^']+?)&amp;|;
+        $hits[$i]{url} = $1;
+        $vid =~ m|<media:title type='plain'>(.+?)</media:title>|;
+        $hits[$i]{title} = $1;
+        $vid =~ m|<media:thumbnail url='([^']+?)' height='90'[^>]+?/>|;
+        $hits[$i]{thumbnail} = $1;
+        $i++;
     }
-    close U2B;
     print "<body>\n";
     my $class = 'odd';
     foreach (@hits) {
