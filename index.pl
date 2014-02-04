@@ -247,14 +247,14 @@ sub yt {
 <p class="$class">
 $_->{title}
 <br>
-<img src="$_->{thumbnail}">
-<br>
 <button onclick="u2b.op(&quot;i&quot;,&quot;$_->{url}&quot;)" title="insert">i</button>
 <button onclick="u2b.op(&quot;a&quot;,&quot;$_->{url}&quot;)" title="add">a</button>
 <button onclick="u2b.op(&quot;A&quot;,&quot;$_->{url}&quot;)" title="append">A</button>
 <button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
 <button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
 <button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
+<br>
+<img src="$_->{thumbnail}">
 </p>
 VIDEO
         $class = $class eq 'even' ? 'odd' : 'even';
