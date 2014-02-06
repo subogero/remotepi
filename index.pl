@@ -218,7 +218,16 @@ sub yt {
     logger "yt $cmd $query";
     # Playback command
     if ($cmd ne 'search') {
-        my $stream = `youtube-dl -g "$query"`;
+        my $cred;
+        if (open NET, ".netrc") {
+            while (<NET>) {
+                next unless /^machine youtube.com login (.+) password (.+)\n/;
+                $cred = "-u $1 -p $2";
+                last;
+            }
+            close NET;
+        }
+        my $stream = `youtube-dl $cred -g "$query" 2>>remotepi.log`;
         $stream =~ s/\n//;
         `omxd $cmd "$stream"`;
         return;

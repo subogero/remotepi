@@ -1,2 +1,3 @@
 *.log
 .rpi.fm
+.netrc
