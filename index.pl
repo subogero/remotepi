@@ -1,9 +1,9 @@
 #!/usr/bin/perl
-# C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
+# (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
-sub ls; sub fm; sub byalphanum; sub logger;
+sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -57,7 +57,8 @@ if ($get_req eq 'S') {
     exit 0;
 } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
     my $cmd = $1;
-    my $file = "$root$2";
+    my $file = $2;
+    $file = "$root$file";
     `omxd $cmd "$file"`;
     print "</head><body></body></html>";
     exit 0;
@@ -73,6 +74,12 @@ if ($get_req eq 'S') {
     fm $cmd;
     print "</html>";
     exit 0;
+} elsif ($get_req =~ /^yt/) {
+    (my $cmd = $get_req) =~ s/^yt *//;
+    print "</head>";
+    yt $cmd;
+    print "</html>";
+    exit 0;
 } elsif ($get_req) {
     print "<!-- $get_req -->\n";
     exit 0;
@@ -83,6 +90,7 @@ print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="raspberry.js"></script>
 <script src="fm.js"></script>
+<script src="u2b.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -201,6 +209,66 @@ STATION
 sub byalphanum {
     return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
     return $a cmp $b;
+}
+
+# Browse and play YouTube
+sub yt {
+    (my $cmd = shift) =~ /^(\S+) (.*)/;
+    my ($cmd, $query) = ($1, $2);
+    logger "yt $cmd $query";
+    # Playback command
+    if ($cmd ne 'search') {
+        my $cred;
+        if (open NET, ".netrc") {
+            while (<NET>) {
+                next unless /^machine youtube.com login (.+) password (.+)\n/;
+                $cred = "-u $1 -p $2";
+                last;
+            }
+            close NET;
+        }
+        my $stream = `youtube-dl $cred -g "$query" 2>>remotepi.log`;
+        $stream =~ s/\n//;
+        `omxd $cmd "$stream"`;
+        return;
+    }
+    # Search command
+    my @hits;
+    my $i;
+    $query =~ s/ /%20/g;
+    $query = "https://gdata.youtube.com/feeds/api/videos?q=$query";
+    my $xml = `curl $query 2>/dev/null`;
+    while ($xml =~ m|^.*?<entry>(.+?)</media:group>(.*)|s) {
+        $xml = $2;
+        my $vid = $1;
+        next unless $vid =~ m|<link .+?href='([^']+?)&amp;|;
+        $hits[$i]{url} = $1;
+        $vid =~ m|<media:title type='plain'>(.+?)</media:title>|;
+        $hits[$i]{title} = $1;
+        $vid =~ m|<media:thumbnail url='([^']+?)' height='90'[^>]+?/>|;
+        $hits[$i]{thumbnail} = $1;
+        $i++;
+    }
+    print "<body>\n";
+    my $class = 'odd';
+    foreach (@hits) {
+        print <<VIDEO;
+<p class="$class">
+$_->{title}
+<br>
+<button onclick="u2b.op(&quot;i&quot;,&quot;$_->{url}&quot;)" title="insert">i</button>
+<button onclick="u2b.op(&quot;a&quot;,&quot;$_->{url}&quot;)" title="add">a</button>
+<button onclick="u2b.op(&quot;A&quot;,&quot;$_->{url}&quot;)" title="append">A</button>
+<button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
+<button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
+<button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
+<br>
+<img src="$_->{thumbnail}">
+</p>
+VIDEO
+        $class = $class eq 'even' ? 'odd' : 'even';
+    }
+    print "</body>\n";
 }
 
 sub logger {

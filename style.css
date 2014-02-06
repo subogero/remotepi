@@ -7,6 +7,10 @@ button {
   background-color:black; color:white; font-family:Monospace;
   border: 1px solid white; padding:none
 }
+input[type=button] {
+  background-color:black; color:white; font-family:Monospace;
+  border: 1px solid white; padding:none
+}
 div.st {
   background-color:black; color:white;
   font-size:80%; font-weight:bold; text-align:left;
@@ -23,6 +27,7 @@ button.tablo {
 }
 div.browse { display:none }
 #fm { background-color:#404040 }
+#yt { background-color:#404040 }
 p.even { background-color:#404040; margin:0; line-height:180% }
 p.odd  { background-color:#101010; margin:0; line-height:180% }
 p.now  { color:black; background-color:#c0c0c0; margin:0; line-height:180% }
