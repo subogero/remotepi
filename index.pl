@@ -113,14 +113,24 @@ sub ls {
     push @files, $_ while readdir DIR;
     closedir DIR;
     my $class = 'even';
-    foreach (sort @files) {
+    foreach (sort { -d "$dir/$a" && -f "$dir/$b" ? -1
+                  : -f "$dir/$a" && -d "$dir/$b" ?  1
+                  :          $a     cmp      $b     } @files) {
         next if /^\.$/;
         next if /^\.\w/;
         next if /^\.\.$/ && $dir eq "$root/";
-        print "<p class=\"$class\">";
-        if (-d "$dir/$_") {
-            print <<DIR;
+        if ($_ eq '..') {
+            print <<UPDIR;
+<p class="$class">
 <a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
+</p>
+UPDIR
+        } elsif (-d "$dir/$_") {
+            print <<DIR;
+<p class="$class">
+<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
+</p>
+<p class="$class" style="text-align:right">
 <button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
 <button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
 <button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
@@ -128,6 +138,7 @@ sub ls {
 DIR
         } else {
             print <<FILE;
+<p class="$class">
 $_<br>
 <button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
 <button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
