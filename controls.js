@@ -12,13 +12,14 @@ con.getStatus = function() {
   var req = new XMLHttpRequest();
   req.onreadystatechange = function() {
     if (req.readyState == 4 && req.status == 200) {
+      /* alert("Updating st"); */
       document.getElementById("st").innerHTML = req.responseText;
     }
   }
-  req.open("GET", "?S", true);
+  req.open("GET", "?S" + Date.now().toString(), true);
   req.send();
   if (this.refresh) {
-    setTimeout("con.getStatus()",2000);
+    setTimeout("con.getStatus()",5000);
   }
 }
 

@@ -28,7 +28,7 @@ HEAD
 
 # Handle AJAX requests
 $get_req = uri_unescape $ENV{QUERY_STRING};
-if ($get_req eq 'S') {
+if ($get_req =~ /^S/) {
     print "</head><body>\n";
     print "<div id=\"nowplaying\">\n<p class=\"now\">";
     (my $status = `omxd S`) =~ s/$root//;
