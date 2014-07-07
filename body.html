@@ -9,24 +9,24 @@
 <button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
 </div>
 <div class="con" id="list">
-<button onclick="con.send('R')" title="Rewind 600s" ><pre>R</pre></button>
-<button onclick="con.send('r')" title="Rewind 30s"  ><pre>r</pre></button>
-<button onclick="con.send('.')" title="Repeat"      ><pre>.</pre></button>
-<button onclick="con.send('p')" title="Play/Pause"  ><pre>p</pre></button>
-<button onclick="con.send('f')" title="Forward 30s" ><pre>f</pre></button>
-<button onclick="con.send('F')" title="Forward 600s"><pre>F</pre></button><br/>
-<button onclick="con.send('N')" title="Previous"    ><pre>N</pre></button>
-<button onclick="con.send('x')" title="Delete track"><pre>x</pre></button>
-<button onclick="con.send('X')" title="Delete list" ><pre>X</pre></button>
-<button onclick="con.send('P')" title="Stop"        ><pre>P</pre></button>
-<button onclick="con.send('s')" title="Toggle subs" ><pre>s</pre></button>
-<button onclick="con.send('n')" title="Next"        ><pre>n</pre></button><br/>
-<button onclick="con.send('D')" title="Previous dir"><pre>D</pre></button>
-<button onclick="con.send('h')" title="HDMI Audio"  ><pre>h</pre></button>
-<button onclick="con.send('j')" title="Jack Audio"  ><pre>j</pre></button>
-<button onclick="con.send('k')" title="Next sound"  ><pre>k</pre></button>
-<button onclick="con.send('m')" title="Next subs"   ><pre>m</pre></button>
-<button onclick="con.send('d')" title="Next dir"    ><pre>d</pre></button><br/>
+<button onclick="con.send('R')" title="Rewind 600s" >R</button>
+<button onclick="con.send('r')" title="Rewind 30s"  >r</button>
+<button onclick="con.send('.')" title="Repeat"      >.</button>
+<button onclick="con.send('p')" title="Play/Pause"  >p</button>
+<button onclick="con.send('f')" title="Forward 30s" >f</button>
+<button onclick="con.send('F')" title="Forward 600s">F</button><br/>
+<button onclick="con.send('N')" title="Previous"    >N</button>
+<button onclick="con.send('x')" title="Delete track">x</button>
+<button onclick="con.send('X')" title="Delete list" >X</button>
+<button onclick="con.send('P')" title="Stop"        >P</button>
+<button onclick="con.send('s')" title="Toggle subs" >s</button>
+<button onclick="con.send('n')" title="Next"        >n</button><br/>
+<button onclick="con.send('D')" title="Previous dir">D</button>
+<button onclick="con.send('h')" title="HDMI Audio"  >h</button>
+<button onclick="con.send('j')" title="Jack Audio"  >j</button>
+<button onclick="con.send('k')" title="Next sound"  >k</button>
+<button onclick="con.send('m')" title="Next subs"   >m</button>
+<button onclick="con.send('d')" title="Next dir"    >d</button><br/>
 <div class="st" id="st">Status</div>
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
@@ -47,22 +47,24 @@ onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 <p class="odd" ><button>H</button> interrupt playlist, play on HDMI</p>
 <p class="even"><button>J</button> interrupt playlist, play on Jack</p>
 <p class="odd" >Playlist</p>
-<p class="even"><button><pre>|&lt;&lt;</pre></button> Previous track</p>
-<p class="odd" ><button><pre> 0 </pre></button> Restart track</p>
-<p class="even"><button><pre>||&gt;</pre></button> Play/Pause</p>
-<p class="odd" ><button><pre>&gt;&gt;|</pre></button> Next track</p>
-<p class="even"><button><pre>&lt;&lt;&lt;</pre></button> Rewind 10min</p>
-<p class="odd" ><button><pre> &lt; </pre></button> Rewind 30s</p>
-<p class="even"><button><pre> &gt; </pre></button> Forward 30s</p>
-<p class="odd" ><button><pre>&gt;&gt;&gt;</pre></button> Forward 10min</p>
-<p class="even"><button><pre>||&lt;</pre></button> Previous directory</p>
-<p class="odd" ><button><pre>del</pre></button> Delete track from list</p>
-<p class="even"><button><pre>DEL</pre></button> Delete playlist</p>
-<p class="odd" ><button><pre>&gt;||</pre></button> Next directory</p>
-<p class="even"><button><pre>sub</pre></button> Next subtitle</p>
-<p class="odd" ><button><pre>&lt;))</pre></button> Next soundtrack</p>
-<p class="even"><button><pre>HDM</pre></button> HDMI audio</p>
-<p class="odd" ><button><pre>Jck</pre></button> Jack audio</p>
+<p class="even"><button>R</button> Rewind 600s </p>
+<p class="odd" ><button>r</button> Rewind 30s  </p>
+<p class="even"><button>.</button> Repeat      </p>
+<p class="odd" ><button>p</button> Play/Pause  </p>
+<p class="even"><button>f</button> Forward 30s </p>
+<p class="odd" ><button>F</button> Forward 600s</p>
+<p class="even"><button>N</button> Previous    </p>
+<p class="odd" ><button>x</button> Delete track</p>
+<p class="even"><button>X</button> Delete list </p>
+<p class="odd" ><button>P</button> Stop        </p>
+<p class="even"><button>s</button> Toggle subs </p>
+<p class="odd" ><button>n</button> Next        </p>
+<p class="even"><button>D</button> Previous dir</p>
+<p class="odd" ><button>h</button> HDMI Audio  </p>
+<p class="even"><button>j</button> Jack Audio  </p>
+<p class="odd" ><button>k</button> Next sound  </p>
+<p class="even"><button>m</button> Next subs   </p>
+<p class="odd" ><button>d</button> Next dir"   </p>
 </div>
 <script>con.browse('list');</script>
 </body>
