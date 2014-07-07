@@ -93,6 +93,7 @@ print <<HEAD2;
 <script src="u2b.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
+<link rel="icon" href="rpi.jpg">
 </head>
 HEAD2
 if (open BODY, "body.html") {
