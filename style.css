@@ -29,10 +29,10 @@ div.browse { display:none }
 #fm { background-color:#404040 }
 #yt { background-color:#404040 }
 p.even { background-color:#404040; margin:0; line-height:180% }
-p.odd  { background-color:#101010; margin:0; line-height:180% }
-p.now  { color:black; background-color:#c0c0c0; margin:0; line-height:180% }
-#nowplaying { background-color:#c0c0c0; padding:2px }
-#nowplaying > div { background-color:black; height:5px }
+p.odd  { background-color:black; margin:0; line-height:180% }
+p.now  { background-color:#202020; color:#fff080; margin:0; line-height:180% }
+#nowplaying { background-color:#black; padding:5px }
+#nowplaying > div { background-color:#fff080; height:5px }
 a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
 a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }
 hr { border:0; padding:0 }

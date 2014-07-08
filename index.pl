@@ -116,10 +116,10 @@ IMG
     }
     print <<ST;
 </head><body>
-<div id="nowplaying">
-<p class="now">
+<p class="even">
 $image$print_st
 </p>
+<div id="nowplaying">
 <div style="width:$progress"></div>
 </div>
 ST
