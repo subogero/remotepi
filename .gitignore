@@ -1,3 +1,9 @@
 *.log
 .rpi.fm
 .netrc
+*.jpg
+*.JPG
+*.jpeg
+*.JPEG
+*.png
+*.PNG

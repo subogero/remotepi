@@ -19,7 +19,7 @@ con.getStatus = function() {
   req.open("GET", "?S" + Date.now().toString(), true);
   req.send();
   if (this.refresh) {
-    setTimeout("con.getStatus()",5000);
+    setTimeout("con.getStatus()", 3000);
   }
 }
 

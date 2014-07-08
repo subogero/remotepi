@@ -29,27 +29,7 @@ HEAD
 # Handle AJAX requests
 $get_req = uri_unescape $ENV{QUERY_STRING};
 if ($get_req =~ /^S/) {
-    print "</head><body>\n";
-    print "<div id=\"nowplaying\">\n<p class=\"now\">";
-    (my $status = `omxd S`) =~ s/$root//;
-    $status =~ m: (\d+)/(\d+):;
-    my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
-    print $status;
-    print "</p>\n<div style=\"width:$progress\"></div>\n</div>";
-    if (open PLAY, "/var/local/omxplay") {
-        my $class = 'even';
-        while (<PLAY>) {
-            s/$root//;
-            if (s/^>\t//) {
-                print "<p class=\"now\">$_</p>\n";
-            } else {
-                print "<p class=\"$class\">$_</p>\n";
-            }
-            $class = $class eq 'even' ? 'odd' : 'even';
-        }
-        close PLAY;
-    }
-    print "</body></html>";
+    status();
     exit 0;
 } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
     print "</head><body></body></html>";
@@ -101,6 +81,63 @@ if (open BODY, "body.html") {
     close BODY;
 }
 print "</html>\n";
+
+# Print playlist status
+sub status {
+    (my $status = `omxd S`) =~ s/$root//;
+    $status =~ m: (\d+)/(\d+):;
+    my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
+    my $print_st = $status;
+    my $dir;
+    if ($print_st =~ m|^(\w+ \d+/\d+ )(.+)|) {
+        my ($where, $what) = ($1, $2);
+        if ($what =~ m|^(/.+)/[^/]+$|) {
+            $dir = $1;
+            $what =~ s|/|<br>|g;
+        } else {
+            $what =~ s/^/<br>/;
+        }
+        $print_st = "$where$what";
+    }
+    my $image;
+    if ($dir && opendir DIR, "$root$dir") {
+        while (readdir DIR) {
+            if (/(png|jpe?g)$/i) {
+                `ln -s "$root$dir/$_"`;
+                $image = <<IMG;
+<img
+style=\"float:right\"
+width=\"80\" height=\"80\"
+src=\"$_\">
+IMG
+                last;
+            }
+        }
+    }
+    print <<ST;
+</head><body>
+<div id="nowplaying">
+<p class="now">
+$image$print_st
+</p>
+<div style="width:$progress"></div>
+</div>
+ST
+    if (open PLAY, "/var/local/omxplay") {
+        my $class = 'even';
+        while (<PLAY>) {
+            s/$root//;
+            if (s/^>\t//) {
+                print "<p class=\"now\">$_</p>\n";
+            } else {
+                print "<p class=\"$class\">$_</p>\n";
+            }
+            $class = $class eq 'even' ? 'odd' : 'even';
+        }
+        close PLAY;
+    }
+    print "</body></html>";
+}
 
 # Browse Raspberry Pi
 sub ls {
