@@ -134,7 +134,7 @@ ST
     print "</body></html>";
 }
 
-# Enhance the playback status to humand readable form
+# Enhance the playback status to human readable form
 sub where_human {
     my $old = shift;
     return "Stopped" unless $old;
@@ -155,27 +155,23 @@ sub where_human {
 # Get thumbnail image link from current playback directory
 sub thumbnail {
     my $dir = shift;
-    my $image;
-    if ($dir && opendir DIR, "$dir") {
-        my $pwd = getcwd;
-        while (readdir DIR) {
-            if ($dir eq $pwd) {
-                next if $_ eq 'rpi.jpg';
-                my $mode = (lstat $_)[2];
-                if (($mode & S_IFLNK) == S_IFLNK) {
-                    unlink $_;
-                    next;
-                }
-            }
-            if (/(png|jpe?g)$/i) {
-                `ln -s "$dir/$_"`;
-                return <<IMG;
+    my $action = shift || 'link';
+    my $pwd = getcwd;
+    return if $action eq 'purge' && $pwd ne $dir;
+    return unless $dir && opendir DIR, $dir;
+    while (readdir DIR) {
+        next unless /(png|jpe?g)$/i;
+        next if $_ eq 'rpi.jpg';
+        if ($action eq 'purge') {
+            unlink $_;
+        } elsif ($action eq 'link') {
+            system "ln -s $dir/$_";
+            return <<IMG;
 <img
 style=\"float:right\"
 width=\"80\" height=\"80\"
 src=\"$_\">
 IMG
-            }
         }
     }
     return;
@@ -309,6 +305,7 @@ sub yt {
     logger "yt $cmd $query";
     # Playback command
     if ($cmd ne 'search') {
+        thumbnail getcwd, 'purge';
         system "rpyt -$cmd $query";
         logger "rpyt -$cmd $query";
         return;
