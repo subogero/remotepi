@@ -3,6 +3,8 @@
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
+use Fcntl ':mode';
+use Cwd;
 sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
 # Get root directory
@@ -84,8 +86,7 @@ print "</html>\n";
 
 # Print playlist status
 sub status {
-    (my $status = `omxd S`) =~ s/$root//;
-    $status =~ m: (\d+)/(\d+):;
+    (my $status = `omxd S`) =~ m: (\d+)/(\d+):;
     my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
     my $print_st = $status;
     my $dir;
@@ -93,6 +94,7 @@ sub status {
         my ($where, $what) = ($1, $2);
         if ($what =~ m|^(/.+)/[^/]+$|) {
             $dir = $1;
+            $what =~ s|^$root||;
             $what =~ s|/|<br>|g;
         } else {
             $what =~ s/^/<br>/;
@@ -100,10 +102,20 @@ sub status {
         $print_st = "$where$what";
     }
     my $image;
-    if ($dir && opendir DIR, "$root$dir") {
+    if ($dir && opendir DIR, "$dir") {
+        my $pwd = getcwd;
         while (readdir DIR) {
+            if ($dir eq $pwd) {
+                next if $_ eq 'rpi.jpg';
+                my $mode = (lstat $_)[2];
+                my $omode = sprintf "%6o", $mode;
+                if (($mode & S_IFLNK) == S_IFLNK) {
+                    unlink $_;
+                    next;
+                }
+            }
             if (/(png|jpe?g)$/i) {
-                `ln -s "$root$dir/$_"`;
+                `ln -s "$dir/$_"`;
                 $image = <<IMG;
 <img
 style=\"float:right\"
@@ -267,18 +279,8 @@ sub yt {
     logger "yt $cmd $query";
     # Playback command
     if ($cmd ne 'search') {
-        my $cred;
-        if (open NET, ".netrc") {
-            while (<NET>) {
-                next unless /^machine youtube.com login (.+) password (.+)\n/;
-                $cred = "-u $1 -p $2";
-                last;
-            }
-            close NET;
-        }
-        my $stream = `youtube-dl $cred -g "$query" 2>>remotepi.log`;
-        $stream =~ s/\n//;
-        `omxd $cmd "$stream"`;
+        system "rpyt -$cmd $query";
+        logger "rpyt -$cmd $query";
         return;
     }
     # Search command
@@ -305,9 +307,6 @@ sub yt {
 <p class="$class">
 $_->{title}
 <br>
-<button onclick="u2b.op(&quot;i&quot;,&quot;$_->{url}&quot;)" title="insert">i</button>
-<button onclick="u2b.op(&quot;a&quot;,&quot;$_->{url}&quot;)" title="add">a</button>
-<button onclick="u2b.op(&quot;A&quot;,&quot;$_->{url}&quot;)" title="append">A</button>
 <button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
 <button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
 <button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
