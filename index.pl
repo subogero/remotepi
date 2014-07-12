@@ -5,6 +5,7 @@ use CGI::Carp qw(fatalsToBrowser);
 use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
+sub status; sub thumbnail; sub where_human;
 sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
 # Get root directory
@@ -89,9 +90,9 @@ sub status {
     (my $status = `omxd S`) =~ m: (\d+)/(\d+):;
     my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
     my $print_st = $status;
-    my $dir;
+    my ($where, $what, $dir);
     if ($print_st =~ m|^(\w+ \d+/\d+ )(.+)|) {
-        my ($where, $what) = ($1, $2);
+        ($where, $what) = ($1, $2);
         if ($what =~ m|^(/.+)/[^/]+$|) {
             $dir = $1;
             $what =~ s|^$root||;
@@ -99,37 +100,19 @@ sub status {
         } else {
             $what =~ s/^/<br>/;
         }
-        $print_st = "$where$what";
     }
-    my $image;
-    if ($dir && opendir DIR, "$dir") {
-        my $pwd = getcwd;
-        while (readdir DIR) {
-            if ($dir eq $pwd) {
-                next if $_ eq 'rpi.jpg';
-                my $mode = (lstat $_)[2];
-                my $omode = sprintf "%6o", $mode;
-                if (($mode & S_IFLNK) == S_IFLNK) {
-                    unlink $_;
-                    next;
-                }
-            }
-            if (/(png|jpe?g)$/i) {
-                `ln -s "$dir/$_"`;
-                $image = <<IMG;
-<img
-style=\"float:right\"
-width=\"80\" height=\"80\"
-src=\"$_\">
-IMG
-                last;
-            }
-        }
+    $where = where_human $where;
+    my $image = thumbnail $dir;
+    # Special case: YouTube playback status
+    if ($what =~ /rpyt\.fifo/) {
+        (my $title = $image) =~ s/^.+src="(.+)\..+$/$1/s;
+        $title =~ s/[-_]/ /g;
+        $what = "<br>YouTube<br>=======<br>$title";
     }
     print <<ST;
 </head><body>
 <p class="even">
-$image$print_st
+$image$where$what
 </p>
 <div id="nowplaying">
 <div style="width:$progress"></div>
@@ -149,6 +132,53 @@ ST
         close PLAY;
     }
     print "</body></html>";
+}
+
+# Enhance the playback status to humand readable form
+sub where_human {
+    my $old = shift;
+    return "Stopped" unless $old;
+    $old =~ m|^(.+) (\d+)/(\d+)|;
+    my ($st, $now, $all) = ($1, $2, $3);
+    foreach ($now, $all) {
+        my $s = $_ % 60;
+        my $m = $_ / 60 % 60;
+        my $h = int($_ / 3600);
+        $_ = '';
+        $_ = "$h:" if $h;
+        $_ .= $m < 10 ? "0$m:" : "$m:" if $_ || $m;
+        $_ .= $s < 10 ? "0$s"  : "$s"  if $_ || $s;
+    }
+    return "$st $now" . ($all && " / $all");
+}
+
+# Get thumbnail image link from current playback directory
+sub thumbnail {
+    my $dir = shift;
+    my $image;
+    if ($dir && opendir DIR, "$dir") {
+        my $pwd = getcwd;
+        while (readdir DIR) {
+            if ($dir eq $pwd) {
+                next if $_ eq 'rpi.jpg';
+                my $mode = (lstat $_)[2];
+                if (($mode & S_IFLNK) == S_IFLNK) {
+                    unlink $_;
+                    next;
+                }
+            }
+            if (/(png|jpe?g)$/i) {
+                `ln -s "$dir/$_"`;
+                return <<IMG;
+<img
+style=\"float:right\"
+width=\"80\" height=\"80\"
+src=\"$_\">
+IMG
+            }
+        }
+    }
+    return;
 }
 
 # Browse Raspberry Pi
