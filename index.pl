@@ -168,9 +168,9 @@ sub thumbnail {
             system "ln -s $dir/$_";
             return <<IMG;
 <img
-style=\"float:right\"
-width=\"80\" height=\"80\"
-src=\"$_\">
+style="float:right"
+height="80"
+src="$_">
 IMG
         }
     }
