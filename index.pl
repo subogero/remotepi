@@ -165,7 +165,7 @@ sub thumbnail {
         if ($action eq 'purge') {
             unlink $_;
         } elsif ($action eq 'link') {
-            system "ln -s $dir/$_";
+            system qq(ln -s "$dir/$_");
             return <<IMG;
 <img
 style="float:right"
@@ -306,8 +306,8 @@ sub yt {
     # Playback command
     if ($cmd ne 'search') {
         thumbnail getcwd, 'purge';
-        system "rpyt -$cmd $query";
-        logger "rpyt -$cmd $query";
+        system qq(rpyt -$cmd "$query");
+        logger qq(rpyt -$cmd "$query");
         return;
     }
     # Search command
