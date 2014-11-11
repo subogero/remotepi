@@ -21,6 +21,10 @@ Features:
 
 ## INSTALL
 
+sudo make install
+
+## MANUAL INSTALL
+
 ### Install and start Apache2 web server and RemotePi's dependencies
 
 sudo apt-get install apache2
