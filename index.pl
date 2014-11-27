@@ -87,7 +87,11 @@ print "</html>\n";
 
 # Print playlist status
 sub status {
-    (my $status = `omxd S`) =~ m: (\d+)/(\d+):;
+    unless (open PLAY, "omxd S all |") {
+        print '</head><body>Unable to access omxd status</body></html>';
+        return;
+    }
+    (my $status = <PLAY>) =~ m: (\d+)/(\d+):;
     my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
     my $print_st = $status;
     my ($where, $what, $dir);
@@ -118,19 +122,17 @@ $image$where$what
 <div style="width:$progress"></div>
 </div>
 ST
-    if (open PLAY, "/var/local/omxplay") {
-        my $class = 'even';
-        while (<PLAY>) {
-            s/$root//;
-            if (s/^>\t//) {
-                print "<p class=\"now\">$_</p>\n";
-            } else {
-                print "<p class=\"$class\">$_</p>\n";
-            }
-            $class = $class eq 'even' ? 'odd' : 'even';
+    my $class = 'even';
+    while (<PLAY>) {
+        s/$root//;
+        if (s/^>\s//) {
+            print "<p class=\"now\">$_</p>\n";
+        } else {
+            print "<p class=\"$class\">$_</p>\n";
         }
-        close PLAY;
+        $class = $class eq 'even' ? 'odd' : 'even';
     }
+    close PLAY;
     print "</body></html>";
 }
 
