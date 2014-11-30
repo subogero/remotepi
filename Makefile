@@ -37,4 +37,4 @@ rpi.fm:
 youtube-dl:
 	curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 ps:
-	pstree -pu | grep index.pl
+	pstree -pu | grep api.pl
