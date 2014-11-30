@@ -25,73 +25,44 @@ while (new CGI::Fast) {
     print <<HEAD;
 Content-type: text/html
 
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
 HEAD
 
     # Handle AJAX requests
     $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
         status();
-        exit 0;
+        next;
     } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
-        print "</head><body></body></html>";
         `omxd $get_req` if $get_req;
-        exit 0;
+        next;
     } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
         my $cmd = $1;
         my $file = $2;
         $file = "$root$file";
         `omxd $cmd "$file"`;
-        print "</head><body></body></html>";
-        exit 0;
+        next;
     } elsif ($get_req =~ /^home/) {
         (my $dir = $get_req) =~ s/^home //;
-        print "</head>";
         ls $dir;
-        print "</html>";
-        exit 0;
+        next;
     } elsif ($get_req =~ /^fm/) {
         (my $cmd = $get_req) =~ s/^fm *//;
-        print "</head>";
         fm $cmd;
-        print "</html>";
-        exit 0;
+        next;
     } elsif ($get_req =~ /^yt/) {
         (my $cmd = $get_req) =~ s/^yt *//;
-        print "</head>";
         yt $cmd;
-        print "</html>";
-        exit 0;
+        next;
     } elsif ($get_req) {
         print "<!-- $get_req -->\n";
-        exit 0;
+        next;
     }
-    
-    # Or continue the normal page
-    print <<HEAD2;
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="raspberry.js"></script>
-<script src="fm.js"></script>
-<script src="u2b.js"></script>
-<script src="controls.js"></script>
-<link rel="stylesheet" type="text/css" href="style.css">
-<link rel="icon" href="rpi.jpg">
-</head>
-HEAD2
-    if (open BODY, "body.html") {
-        print while <BODY>;
-        close BODY;
-    }
-    print "</html>\n";
 }
 
 # Print playlist status
 sub status {
     unless (open PLAY, "omxd S all |") {
-        print '</head><body>Unable to access omxd status</body></html>';
+        print 'Unable to access omxd status';
         return;
     }
     (my $status = <PLAY>) =~ m: (\d+)/(\d+):;
@@ -117,7 +88,6 @@ sub status {
         $what = "<br>YouTube<br>=======<br>$title";
     }
     print <<ST;
-</head><body>
 <p class="even">
 $image$where$what
 </p>
@@ -136,7 +106,6 @@ ST
         $class = $class eq 'even' ? 'odd' : 'even';
     }
     close PLAY;
-    print "</body></html>";
 }
 
 # Enhance the playback status to human readable form
@@ -189,7 +158,6 @@ sub ls {
     $dir = $dir =~ /^\./ ? $root : "$root$dir";
     # Sanitize dir: remove double slashes, cd .. until really dir
     $dir =~ s|(.+)/.+|$1| while ! -d $dir;
-    print "<body>\n";
     opendir DIR, $dir;
     push @files, $_ while readdir DIR;
     closedir DIR;
@@ -232,21 +200,19 @@ FILE
         }
         $class = $class eq 'even' ? 'odd' : 'even';
     }
-    print "</body>\n";
 }
 
 # Browse internet radio stations
 sub fm {
     my $cmd = shift;
     print <<EOF;
-<body><p class="even">
+<p class="even">
 <button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
 <button onclick="rpifm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
 </p><p class="odd">
 EOF
     my $class = 'odd';
     unless ($cmd) {
-        print "</body>\n";
         return;
     }
     my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
@@ -332,7 +298,6 @@ sub yt {
         $hits[$i]{thumbnail} = $1;
         $i++;
     }
-    print "<body>\n";
     my $class = 'odd';
     foreach (@hits) {
         print <<VIDEO;
@@ -348,7 +313,6 @@ $_->{title}
 VIDEO
         $class = $class eq 'even' ? 'odd' : 'even';
     }
-    print "</body>\n";
 }
 
 sub logger {

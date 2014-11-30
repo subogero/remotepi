@@ -9,7 +9,7 @@ rpifm.sendcmds = function() {
       document.getElementById("fm").innerHTML = req.responseText;
     }
   }
-  req.open("GET", "?fm " + this.cmds, true);
+  req.open("GET", "api.pl?fm " + this.cmds, true);
   req.send();
 }
 

@@ -8,7 +8,7 @@ rpi.ls = function() {
       document.getElementById("home").innerHTML = req.responseText;
     }
   }
-  req.open("GET", "?home " + this.pwd, true);
+  req.open("GET", "api.pl?home " + this.pwd, true);
   req.send();
 }
 
@@ -24,7 +24,7 @@ rpi.cd = function(dir) {
 
 rpi.op = function(cmd, file) {
   var req = new XMLHttpRequest();
-  var uri = "?" + cmd + " " + this.pwd + file;
+  var uri = "api.pl?" + cmd + " " + this.pwd + file;
   req.open("GET", uri, true);
   req.send();
 }
