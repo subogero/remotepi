@@ -2,6 +2,7 @@
 # (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
 use CGI::Carp qw(fatalsToBrowser);
+use CGI::Fast;
 use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
@@ -20,7 +21,8 @@ if (open CFG, "/etc/omxd.conf") {
 }
 
 # Common head part for normal page and AJAX responses
-print <<HEAD;
+while (new CGI::Fast) {
+    print <<HEAD;
 Content-type: text/html
 
 <!DOCTYPE html>
@@ -29,47 +31,47 @@ Content-type: text/html
 <meta charset="UTF-8">
 HEAD
 
-# Handle AJAX requests
-$get_req = uri_unescape $ENV{QUERY_STRING};
-if ($get_req =~ /^S/) {
-    status();
-    exit 0;
-} elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
-    print "</head><body></body></html>";
-    `omxd $get_req` if $get_req;
-    exit 0;
-} elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
-    my $cmd = $1;
-    my $file = $2;
-    $file = "$root$file";
-    `omxd $cmd "$file"`;
-    print "</head><body></body></html>";
-    exit 0;
-} elsif ($get_req =~ /^home/) {
-    (my $dir = $get_req) =~ s/^home //;
-    print "</head>";
-    ls $dir;
-    print "</html>";
-    exit 0;
-} elsif ($get_req =~ /^fm/) {
-    (my $cmd = $get_req) =~ s/^fm *//;
-    print "</head>";
-    fm $cmd;
-    print "</html>";
-    exit 0;
-} elsif ($get_req =~ /^yt/) {
-    (my $cmd = $get_req) =~ s/^yt *//;
-    print "</head>";
-    yt $cmd;
-    print "</html>";
-    exit 0;
-} elsif ($get_req) {
-    print "<!-- $get_req -->\n";
-    exit 0;
-}
-
-# Or continue the normal page
-print <<HEAD2;
+    # Handle AJAX requests
+    $get_req = uri_unescape $ENV{QUERY_STRING};
+    if ($get_req =~ /^S/) {
+        status();
+        exit 0;
+    } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
+        print "</head><body></body></html>";
+        `omxd $get_req` if $get_req;
+        exit 0;
+    } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
+        my $cmd = $1;
+        my $file = $2;
+        $file = "$root$file";
+        `omxd $cmd "$file"`;
+        print "</head><body></body></html>";
+        exit 0;
+    } elsif ($get_req =~ /^home/) {
+        (my $dir = $get_req) =~ s/^home //;
+        print "</head>";
+        ls $dir;
+        print "</html>";
+        exit 0;
+    } elsif ($get_req =~ /^fm/) {
+        (my $cmd = $get_req) =~ s/^fm *//;
+        print "</head>";
+        fm $cmd;
+        print "</html>";
+        exit 0;
+    } elsif ($get_req =~ /^yt/) {
+        (my $cmd = $get_req) =~ s/^yt *//;
+        print "</head>";
+        yt $cmd;
+        print "</html>";
+        exit 0;
+    } elsif ($get_req) {
+        print "<!-- $get_req -->\n";
+        exit 0;
+    }
+    
+    # Or continue the normal page
+    print <<HEAD2;
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="raspberry.js"></script>
 <script src="fm.js"></script>
@@ -79,11 +81,12 @@ print <<HEAD2;
 <link rel="icon" href="rpi.jpg">
 </head>
 HEAD2
-if (open BODY, "body.html") {
-    print while <BODY>;
-    close BODY;
+    if (open BODY, "body.html") {
+        print while <BODY>;
+        close BODY;
+    }
+    print "</html>\n";
 }
-print "</html>\n";
 
 # Print playlist status
 sub status {
