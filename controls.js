@@ -4,7 +4,7 @@ con.refresh = false;
 
 con.send = function(cmd) {
   var req = new XMLHttpRequest();
-  req.open("GET", "?" + cmd, true);
+  req.open("GET", "api.pl?" + cmd, true);
   req.send();
 }
 
@@ -16,10 +16,10 @@ con.getStatus = function() {
       document.getElementById("st").innerHTML = req.responseText;
     }
   }
-  req.open("GET", "?S" + Date.now().toString(), true);
+  req.open("GET", "api.pl?S" + Date.now().toString(), true);
   req.send();
   if (this.refresh) {
-    setTimeout("con.getStatus()", 3000);
+    setTimeout("con.getStatus()", 2000);
   }
 }
 

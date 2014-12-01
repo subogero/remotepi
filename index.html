@@ -1,4 +1,16 @@
+<!DOCTYPE html>
 <!-- (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 -->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="raspberry.js"></script>
+<script src="fm.js"></script>
+<script src="u2b.js"></script>
+<script src="controls.js"></script>
+<link rel="stylesheet" type="text/css" href="style.css">
+<link rel="icon" href="rpi.jpg">
+</head>
 <body>
 <script>con.getStatus();</script>
 <div class="con">
@@ -68,3 +80,4 @@ onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 </div>
 <script>con.browse('list');</script>
 </body>
+</html>

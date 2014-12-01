@@ -1,5 +1,5 @@
-install: omxd rpi.fm youtube-dl
-	apt-get install apache2 liburi-perl
+install: uninstall omxd rpi.fm youtube-dl
+	apt-get install apache2 libapache2-mod-fcgid liburi-perl libcgi-fast-perl
 	chmod 757 .
 	grep remotepi /etc/apache2/sites-available/default || ( \
 	  cp /etc/apache2/sites-available/default apache.orig; \
@@ -10,7 +10,12 @@ install: omxd rpi.fm youtube-dl
 	)
 	-ln -s `pwd` /var/www
 	service apache2 restart
-
+uninstall:
+	grep remotepi /etc/apache2/sites-available/default && ( \
+	  sed '/remotepi/,/<\/Directory/d' -i /etc/apache2/sites-available/default \
+	)
+	rm /var/www/remotepi
+	service apache2 restart
 omxd:
 	which omxd || ( \
 	  git clone https://github.com/subogero/omxd.git; \
@@ -30,3 +35,5 @@ rpi.fm:
 	)
 youtube-dl:
 	curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+ps:
+	pstree -pu | grep api.pl
