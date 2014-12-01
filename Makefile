@@ -1,7 +1,7 @@
 install: uninstall omxd rpi.fm youtube-dl
 	apt-get install apache2 libapache2-mod-fcgid liburi-perl libcgi-fast-perl
 	chmod 757 .
-	grep fastpi /etc/apache2/sites-available/default || ( \
+	grep remotepi /etc/apache2/sites-available/default || ( \
 	  cp /etc/apache2/sites-available/default apache.orig; \
 	  sed '/<\/Virtual/d' /etc/apache2/sites-available/default \
 	  | cat - apache.cfg > apache.new; \
@@ -11,10 +11,10 @@ install: uninstall omxd rpi.fm youtube-dl
 	-ln -s `pwd` /var/www
 	service apache2 restart
 uninstall:
-	grep fastpi /etc/apache2/sites-available/default && ( \
-	  sed '/fastpi/,/<\/Directory/d' -i /etc/apache2/sites-available/default \
+	grep remotepi /etc/apache2/sites-available/default && ( \
+	  sed '/remotepi/,/<\/Directory/d' -i /etc/apache2/sites-available/default \
 	)
-	rm /var/www/fastpi
+	rm /var/www/remotepi
 	service apache2 restart
 omxd:
 	which omxd || ( \
