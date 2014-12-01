@@ -19,14 +19,15 @@ if (open CFG, "/etc/omxd.conf") {
 } else {
     $root = "/home";
 }
+# Open log file
+open LOG, ">remotepi.log" or return;
 
-# Common head part for normal page and AJAX responses
+# FastCGI main loop to handle AJAX requests
 while (new CGI::Fast) {
     print <<HEAD;
 Content-type: text/html
 
 HEAD
-
     # Handle AJAX requests
     $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
@@ -317,8 +318,7 @@ VIDEO
 }
 
 sub logger {
-    open LOG, ">>remotepi.log" or return;
+    return if tell LOG == -1;
     my $msg = shift;
     print LOG "\n", time(), " PID: $$\n", $msg, "\n";
-    close LOG;
 }
