@@ -159,6 +159,7 @@ sub ls {
     # Sanitize dir: remove double slashes, cd .. until really dir
     $dir =~ s|(.+)/.+|$1| while ! -d $dir;
     opendir DIR, $dir;
+    my @files;
     push @files, $_ while readdir DIR;
     closedir DIR;
     my $class = 'even';
