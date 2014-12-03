@@ -9,10 +9,11 @@ install: uninstall omxd rpi.fm youtube-dl
 	  mv apache.new /etc/apache2/sites-available/default; \
 	)
 	-ln -s `pwd` /var/www
+	a2enmod rewrite
 	service apache2 restart
 uninstall:
 	-grep restpi /etc/apache2/sites-available/default && ( \
-	  sed '/restpi/,/<\/Directory/d' -i /etc/apache2/sites-available/default \
+	  sed '/RewriteEngine/,/<\/Directory/d' -i /etc/apache2/sites-available/default \
 	)
 	-rm /var/www/restpi && service apache2 restart
 omxd:
