@@ -1,11 +1,13 @@
 #!/usr/bin/perl
 # (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use URI::Escape;
+use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Fast;
 use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
+use JSON::XS;
 sub status; sub thumbnail; sub where_human;
 sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
@@ -24,48 +26,55 @@ open LOG, ">remotepi.log" or return;
 
 # FastCGI main loop to handle AJAX requests
 while (new CGI::Fast) {
-    print <<HEAD;
-Content-type: text/html
-
-HEAD
-    # Handle AJAX requests
     $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
         status();
-        next;
     } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
-        `omxd $get_req` if $get_req;
-        next;
+        print header 'text/plain';
+        `omxd $get_req`;
     } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
+        print header 'text/plain';
         my $cmd = $1;
         my $file = $2;
         $file = "$root$file";
         `omxd $cmd "$file"`;
-        next;
     } elsif ($get_req =~ /^home/) {
+        print header 'text/html';
         (my $dir = $get_req) =~ s/^home //;
         ls $dir;
-        next;
     } elsif ($get_req =~ /^fm/) {
+        print header 'text/html';
         (my $cmd = $get_req) =~ s/^fm *//;
         fm $cmd;
-        next;
     } elsif ($get_req =~ /^yt/) {
+        print header 'text/html';
         (my $cmd = $get_req) =~ s/^yt *//;
         yt $cmd;
-        next;
     } elsif ($get_req) {
+        print header 'text/html';
         print "<!-- $get_req -->\n";
-        next;
     }
 }
 
 # Print playlist status
 sub status {
     unless (open PLAY, "omxd S all |") {
-        print 'Unable to access omxd status';
+        print header('text/html', '500 Unable to access omxd status');
         return;
     }
+    print header(-type => 'application/json', -charset => 'utf-8');
+    my ($status, $progress, $what) = split /\s/, <PLAY>;
+    my $response = { status => $status, progress => $progress, what => $what };
+    @{$response->{list}} = <PLAY>;
+    print encode_json $response;
+}
+
+sub status_old {
+    unless (open PLAY, "omxd S all |") {
+        print header('text/html', '500 Unable to access omxd status');
+        return;
+    }
+    print header(-type => 'text/html', -charset => 'utf-8');
     (my $status = <PLAY>) =~ m: (\d+)/(\d+):;
     my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
     my $print_st = $status;
