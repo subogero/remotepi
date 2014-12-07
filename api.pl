@@ -22,7 +22,7 @@ if (open CFG, "/etc/omxd.conf") {
     $root = "/home";
 }
 # Open log file
-open LOG, ">remotepi.log" or return;
+open LOG, ">remotepi.log";
 
 # FastCGI main loop to handle AJAX requests
 while (new CGI::Fast) {
@@ -63,9 +63,12 @@ sub status {
         return;
     }
     print header(-type => 'application/json', -charset => 'utf-8');
-    my ($status, $progress, $what) = split /\s/, <PLAY>;
-    my $response = { status => $status, progress => $progress, what => $what };
-    @{$response->{list}} = <PLAY>;
+    my $now = <PLAY>;
+    chomp $now;
+    my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    $what =~ s/$root//;
+    my $response = { doing => $doing, at => $at, of => $of, what => $what };
+    @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
     print encode_json $response;
 }
 

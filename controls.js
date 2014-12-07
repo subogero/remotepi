@@ -12,14 +12,30 @@ con.getStatus = function() {
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
-            document.getElementById("st").innerHTML = req.responseText;
+            con.status2html(JSON.parse(req.responseText));
         }
     }
-    req.open("GET", "api.pl?S" + Date.now().toString(), true);
+    req.open("GET", "S" + Date.now().toString(), true);
     req.send();
     if (this.refresh) {
         setTimeout("con.getStatus()", 2000);
     }
+}
+
+con.status2html = function(st) {
+    var html = '<p class="even">';
+    html += st.doing + ' ' + st.at + ' / ' + st.of + '<br>';
+    html += st.what.split('/').join('<br>');
+    html += '</p>';
+    var bar = (st.of == 0    ? 0
+             : st.at > st.of ? 100
+             :                 100 * st.at/st.of).toString() + '%';
+    html += '<div id="nowplaying"><div style="width:' + bar + '"></div></div>';
+    for (i = 0; i < st.list.length; i++) {
+        var c = st.list[i] == st.what ? 'now' : i % 2 ? 'odd' : 'even';
+        html += '<p class="' + c + '">' + st.list[i] + '</p>';
+    }
+    document.getElementById("st").innerHTML = html;
 }
 
 con.browse = function(what) {
