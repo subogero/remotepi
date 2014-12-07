@@ -24,8 +24,12 @@ con.getStatus = function() {
 
 con.status2html = function(st) {
     var html = '<p class="even">';
-    html += st.doing + ' ' + st.at + ' / ' + st.of + '<br>';
-    html += st.what.split('/').join('<br>');
+    html += st.doing + ' ' + con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
+    if (st.what.charAt(0) == '/') {
+        html += st.what.substring(1).split('/').join('<br>');
+    } else {
+        html += st.what;
+    }
     html += '</p>';
     var bar = (st.of == 0    ? 0
              : st.at > st.of ? 100
@@ -36,6 +40,11 @@ con.status2html = function(st) {
         html += '<p class="' + c + '">' + st.list[i] + '</p>';
     }
     document.getElementById("st").innerHTML = html;
+}
+
+con.s2t = function(s) {
+    var t = new Date(s * 1000);
+    return t.toUTCString().split(' ')[4];
 }
 
 con.browse = function(what) {

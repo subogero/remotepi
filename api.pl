@@ -67,7 +67,7 @@ sub status {
     chomp $now;
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
     $what =~ s/$root//;
-    my $response = { doing => $doing, at => $at, of => $of, what => $what };
+    my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
     print encode_json $response;
 }
