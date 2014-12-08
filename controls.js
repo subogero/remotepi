@@ -24,6 +24,9 @@ con.getStatus = function() {
 
 con.status2html = function(st) {
     var html = '<p class="even">';
+    if (st.image) {
+        html += '<img style="float:right" height="80" src="' + st.image + '">';
+    }
     html += st.doing + ' ' + con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
     if (st.what.charAt(0) == '/') {
         html += st.what.substring(1).split('/').join('<br>');

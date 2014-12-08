@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 # (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
+use feature state;
 use URI::Escape;
 use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
@@ -8,7 +9,7 @@ use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
 use JSON::XS;
-sub status; sub thumbnail; sub where_human;
+sub status; sub thumbnail;
 sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
 # Get root directory
@@ -66,102 +67,33 @@ sub status {
     my $now = <PLAY>;
     chomp $now;
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
+    $response->{image} = thumbnail $dir;
     print encode_json $response;
-}
-
-sub status_old {
-    unless (open PLAY, "omxd S all |") {
-        print header('text/html', '500 Unable to access omxd status');
-        return;
-    }
-    print header(-type => 'text/html', -charset => 'utf-8');
-    (my $status = <PLAY>) =~ m: (\d+)/(\d+):;
-    my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
-    my $print_st = $status;
-    my ($where, $what, $dir);
-    if ($print_st =~ m|^(\w+ \d+/\d+ )(.+)|) {
-        ($where, $what) = ($1, $2);
-        if ($what =~ m|^(/.+)/[^/]+$|) {
-            $dir = $1;
-            $what =~ s|^$root||;
-            $what =~ s|/|<br>|g;
-        } else {
-            $what =~ s/^/<br>/;
-        }
-    }
-    $where = where_human $where;
-    my $image = thumbnail $dir;
-    # Special case: YouTube playback status
-    if ($what =~ /rpyt\.fifo/) {
-        (my $title = $image) =~ s/^.+src="(.+)\..+$/$1/s;
-        $title =~ s/[-_]/ /g;
-        $what = "<br>YouTube<br>=======<br>$title";
-    }
-    print <<ST;
-<p class="even">
-$image$where$what
-</p>
-<div id="nowplaying">
-<div style="width:$progress"></div>
-</div>
-ST
-    my $class = 'even';
-    while (<PLAY>) {
-        s/$root//;
-        if (s/^>\s//) {
-            print "<p class=\"now\">$_</p>\n";
-        } else {
-            print "<p class=\"$class\">$_</p>\n";
-        }
-        $class = $class eq 'even' ? 'odd' : 'even';
-    }
-    close PLAY;
-}
-
-# Enhance the playback status to human readable form
-sub where_human {
-    my $old = shift;
-    return "Stopped" unless $old;
-    $old =~ m|^(.+) (\d+)/(\d+)|;
-    my ($st, $now, $all) = ($1, $2, $3);
-    foreach ($now, $all) {
-        my $s = $_ % 60;
-        my $m = $_ / 60 % 60;
-        my $h = int($_ / 3600);
-        $_ = '';
-        $_ = "$h:" if $h;
-        $_ .= $m < 10 ? "0$m:" : "$m:" if $_ || $m;
-        $_ .= $s < 10 ? "0$s"  : "$s"  if $_ || $s;
-    }
-    return "$st $now" . ($all && " / $all");
 }
 
 # Get thumbnail image link from current playback directory
 sub thumbnail {
     my $dir = shift;
-    my $action = shift || 'link';
-    my $pwd = getcwd;
-    return if $action eq 'purge' && $pwd ne $dir;
+    state ($dir_old, $img_old);
+    return $img_old if $dir eq $dir_old;
+    unlink $img_old;
     return unless $dir && opendir DIR, $dir;
+    my $img;
     while (readdir DIR) {
         next unless /(png|jpe?g)$/i;
         next if $_ eq 'rpi.jpg';
-        if ($action eq 'purge') {
-            unlink $_;
-        } elsif ($action eq 'link') {
-            system qq(ln -s "$dir/$_");
-            return <<IMG;
-<img
-style="float:right"
-height="80"
-src="$_">
-IMG
-        }
+        symlink "$dir/$_", $_ or logger "Unable to symlink $_";
+        $dir_old = $dir;
+        $img_old = $_;
+        $img = $_;
+        last;
     }
-    return;
+    close DIR;
+    return $img;
 }
 
 # Browse Raspberry Pi
@@ -332,5 +264,6 @@ VIDEO
 sub logger {
     return if tell LOG == -1;
     my $msg = shift;
+    local $| = 1; # autoflush to logfile
     print LOG "\n", time(), " PID: $$\n", $msg, "\n";
 }
