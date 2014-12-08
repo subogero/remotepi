@@ -41,7 +41,7 @@ while (new CGI::Fast) {
         `omxd $cmd "$file"`;
     } elsif ($get_req =~ /^home/) {
         print header 'text/html';
-        (my $dir = $get_req) =~ s/^home //;
+        (my $dir = $get_req) =~ s/^home//;
         ls $dir;
     } elsif ($get_req =~ /^fm/) {
         print header 'text/html';
@@ -100,14 +100,14 @@ sub thumbnail {
 sub ls {
     my $dir = shift;
     # Return to root dir upon dangerous attempts
-    $dir = $dir =~ /^\./ ? $root : "$root$dir";
+    $dir = $dir =~ /^\.|^$/ ? $root : "$root$dir";
     # Sanitize dir: remove double slashes, cd .. until really dir
     $dir =~ s|(.+)/.+|$1| while ! -d $dir;
     opendir DIR, $dir;
     my @files;
     push @files, $_ while readdir DIR;
     closedir DIR;
-    my $class = 'even';
+    my $response = [];
     foreach (sort { -d "$dir/$a" && -f "$dir/$b" ? -1
                   : -f "$dir/$a" && -d "$dir/$b" ?  1
                   :          $a     cmp      $b     } @files) {
@@ -115,37 +115,14 @@ sub ls {
         next if /^\.\w/;
         next if /^\.\.$/ && $dir eq "$root/";
         if ($_ eq '..') {
-            print <<UPDIR;
-<p class="$class">
-<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
-</p>
-UPDIR
+            push @$response, { name => $_, ops => [ qw(cd) ] };
         } elsif (-d "$dir/$_") {
-            print <<DIR;
-<p class="$class">
-<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
-</p>
-<p class="$class" style="text-align:right">
-<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
-<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
-<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
-</p>
-DIR
+            push @$response, { name => $_, ops => [ qw(cd i a A) ] };
         } else {
-            print <<FILE;
-<p class="$class">
-$_<br>
-<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
-<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
-<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
-<button onclick="rpi.op(&quot;I&quot;,&quot;$_&quot;)" title="now">I</button>
-<button onclick="rpi.op(&quot;H&quot;,&quot;$_&quot;)" title="HDMI now">H</button>
-<button onclick="rpi.op(&quot;J&quot;,&quot;$_&quot;)" title="Jack now">J</button>
-</p>
-FILE
+            push @$response, { name => $_, ops => [ qw(i a A I H J) ] };
         }
-        $class = $class eq 'even' ? 'odd' : 'even';
     }
+    print encode_json $response;
 }
 
 # Browse internet radio stations
