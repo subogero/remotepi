@@ -9,25 +9,28 @@ rpifm.sendcmds = function() {
             document.getElementById("fm").innerHTML = req.responseText;
         }
     }
-    req.open("GET", "api.pl?fm " + this.cmds, true);
+    req.open("GET", "fm/" + this.cmds, true);
     req.send();
 }
 
+// Send one rpi.fm command
 rpifm.cmd = function(command) {
-    this.cmds = (command + "%0a");
+    this.cmds = (command + "/");
     this.sendcmds();
 }
 
+// Append rpi.fm command to list, send all
 rpifm.addcmd = function() {
     for (var i = 0; i < arguments.length; i++) {
-        this.cmds += (arguments[i] + "%0a");
+        this.cmds += (arguments[i] + "/");
     }
     this.sendcmds();
 }
 
+// Append rpi.fm command to list, send all, then clear list
 rpifm.lastcmd = function() {
     for (var i = 0; i < arguments.length; i++) {
-        this.cmds += (arguments[i] + "%0a");
+        this.cmds += (arguments[i] + "/");
     }
     this.sendcmds();
     this.cmds = "";

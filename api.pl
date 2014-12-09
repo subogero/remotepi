@@ -48,7 +48,7 @@ while (new CGI::Fast) {
         ls $dir;
     } elsif ($get_req =~ /^fm/) {
         print header 'text/html';
-        (my $cmd = $get_req) =~ s/^fm *//;
+        (my $cmd = $get_req) =~ s|^fm/||;
         fm $cmd;
     } elsif ($get_req =~ /^yt/) {
         print header 'text/html';
@@ -130,7 +130,7 @@ sub ls {
 
 # Browse internet radio stations
 sub fm {
-    my $cmd = shift;
+    (my $cmd = shift) =~ s|/|\n|g;
     print <<EOF;
 <p class="even">
 <button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
