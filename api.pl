@@ -12,6 +12,9 @@ use JSON::XS;
 sub status; sub thumbnail;
 sub ls; sub fm; sub byalphanum; sub yt; sub logger;
 
+# Cleaun up albumart symlink upon exit
+$SIG{TERM} = sub { thumbnail };
+
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
     $root = <CFG>;
