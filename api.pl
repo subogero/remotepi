@@ -52,7 +52,7 @@ while (new CGI::Fast) {
         (my $cmd = $get_req) =~ s|^yt/?||;
         yt $cmd;
     } elsif ($get_req) {
-        print header 'text/html';
+        print header 'text/html', '400 Bad request';
         print "<!-- $get_req -->\n";
     }
 }
