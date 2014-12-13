@@ -6,11 +6,45 @@ rpifm.sendcmds = function() {
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
-            document.getElementById("fm").innerHTML = req.responseText;
+            rpifm.fm2html(JSON.parse(req.responseText));
         }
     }
     req.open("GET", "fm/" + this.cmds, true);
     req.send();
+}
+
+rpifm.fm2html = function(fm) {
+    var html = '';
+    for (i = 0; i < fm.length; i++) {
+        var c = i % 2 ? 'odd' : 'even';
+        var name = fm[i].label ? fm[i].label : fm[i].name;
+        html += '<p class="' + c + '">';
+        var style = '';
+        if (fm[i].ops.indexOf('cd') != -1) {
+            html += '<a href="javascript:void(0)" ' +
+                    'onclick="rpifm.addcmd(&quot;' + fm[i].name + '&quot;);">' +
+                    name + '</a></p>';
+            style = ' style="text-align:right"';
+        } else {
+            html += name + '</p>';
+        }
+        var ops = fm[i].ops;
+        if (ops.length <= 1) {
+            continue;
+        }
+        html += '<p class="' + c + '"' + style + '>';
+        for (op = 0; op < ops.length; op++) {
+            if (ops[op] == 'cd') {
+                continue;
+            }
+            html += '<button onclick="rpifm.lastcmd(' +
+                    '&quot;' + fm[i].name + '&quot;,' +
+                    '&quot;' + ops[op] + '&quot;)" ' +
+                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
+        }
+        html += '</p>';
+    }
+    document.getElementById("fm").innerHTML = html;
 }
 
 // Send one rpi.fm command
@@ -22,7 +56,12 @@ rpifm.cmd = function(command) {
 // Append rpi.fm command to list, send all
 rpifm.addcmd = function() {
     for (var i = 0; i < arguments.length; i++) {
-        this.cmds += (arguments[i] + "/");
+        var cmd = arguments[i];
+        if (cmd.search(/^\//) != -1) {
+            cmd = cmd.replace(/^\//, '');
+            this.cmds = '';
+        }
+        this.cmds += (cmd + "/");
     }
     this.sendcmds();
 }

@@ -10,7 +10,7 @@ use Fcntl ':mode';
 use Cwd;
 use JSON::XS;
 sub status; sub thumbnail;
-sub ls; sub fm; sub byalphanum; sub yt; sub logger;
+sub ls; sub fm; sub run_rpifm; sub byalphanum; sub yt; sub logger;
 
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -131,21 +131,42 @@ sub ls {
 # Browse internet radio stations
 sub fm {
     (my $cmd = shift) =~ s|/|\n|g;
-    print <<EOF;
-<p class="even">
-<button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
-<button onclick="rpifm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
-</p><p class="odd">
-EOF
-    my $class = 'odd';
-    unless ($cmd) {
-        return;
+    my $response = [
+        { name => '/g', ops => [ 'cd' ], label => 'Genres' },
+        { name => '/m', ops => [ 'cd' ], label => 'My Stations' },
+    ];
+    my ($title, %list) = run_rpifm $cmd;
+    push @$response, { name => $title || 'Genres', ops => [] } if %list;
+    foreach (sort byalphanum keys %list) {
+        unless ($title) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $list{$_},
+            };
+        } elsif (/^[<>]$/) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $_ eq '<' ? 'Previous' : 'Next',
+            };
+        } else {
+            push @$response, {
+                name => $_,
+                ops => [ qw(i a A I H J) ],
+                label => $list{$_},
+            };
+        }
     }
+    print encode_json $response;
+}
+
+sub run_rpifm {
+    my $cmd = shift;
     my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
     print OUT $cmd;
     close OUT;
-    my $title;
-    my %list;
+    my ($title, %list);
     while (<IN>) {
         s/\r|\n//g;
         if (/^[a-zA-Z]/) {
@@ -157,37 +178,7 @@ EOF
     }
     close IN;
     waitpid $pid, 0;
-    if ($title) {
-        $class = $class eq 'even' ? 'odd' : 'even';
-        print <<TITLE;
-$title</p><p class="$class">
-TITLE
-    }
-    foreach (sort byalphanum keys %list) {
-        $class = $class eq 'even' ? 'odd' : 'even';
-        unless  ($title) {
-            print <<GENRE;
-<a href="javascript:void(0)" onclick="rpifm.addcmd(&quot;$_&quot;)">$list{$_}</a>
-</p><p class="$class">
-GENRE
-        } elsif ($_ =~ /^[<>]$/) {
-            my $label = $_ eq '<' ? 'Previous' : 'Next';
-            print <<NAVI;
-<button onclick="rpifm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
-NAVI
-        } else {
-            print <<STATION;
-$list{$_}<br>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
-</p><p class="$class">
-STATION
-        }
-    }
+    return $title, %list;
 }
 
 sub byalphanum {
