@@ -43,16 +43,13 @@ while (new CGI::Fast) {
         $file = "$root$file";
         `omxd $cmd "$file"`;
     } elsif ($get_req =~ /^home/) {
-        print header 'text/html';
         (my $dir = $get_req) =~ s/^home//;
         ls $dir;
     } elsif ($get_req =~ /^fm/) {
-        print header 'text/html';
-        (my $cmd = $get_req) =~ s|^fm/||;
+        (my $cmd = $get_req) =~ s|^fm/?||;
         fm $cmd;
     } elsif ($get_req =~ /^yt/) {
-        print header 'text/html';
-        (my $cmd = $get_req) =~ s/^yt *//;
+        (my $cmd = $get_req) =~ s|^yt/?||;
         yt $cmd;
     } elsif ($get_req) {
         print header 'text/html';
@@ -125,6 +122,7 @@ sub ls {
             push @$response, { name => $_, ops => [ qw(i a A I H J) ] };
         }
     }
+    print header 'application/json';
     print encode_json $response;
 }
 
@@ -158,6 +156,7 @@ sub fm {
             };
         }
     }
+    print header 'application/json';
     print encode_json $response;
 }
 
@@ -188,12 +187,11 @@ sub byalphanum {
 
 # Browse and play YouTube
 sub yt {
-    (my $cmd = shift) =~ /^(\S+) (.*)/;
+    (my $cmd = shift) =~ m|^([^/]+)/(.*)|;
     my ($cmd, $query) = ($1, $2);
     logger "yt $cmd $query";
     # Playback command
     if ($cmd ne 'search') {
-        thumbnail getcwd, 'purge';
         system qq(rpyt -$cmd "$query");
         logger qq(rpyt -$cmd "$query");
         return;
@@ -208,28 +206,24 @@ sub yt {
         $xml = $2;
         my $vid = $1;
         next unless $vid =~ m|<link .+?href='([^']+?)&amp;|;
-        $hits[$i]{url} = $1;
+        ($hits[$i]{url} = $1) =~ s/^.+=//;
         $vid =~ m|<media:title type='plain'>(.+?)</media:title>|;
         $hits[$i]{title} = $1;
         $vid =~ m|<media:thumbnail url='([^']+?)' height='90'[^>]+?/>|;
         $hits[$i]{thumbnail} = $1;
         $i++;
     }
-    my $class = 'odd';
+    my $response = [];
     foreach (@hits) {
-        print <<VIDEO;
-<p class="$class">
-$_->{title}
-<br>
-<button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
-<button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
-<button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
-<br>
-<img src="$_->{thumbnail}">
-</p>
-VIDEO
-        $class = $class eq 'even' ? 'odd' : 'even';
+        push @$response, {
+            name => $_->{url},
+            ops => [ qw(I H J) ],
+            label => $_->{title},
+            thumbnail => $_->{thumbnail},
+        };
     }
+    print header 'application/json';
+    print encode_json $response;
 }
 
 sub logger {
