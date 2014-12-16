@@ -11,7 +11,7 @@ RemotePi is optimized for small smartphone screens.
 RemotePi is strictly file and directory based and could not care less
 for MP3 tags in files. MP3 tags are evil and rude.
 
-Features: 
+Features:
  - browse the Raspberry file system below a specified root dir
  - browse internet radio stations using rpi.fm
  - browse and play YouTube videos
@@ -19,64 +19,14 @@ Features:
  - play files now on Jack or HDMI audio and then return to playlist
  - play/pause, repeat, previous/next in playlist, RW/FF.
 
+RemotePi is a FastCGI (mod_fcgid) app.
+
 ## INSTALL
 
 sudo make install
 
-## MANUAL INSTALL
-
-### Install and start Apache2 web server and RemotePi's dependencies
-
-sudo apt-get install apache2
-sudo apt-get install liburi-perl
-
-### Install omxd, rpi.fm, and remotepi
-
-Make sure the packages curl, git, gcc and make are installed.
-
-git clone https://github.com/subogero/omxd.git
-cd omxd
-make
-sudo make install
-
-cd ..
-git clone https://github.com/subogero/rpi.fm.git
-cd rpi.fm
-sudo make install
-
-cd ..
-git clone https://github.com/subogero/remotepi.git
-chmod 757 remotepi # Make remotepi writable for www-data
-
-### Install and configure youtube-dl
-
-cd remotepi
-sudo apt-get install youtube-dl
-echo machine youtube.com login <user> password <pass> > .netrc
-chmod 600 .netrc
-sudo chown www-data .netrc
-
-### Configure Apache2
-
-Create a symlink from /var/www to you remotepi directory:
-
-su
-cd /var/www
-ln -s /home/foo/remotepi  # the place you cloned remotepi to
-
-Configure the new website for Apache2
-
-vi /etc/apache2/sites-available/default
-
-	<Directory "/var/www/remotepi/"> 
-		Options +ExecCGI         
-		DirectoryIndex index.pl  
-		AddHandler cgi-script .pl
-		Order allow,deny         
-		Allow from all           
-	</Directory>                     
-
-service apache2 restart
+This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, youtube-dl
+and the necessary Perl libraries.
 
 ## USE
 
@@ -85,6 +35,22 @@ home WiFi network. Enjoy.
 
 The buttons wear the name of the respctive omxd commands, see the tooltips,
 the "help" tab or omxd's README or man page.
+
+## REST API
+
+RemotePi offers a JSON-based REST API to control all functions:
+
+ GET url/S* - playlist and playback status
+ POST url/S {"cmd":"x"} - playlist commands
+
+ GET url/home/dir... - list dir on Raspberry Pi
+ POST url/home {"cmd":"x","file":"file"} - append file/dir to playlist
+
+ GET url/fm/cmd1/... - rpi.fm command list for listings
+ POST url/fm ["cmd1",...] - rpi.fm command list ending with playlist command
+
+ GET url/yt/search/term - YouTube search for term
+ POST url/yt {"cmd":"ẍ","file":"file"} - YouTube playback command
 
 ## FILES
 
@@ -97,3 +63,11 @@ If the file does not exist, the default root directory is /home.
 ### remotepi/.rpi.fm
 
 rpi.fm's genre cache and "My stations" database
+
+### /var/www/remotepi
+
+A symlink to your remotepi directory
+
+### /etc/apache2/conf.d/remotepi
+
+Apache2 config for the RemotePi app

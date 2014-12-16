@@ -7,6 +7,15 @@ button {
   background-color:black; color:white; font-family:Monospace;
   border: 1px solid white; padding:none
 }
+table, th, td {
+  background-color:black;
+  border: 10px solid #404040;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size:150%;
+}
+td.dev { width:100%; height:100% }
+td a:link { color:white }
 input[type=button] {
   background-color:black; color:white; font-family:Monospace;
   border: 1px solid white; padding:none
@@ -17,14 +26,9 @@ div.st {
 }
 div.con { text-align:center }
 div.con button { color:white }
-button.tabhi { border-bottom:1px solid #404040; background-color:#404040 }
-button.tablo {
-  border:1px solid black; border-bottom:1px solid white; background-color:black
-}
+button.tabhi { border:none; background-color:#404040; font-weight:bold; font-size:200% }
+button.tablo { border:none; background-color:black }
 #list { background-color:#404040; display:none }
-#list button { background-color:#404040; color:white; font-size:200%;
-  border-top:none; border-left:1px solid black
-}
 div.browse { display:none }
 #fm { background-color:#404040 }
 #yt { background-color:#404040 }

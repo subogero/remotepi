@@ -21,24 +21,28 @@
 <button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
 </div>
 <div class="con" id="list">
-<button onclick="con.send('R')" title="Rewind 600s" >R</button>
-<button onclick="con.send('r')" title="Rewind 30s"  >r</button>
-<button onclick="con.send('.')" title="Repeat"      >.</button>
-<button onclick="con.send('p')" title="Play/Pause"  >p</button>
-<button onclick="con.send('f')" title="Forward 30s" >f</button>
-<button onclick="con.send('F')" title="Forward 600s">F</button><br/>
-<button onclick="con.send('N')" title="Previous"    >N</button>
-<button onclick="con.send('x')" title="Delete track">x</button>
-<button onclick="con.send('X')" title="Delete list" >X</button>
-<button onclick="con.send('P')" title="Stop"        >P</button>
-<button onclick="con.send('s')" title="Toggle subs" >s</button>
-<button onclick="con.send('n')" title="Next"        >n</button><br/>
-<button onclick="con.send('D')" title="Previous dir">D</button>
-<button onclick="con.send('h')" title="HDMI Audio"  >h</button>
-<button onclick="con.send('j')" title="Jack Audio"  >j</button>
-<button onclick="con.send('k')" title="Next sound"  >k</button>
-<button onclick="con.send('m')" title="Next subs"   >m</button>
-<button onclick="con.send('d')" title="Next dir"    >d</button><br/>
+<table style="width:100%"><tr>
+<td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div>R</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div>r</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div>.</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div>p</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div>f</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div>F</div></a></td>
+</tr><tr>
+<td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div>N</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div>x</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div>X</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div>P</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div>s</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div>n</div></a></td>
+</tr><tr>
+<td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div>D</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div>h</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div>j</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div>k</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div>m</div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div>d</div></a></td>
+</tr></table>
 <div class="st" id="st">Status</div>
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
@@ -48,6 +52,7 @@
 <input type="text" name="ytq" size="35" maxlength="80"
 onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 </form>
+<div id="ytstate"><br></div>
 <div id="ythits"></div>
 </div>
 <div class="browse" id="help">
@@ -76,7 +81,7 @@ onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 <p class="even"><button>j</button> Jack Audio  </p>
 <p class="odd" ><button>k</button> Next sound  </p>
 <p class="even"><button>m</button> Next subs   </p>
-<p class="odd" ><button>d</button> Next dir"   </p>
+<p class="odd" ><button>d</button> Next dir    </p>
 </div>
 <script>con.browse('list');</script>
 </body>

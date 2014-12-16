@@ -1,13 +1,19 @@
 #!/usr/bin/perl
 # (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
+use feature state;
 use URI::Escape;
+use CGI qw(:standard);
 use CGI::Carp qw(fatalsToBrowser);
 use CGI::Fast;
 use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
-sub status; sub thumbnail; sub where_human;
-sub ls; sub fm; sub byalphanum; sub yt; sub logger;
+use JSON::XS;
+sub status; sub thumbnail;
+sub ls; sub fm; sub run_rpifm; sub byalphanum; sub yt; sub logger;
+
+# Cleaun up albumart symlink upon exit
+$SIG{TERM} = sub { thumbnail };
 
 # Get root directory
 if (open CFG, "/etc/omxd.conf") {
@@ -20,150 +26,97 @@ if (open CFG, "/etc/omxd.conf") {
     $root = "/home";
 }
 # Open log file
-open LOG, ">remotepi.log" or return;
+open LOG, ">remotepi.log";
 
 # FastCGI main loop to handle AJAX requests
-while (new CGI::Fast) {
-    print <<HEAD;
-Content-type: text/html
-
-HEAD
-    # Handle AJAX requests
-    $get_req = uri_unescape $ENV{QUERY_STRING};
+while (my $cgi = new CGI::Fast) {
+    my $method = request_method;
+    my $data;
+    $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
+    if ($@) {
+        print header 'text/html', '400 Malformed JSON Request';
+        next;
+    }
+    my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
-        status();
-        next;
-    } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
-        `omxd $get_req` if $get_req;
-        next;
-    } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
-        my $cmd = $1;
-        my $file = $2;
-        $file = "$root$file";
-        `omxd $cmd "$file"`;
-        next;
+        status $data;
     } elsif ($get_req =~ /^home/) {
-        (my $dir = $get_req) =~ s/^home //;
-        ls $dir;
-        next;
+        (my $dir = $get_req) =~ s/^home//;
+        ls $dir, $data;
     } elsif ($get_req =~ /^fm/) {
-        (my $cmd = $get_req) =~ s/^fm *//;
-        fm $cmd;
-        next;
+        (my $cmd = $get_req) =~ s|^fm/?||;
+        fm $cmd, $data;
     } elsif ($get_req =~ /^yt/) {
-        (my $cmd = $get_req) =~ s/^yt *//;
-        yt $cmd;
-        next;
+        (my $cmd = $get_req) =~ s|^yt/?||;
+        yt $cmd, $data;
     } elsif ($get_req) {
-        print "<!-- $get_req -->\n";
-        next;
+        print header 'text/html', '400 Bad request';
+        print "<!-- $method $data $get_req -->\n";
     }
 }
 
 # Print playlist status
 sub status {
+    my $data = shift;
+    if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdD]$/) {
+        `omxd $data->{cmd}`;
+    }
     unless (open PLAY, "omxd S all |") {
-        print 'Unable to access omxd status';
+        print header('text/html', '500 Unable to access omxd status');
         return;
     }
-    (my $status = <PLAY>) =~ m: (\d+)/(\d+):;
-    my $progress = ($2 == 0 ? 0 : $1 > $2 ? 100 : 100 * $1 / $2) . '%';
-    my $print_st = $status;
-    my ($where, $what, $dir);
-    if ($print_st =~ m|^(\w+ \d+/\d+ )(.+)|) {
-        ($where, $what) = ($1, $2);
-        if ($what =~ m|^(/.+)/[^/]+$|) {
-            $dir = $1;
-            $what =~ s|^$root||;
-            $what =~ s|/|<br>|g;
-        } else {
-            $what =~ s/^/<br>/;
-        }
-    }
-    $where = where_human $where;
-    my $image = thumbnail $dir;
-    # Special case: YouTube playback status
-    if ($what =~ /rpyt\.fifo/) {
-        (my $title = $image) =~ s/^.+src="(.+)\..+$/$1/s;
-        $title =~ s/[-_]/ /g;
-        $what = "<br>YouTube<br>=======<br>$title";
-    }
-    print <<ST;
-<p class="even">
-$image$where$what
-</p>
-<div id="nowplaying">
-<div style="width:$progress"></div>
-</div>
-ST
-    my $class = 'even';
-    while (<PLAY>) {
-        s/$root//;
-        if (s/^>\s//) {
-            print "<p class=\"now\">$_</p>\n";
-        } else {
-            print "<p class=\"$class\">$_</p>\n";
-        }
-        $class = $class eq 'even' ? 'odd' : 'even';
-    }
-    close PLAY;
-}
-
-# Enhance the playback status to human readable form
-sub where_human {
-    my $old = shift;
-    return "Stopped" unless $old;
-    $old =~ m|^(.+) (\d+)/(\d+)|;
-    my ($st, $now, $all) = ($1, $2, $3);
-    foreach ($now, $all) {
-        my $s = $_ % 60;
-        my $m = $_ / 60 % 60;
-        my $h = int($_ / 3600);
-        $_ = '';
-        $_ = "$h:" if $h;
-        $_ .= $m < 10 ? "0$m:" : "$m:" if $_ || $m;
-        $_ .= $s < 10 ? "0$s"  : "$s"  if $_ || $s;
-    }
-    return "$st $now" . ($all && " / $all");
+    print header(-type => 'application/json', -charset => 'utf-8');
+    my $now = <PLAY>;
+    chomp $now;
+    my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
+    $what =~ s/$root//;
+    my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
+    @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
+    $response->{image} = thumbnail $dir;
+    print encode_json $response;
 }
 
 # Get thumbnail image link from current playback directory
 sub thumbnail {
     my $dir = shift;
-    my $action = shift || 'link';
-    my $pwd = getcwd;
-    return if $action eq 'purge' && $pwd ne $dir;
+    state ($dir_old, $img_old);
+    return $img_old if $dir eq $dir_old;
+    unlink $img_old;
+    $img_old = '';
+    $dir_old = $dir;
     return unless $dir && opendir DIR, $dir;
+    my $img;
     while (readdir DIR) {
         next unless /(png|jpe?g)$/i;
         next if $_ eq 'rpi.jpg';
-        if ($action eq 'purge') {
-            unlink $_;
-        } elsif ($action eq 'link') {
-            system qq(ln -s "$dir/$_");
-            return <<IMG;
-<img
-style="float:right"
-height="80"
-src="$_">
-IMG
-        }
+        symlink "$dir/$_", $_ or logger "Unable to symlink $_";
+        $img_old = $_;
+        $img = $_;
+        last;
     }
-    return;
+    close DIR;
+    return $img;
 }
 
 # Browse Raspberry Pi
 sub ls {
     my $dir = shift;
+    my $data = shift;
+    if ($data) {
+        print header 'text/plain';
+        `omxd $data->{cmd} "$root$data->{file}"` if $data->{cmd} =~ /[iaAIHJ]/;
+        return;
+    }
     # Return to root dir upon dangerous attempts
-    $dir = $dir =~ /^\./ ? $root : "$root$dir";
+    $dir = $dir =~ /^\.|^$/ ? $root : "$root$dir";
     # Sanitize dir: remove double slashes, cd .. until really dir
     $dir =~ s|(.+)/.+|$1| while ! -d $dir;
     opendir DIR, $dir;
     my @files;
     push @files, $_ while readdir DIR;
     closedir DIR;
-    my $class = 'even';
+    my $response = [];
     foreach (sort { -d "$dir/$a" && -f "$dir/$b" ? -1
                   : -f "$dir/$a" && -d "$dir/$b" ?  1
                   :          $a     cmp      $b     } @files) {
@@ -171,57 +124,63 @@ sub ls {
         next if /^\.\w/;
         next if /^\.\.$/ && $dir eq "$root/";
         if ($_ eq '..') {
-            print <<UPDIR;
-<p class="$class">
-<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
-</p>
-UPDIR
+            push @$response, { name => $_, ops => [ qw(cd) ] };
         } elsif (-d "$dir/$_") {
-            print <<DIR;
-<p class="$class">
-<a href="javascript:void(0)" onclick="rpi.cd(&quot;$_&quot;);">$_/</a><br>
-</p>
-<p class="$class" style="text-align:right">
-<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
-<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
-<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
-</p>
-DIR
+            push @$response, { name => $_, ops => [ qw(cd i a A) ] };
         } else {
-            print <<FILE;
-<p class="$class">
-$_<br>
-<button onclick="rpi.op(&quot;i&quot;,&quot;$_&quot;)" title="insert">i</button>
-<button onclick="rpi.op(&quot;a&quot;,&quot;$_&quot;)" title="add">a</button>
-<button onclick="rpi.op(&quot;A&quot;,&quot;$_&quot;)" title="append">A</button>
-<button onclick="rpi.op(&quot;I&quot;,&quot;$_&quot;)" title="now">I</button>
-<button onclick="rpi.op(&quot;H&quot;,&quot;$_&quot;)" title="HDMI now">H</button>
-<button onclick="rpi.op(&quot;J&quot;,&quot;$_&quot;)" title="Jack now">J</button>
-</p>
-FILE
+            push @$response, { name => $_, ops => [ qw(i a A I H J) ] };
         }
-        $class = $class eq 'even' ? 'odd' : 'even';
     }
+    print header 'application/json';
+    print encode_json $response;
 }
 
 # Browse internet radio stations
 sub fm {
-    my $cmd = shift;
-    print <<EOF;
-<p class="even">
-<button onclick="rpifm.cmd(&quot;g&quot;)" title="Genres">Genres</button>
-<button onclick="rpifm.cmd(&quot;m&quot;)" title="My Stations">My Stations</button>
-</p><p class="odd">
-EOF
-    my $class = 'odd';
-    unless ($cmd) {
+    (my $cmd = shift) =~ s|/|\n|g;     # /-separated from GET
+    my $data = join("\n", @{shift()}); # JSON array from POST
+    if ($cmd =~ /\n[iaAIHJ]/) {
+        print header 'text/plain', '400 No playlist changes in GET requests';
         return;
     }
+    my $cmds = $data || $cmd;
+    my $response = [
+        { name => '/g', ops => [ 'cd' ], label => 'Genres' },
+        { name => '/m', ops => [ 'cd' ], label => 'My Stations' },
+    ];
+    my ($title, %list) = run_rpifm $cmds;
+    push @$response, { name => $title || 'Genres', ops => [] } if %list;
+    foreach (sort byalphanum keys %list) {
+        unless ($title) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $list{$_},
+            };
+        } elsif (/^[<>]$/) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $_ eq '<' ? 'Previous' : 'Next',
+            };
+        } else {
+            push @$response, {
+                name => $_,
+                ops => [ qw(i a A I H J) ],
+                label => $list{$_},
+            };
+        }
+    }
+    print header 'application/json';
+    print encode_json $response;
+}
+
+sub run_rpifm {
+    my $cmd = shift;
     my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
     print OUT $cmd;
     close OUT;
-    my $title;
-    my %list;
+    my ($title, %list);
     while (<IN>) {
         s/\r|\n//g;
         if (/^[a-zA-Z]/) {
@@ -233,37 +192,7 @@ EOF
     }
     close IN;
     waitpid $pid, 0;
-    if ($title) {
-        $class = $class eq 'even' ? 'odd' : 'even';
-        print <<TITLE;
-$title</p><p class="$class">
-TITLE
-    }
-    foreach (sort byalphanum keys %list) {
-        $class = $class eq 'even' ? 'odd' : 'even';
-        unless  ($title) {
-            print <<GENRE;
-<a href="javascript:void(0)" onclick="rpifm.addcmd(&quot;$_&quot;)">$list{$_}</a>
-</p><p class="$class">
-GENRE
-        } elsif ($_ =~ /^[<>]$/) {
-            my $label = $_ eq '<' ? 'Previous' : 'Next';
-            print <<NAVI;
-<button onclick="rpifm.addcmd(&quot;$_&quot;)" title="insert">$label</button>
-NAVI
-        } else {
-            print <<STATION;
-$list{$_}<br>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;i&quot;)" title="insert">i</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;a&quot;)" title="add">a</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;A&quot;)" title="append">A</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;I&quot;)" title="now">I</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;H&quot;)" title="HDMI now">H</button>
-<button onclick="rpifm.lastcmd(&quot;$_&quot;,&quot;J&quot;)" title="Jack now">J</button>
-</p><p class="$class">
-STATION
-        }
-    }
+    return $title, %list;
 }
 
 sub byalphanum {
@@ -273,14 +202,14 @@ sub byalphanum {
 
 # Browse and play YouTube
 sub yt {
-    (my $cmd = shift) =~ /^(\S+) (.*)/;
+    (my $cmd = shift) =~ m|^([^/]+)/(.*)|;
     my ($cmd, $query) = ($1, $2);
-    logger "yt $cmd $query";
+    my $data = shift;
     # Playback command
-    if ($cmd ne 'search') {
-        thumbnail getcwd, 'purge';
-        system qq(rpyt -$cmd "$query");
-        logger qq(rpyt -$cmd "$query");
+    if ($data) {
+        system qq(rpyt -$data->{cmd} "$data->{query}");
+        logger qq(rpyt -$data->{cmd} "$data->{query}");
+        print header 'text/plain';
         return;
     }
     # Search command
@@ -293,32 +222,29 @@ sub yt {
         $xml = $2;
         my $vid = $1;
         next unless $vid =~ m|<link .+?href='([^']+?)&amp;|;
-        $hits[$i]{url} = $1;
+        ($hits[$i]{url} = $1) =~ s/^.+=//;
         $vid =~ m|<media:title type='plain'>(.+?)</media:title>|;
         $hits[$i]{title} = $1;
         $vid =~ m|<media:thumbnail url='([^']+?)' height='90'[^>]+?/>|;
         $hits[$i]{thumbnail} = $1;
         $i++;
     }
-    my $class = 'odd';
+    my $response = [];
     foreach (@hits) {
-        print <<VIDEO;
-<p class="$class">
-$_->{title}
-<br>
-<button onclick="u2b.op(&quot;I&quot;,&quot;$_->{url}&quot;)" title="now">I</button>
-<button onclick="u2b.op(&quot;H&quot;,&quot;$_->{url}&quot;)" title="HDMI now">H</button>
-<button onclick="u2b.op(&quot;J&quot;,&quot;$_->{url}&quot;)" title="Jack now">J</button>
-<br>
-<img src="$_->{thumbnail}">
-</p>
-VIDEO
-        $class = $class eq 'even' ? 'odd' : 'even';
+        push @$response, {
+            name => $_->{url},
+            ops => [ qw(I H J) ],
+            label => $_->{title},
+            thumbnail => $_->{thumbnail},
+        };
     }
+    print header 'application/json';
+    print encode_json $response;
 }
 
 sub logger {
     return if tell LOG == -1;
     my $msg = shift;
+    local $| = 1; # autoflush to logfile
     print LOG "\n", time(), " PID: $$\n", $msg, "\n";
 }
