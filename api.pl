@@ -82,13 +82,14 @@ sub thumbnail {
     state ($dir_old, $img_old);
     return $img_old if $dir eq $dir_old;
     unlink $img_old;
+    $img_old = '';
+    $dir_old = $dir;
     return unless $dir && opendir DIR, $dir;
     my $img;
     while (readdir DIR) {
         next unless /(png|jpe?g)$/i;
         next if $_ eq 'rpi.jpg';
         symlink "$dir/$_", $_ or logger "Unable to symlink $_";
-        $dir_old = $dir;
         $img_old = $_;
         $img = $_;
         last;
