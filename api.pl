@@ -29,22 +29,23 @@ if (open CFG, "/etc/omxd.conf") {
 open LOG, ">remotepi.log";
 
 # FastCGI main loop to handle AJAX requests
-while (new CGI::Fast) {
-    $get_req = uri_unescape $ENV{QUERY_STRING};
+while (my $cgi = new CGI::Fast) {
+    my $method = request_method;
+    my $data;
+    $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
+    if ($@) {
+        print header 'text/html', '400 Malformed JSON Request';
+        next;
+    }
+    my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
         status();
     } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
         print header 'text/plain';
         `omxd $get_req`;
-    } elsif ($get_req =~ /^([iaAIHJ]) (.+)/) {
-        print header 'text/plain';
-        my $cmd = $1;
-        my $file = $2;
-        $file = "$root$file";
-        `omxd $cmd "$file"`;
     } elsif ($get_req =~ /^home/) {
         (my $dir = $get_req) =~ s/^home//;
-        ls $dir;
+        ls $dir, $data;
     } elsif ($get_req =~ /^fm/) {
         (my $cmd = $get_req) =~ s|^fm/?||;
         fm $cmd;
@@ -53,7 +54,7 @@ while (new CGI::Fast) {
         yt $cmd;
     } elsif ($get_req) {
         print header 'text/html', '400 Bad request';
-        print "<!-- $get_req -->\n";
+        print "<!-- $method $data $get_req -->\n";
     }
 }
 
@@ -99,6 +100,12 @@ sub thumbnail {
 # Browse Raspberry Pi
 sub ls {
     my $dir = shift;
+    my $data = shift;
+    if ($data) {
+        print header 'text/plain';
+        `omxd $data->{cmd} "$root$data->{file}"` if $data->{cmd} =~ /[iaAIHJ]/;
+        return;
+    }
     # Return to root dir upon dangerous attempts
     $dir = $dir =~ /^\.|^$/ ? $root : "$root$dir";
     # Sanitize dir: remove double slashes, cd .. until really dir

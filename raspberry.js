@@ -56,7 +56,8 @@ rpi.cd = function(dir) {
 
 rpi.op = function(cmd, file) {
     var req = new XMLHttpRequest();
-    var uri = "api.pl?" + cmd + " " + this.pwd + file;
-    req.open("GET", uri, true);
-    req.send();
+    var uri = "home";
+    req.open("POST", uri, true);
+    req.setRequestHeader("Content-type","application/json");
+    req.send(JSON.stringify({ cmd: cmd, file: this.pwd + file }));
 }
