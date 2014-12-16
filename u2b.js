@@ -1,10 +1,11 @@
 u2b = {};
 
 u2b.search = function(query) {
-    document.getElementById("ythits").innerHTML = "Waiting for YouTube...";
+    document.getElementById("ytstate").innerHTML = "Waiting for YouTube...";
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
+            document.getElementById("ytstate").innerHTML = 'Hits:';
             u2b.yt2html(JSON.parse(req.responseText));
         }
     }
@@ -36,7 +37,13 @@ u2b.yt2html = function(yt) {
 
 u2b.op = function(cmd, file) {
     var req = new XMLHttpRequest();
-    var uri = "yt/" + cmd + "/" + file;
-    req.open("GET", uri, true);
-    req.send();
+    req.onreadystatechange = function() {
+        if (req.readyState == 4 && req.status == 200) {
+            document.getElementById("ytstate").innerHTML = file + ' started';
+        }
+    }
+    req.open("POST", 'yt', true);
+    req.setRequestHeader("Content-type","application/json");
+    req.send(JSON.stringify({ cmd: cmd, query: file }));
+    document.getElementById("ytstate").innerHTML = 'Waiting for youtube-dl...';
 }

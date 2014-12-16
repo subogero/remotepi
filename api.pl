@@ -51,7 +51,7 @@ while (my $cgi = new CGI::Fast) {
         fm $cmd, $data;
     } elsif ($get_req =~ /^yt/) {
         (my $cmd = $get_req) =~ s|^yt/?||;
-        yt $cmd;
+        yt $cmd, $data;
     } elsif ($get_req) {
         print header 'text/html', '400 Bad request';
         print "<!-- $method $data $get_req -->\n";
@@ -202,11 +202,12 @@ sub byalphanum {
 sub yt {
     (my $cmd = shift) =~ m|^([^/]+)/(.*)|;
     my ($cmd, $query) = ($1, $2);
-    logger "yt $cmd $query";
+    my $data = shift;
     # Playback command
-    if ($cmd ne 'search') {
-        system qq(rpyt -$cmd "$query");
-        logger qq(rpyt -$cmd "$query");
+    if ($data) {
+        system qq(rpyt -$data->{cmd} "$data->{query}");
+        logger qq(rpyt -$data->{cmd} "$data->{query}");
+        print header 'text/plain';
         return;
     }
     # Search command
