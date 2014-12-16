@@ -9,8 +9,14 @@ rpifm.sendcmds = function() {
             rpifm.fm2html(JSON.parse(req.responseText));
         }
     }
-    req.open("GET", "fm/" + this.cmds, true);
-    req.send();
+    if (this.cmds.search(/\/[iaAIHJ]\//) != -1) {
+        req.open("POST", "fm/");
+        req.setRequestHeader("Content-type","application/json");
+        req.send(JSON.stringify(this.cmds.split('/')));
+    } else {
+        req.open("GET", "fm/" + this.cmds, true);
+        req.send();
+    }
 }
 
 rpifm.fm2html = function(fm) {

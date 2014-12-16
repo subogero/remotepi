@@ -48,7 +48,7 @@ while (my $cgi = new CGI::Fast) {
         ls $dir, $data;
     } elsif ($get_req =~ /^fm/) {
         (my $cmd = $get_req) =~ s|^fm/?||;
-        fm $cmd;
+        fm $cmd, $data;
     } elsif ($get_req =~ /^yt/) {
         (my $cmd = $get_req) =~ s|^yt/?||;
         yt $cmd;
@@ -135,12 +135,18 @@ sub ls {
 
 # Browse internet radio stations
 sub fm {
-    (my $cmd = shift) =~ s|/|\n|g;
+    (my $cmd = shift) =~ s|/|\n|g;     # /-separated from GET
+    my $data = join("\n", @{shift()}); # JSON array from POST
+    if ($cmd =~ /\n[iaAIHJ]/) {
+        print header 'text/plain', '400 No playlist changes in GET requests';
+        return;
+    }
+    my $cmds = $data || $cmd;
     my $response = [
         { name => '/g', ops => [ 'cd' ], label => 'Genres' },
         { name => '/m', ops => [ 'cd' ], label => 'My Stations' },
     ];
-    my ($title, %list) = run_rpifm $cmd;
+    my ($title, %list) = run_rpifm $cmds;
     push @$response, { name => $title || 'Genres', ops => [] } if %list;
     foreach (sort byalphanum keys %list) {
         unless ($title) {
