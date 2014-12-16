@@ -39,10 +39,7 @@ while (my $cgi = new CGI::Fast) {
     }
     my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
-        status();
-    } elsif ($get_req =~ /^[NRr.pPfFnxXhjdD]$/) {
-        print header 'text/plain';
-        `omxd $get_req`;
+        status $data;
     } elsif ($get_req =~ /^home/) {
         (my $dir = $get_req) =~ s/^home//;
         ls $dir, $data;
@@ -60,6 +57,10 @@ while (my $cgi = new CGI::Fast) {
 
 # Print playlist status
 sub status {
+    my $data = shift;
+    if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdD]$/) {
+        `omxd $data->{cmd}`;
+    }
     unless (open PLAY, "omxd S all |") {
         print header('text/html', '500 Unable to access omxd status');
         return;

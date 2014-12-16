@@ -4,8 +4,10 @@ con.refresh = false;
 
 con.send = function(cmd) {
     var req = new XMLHttpRequest();
-    req.open("GET", "api.pl?" + cmd, true);
-    req.send();
+    req.open("POST", "S", false);
+    req.setRequestHeader("Content-type","application/json");
+    req.send(JSON.stringify({cmd: cmd}));
+    con.status2html(JSON.parse(req.responseText));
 }
 
 con.getStatus = function() {
