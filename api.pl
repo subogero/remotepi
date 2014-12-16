@@ -11,6 +11,7 @@ use Cwd;
 use JSON::XS;
 sub status; sub thumbnail;
 sub ls; sub fm; sub run_rpifm; sub byalphanum; sub yt; sub logger;
+my ($root, $ytid);
 
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -48,7 +49,7 @@ while (my $cgi = new CGI::Fast) {
         fm $cmd, $data;
     } elsif ($get_req =~ /^yt/) {
         (my $cmd = $get_req) =~ s|^yt/?||;
-        yt $cmd, $data;
+        $ytid = yt $cmd, $data;
     } elsif ($get_req) {
         print header 'text/html', '400 Bad request';
         print "<!-- $method $data $get_req -->\n";
@@ -71,6 +72,7 @@ sub status {
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
+    $what =~ s|.*rpyt.fifo$|/YouTube/$ytid|;
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
     $response->{image} = thumbnail $dir;
@@ -210,7 +212,7 @@ sub yt {
         system qq(rpyt -$data->{cmd} "$data->{query}");
         logger qq(rpyt -$data->{cmd} "$data->{query}");
         print header 'text/plain';
-        return;
+        return $data->{query};
     }
     # Search command
     my @hits;

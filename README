@@ -50,7 +50,7 @@ RemotePi offers a JSON-based REST API to control all functions:
  POST url/fm ["cmd1",...] - rpi.fm command list ending with playlist command
 
  GET url/yt/search/term - YouTube search for term
- POST url/yt {"cmd":"ẍ","file":"file"} - YouTube playback command
+ POST url/yt {"cmd":"ẍ","query":"id"} - YouTube playback command
 
 ## FILES
 
