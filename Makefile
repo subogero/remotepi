@@ -7,7 +7,7 @@ install: uninstall omxd rpi.fm youtube-dl
 	service apache2 restart
 uninstall:
 	-rm /etc/apache2/conf.d/remotepi
-	-rm /var/www/restpi && service apache2 restart
+	-rm /var/www/remotepi && service apache2 restart
 omxd:
 	which omxd || ( \
 	  git clone https://github.com/subogero/omxd.git; \
