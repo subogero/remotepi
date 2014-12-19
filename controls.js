@@ -19,7 +19,7 @@ con.getStatus = function() {
     }
     req.open("GET", "S" + Date.now().toString(), true);
     req.send();
-    if (this.refresh) {
+    if (con.refresh) {
         setTimeout("con.getStatus()", 2000);
     }
 }
@@ -52,51 +52,32 @@ con.s2t = function(s) {
     return t.toUTCString().split(' ')[4];
 }
 
+function Tab(name, callback) {
+    this.name  = name;
+    this.content = document.getElementById(name);
+    this.button = document.getElementById('b' + name);
+    this.callback = callback;
+    this.toggle = function(on) {
+        this.content.style.display = on ? 'block' : 'none';
+        this.button.className = on ? 'tabhi' : 'tablo';
+        if (on) {
+            this.callback();
+        }
+    };
+}
+
 con.browse = function(what) {
-    var list = document.getElementById("list");
-    var home = document.getElementById("home");
-    var fm   = document.getElementById("fm");
-    var blist = document.getElementById("blist");
-    var bhome = document.getElementById("bhome");
-    var bfm   = document.getElementById("bfm");
-    if (what == "list") {
-        list.style.display = 'block'; blist.className = 'tabhi';
-        home.style.display = 'none' ; bhome.className = 'tablo';
-        fm.style.display   = 'none' ; bfm.className   = 'tablo';
-        yt.style.display   = 'none' ; byt.className   = 'tablo';
-        help.style.display = 'none' ; bhelp.className = 'tablo';
-        this.refresh = true;
-        this.getStatus();
-    } else if (what == "home") {
-        rpi.ls();
-        list.style.display = 'none' ; blist.className = 'tablo';
-        home.style.display = 'block'; bhome.className = 'tabhi';
-        fm.style.display   = 'none' ; bfm.className   = 'tablo';
-        yt.style.display   = 'none' ; byt.className   = 'tablo';
-        help.style.display = 'none' ; bhelp.className = 'tablo';
-        this.refresh = false;
-    } else if (what == "fm") {
-        rpifm.sendcmds();
-        list.style.display = 'none' ; blist.className = 'tablo';
-        home.style.display = 'none' ; bhome.className = 'tablo';
-        fm.style.display   = 'block'; bfm.className   = 'tabhi';
-        yt.style.display   = 'none' ; byt.className   = 'tablo';
-        help.style.display = 'none' ; bhelp.className = 'tablo';
-        this.refresh = false;
-    } else if (what == "yt") {
-        rpifm.sendcmds();
-        list.style.display = 'none' ; blist.className = 'tablo';
-        home.style.display = 'none' ; bhome.className = 'tablo';
-        fm.style.display   = 'none' ; bfm.className   = 'tablo';
-        yt.style.display   = 'block'; byt.className   = 'tabhi';
-        help.style.display = 'none' ; bhelp.className = 'tablo';
-        this.refresh = false;
-    } else if (what == "help") {
-        list.style.display = 'none' ; blist.className = 'tablo';
-        home.style.display = 'none' ; bhome.className = 'tablo';
-        fm.style.display   = 'none' ; bfm.className   = 'tablo';
-        yt.style.display   = 'none' ; byt.className   = 'tablo';
-        help.style.display = 'block'; bhelp.className = 'tabhi';
-        this.refresh = false;
+    if (typeof con.tabs === 'undefined') {
+        con.tabs = [
+            new Tab('list', con.getStatus),
+            new Tab('home', rpi.ls),
+            new Tab('fm', rpifm.sendcmds),
+            new Tab('yt'),
+            new Tab('help'),
+        ];
+    }
+    con.refresh = what == 'list';
+    for (var i = 0; i < con.tabs.length; i++) {
+        con.tabs[i].toggle(con.tabs[i].name == what);
     }
 }

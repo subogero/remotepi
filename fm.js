@@ -9,12 +9,12 @@ rpifm.sendcmds = function() {
             rpifm.fm2html(JSON.parse(req.responseText));
         }
     }
-    if (this.cmds.search(/\/[iaAIHJ]\//) != -1) {
+    if (rpifm.cmds.search(/\/[iaAIHJ]\//) != -1) {
         req.open("POST", "fm/");
         req.setRequestHeader("Content-type","application/json");
-        req.send(JSON.stringify(this.cmds.split('/')));
+        req.send(JSON.stringify(rpifm.cmds.split('/')));
     } else {
-        req.open("GET", "fm/" + this.cmds, true);
+        req.open("GET", "fm/" + rpifm.cmds, true);
         req.send();
     }
 }
@@ -55,8 +55,8 @@ rpifm.fm2html = function(fm) {
 
 // Send one rpi.fm command
 rpifm.cmd = function(command) {
-    this.cmds = (command + "/");
-    this.sendcmds();
+    rpifm.cmds = (command + "/");
+    rpifm.sendcmds();
 }
 
 // Append rpi.fm command to list, send all
@@ -65,18 +65,18 @@ rpifm.addcmd = function() {
         var cmd = arguments[i];
         if (cmd.search(/^\//) != -1) {
             cmd = cmd.replace(/^\//, '');
-            this.cmds = '';
+            rpifm.cmds = '';
         }
-        this.cmds += (cmd + "/");
+        rpifm.cmds += (cmd + "/");
     }
-    this.sendcmds();
+    rpifm.sendcmds();
 }
 
 // Append rpi.fm command to list, send all, then clear list
 rpifm.lastcmd = function() {
     for (var i = 0; i < arguments.length; i++) {
-        this.cmds += (arguments[i] + "/");
+        rpifm.cmds += (arguments[i] + "/");
     }
-    this.sendcmds();
-    this.cmds = "";
+    rpifm.sendcmds();
+    rpifm.cmds = "";
 }

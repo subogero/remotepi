@@ -8,7 +8,7 @@ rpi.ls = function() {
             rpi.ls2html(JSON.parse(req.responseText));
         }
     }
-    req.open("GET", "home" + this.pwd, true);
+    req.open("GET", "home" + rpi.pwd, true);
     req.send();
 }
 
@@ -47,11 +47,11 @@ rpi.ls2html = function(ls) {
 rpi.cd = function(dir) {
     if (dir === "..") {
         var regex = /[^\/]+\/$/;
-        this.pwd = this.pwd.replace(regex, "");
+        rpi.pwd = rpi.pwd.replace(regex, "");
     } else {
-        this.pwd += dir + "/";
+        rpi.pwd += dir + "/";
     }
-    this.ls();
+    rpi.ls();
 }
 
 rpi.op = function(cmd, file) {
@@ -59,5 +59,5 @@ rpi.op = function(cmd, file) {
     var uri = "home";
     req.open("POST", uri, true);
     req.setRequestHeader("Content-type","application/json");
-    req.send(JSON.stringify({ cmd: cmd, file: this.pwd + file }));
+    req.send(JSON.stringify({ cmd: cmd, file: rpi.pwd + file }));
 }
