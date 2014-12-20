@@ -1,7 +1,8 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
-body {
+html, body {
   background-color:black; color:white; font-family:Monospace;
-  margin:none; padding:none
+  margin:none; padding:none;
+  height: 100%;
 }
 button {
   background-color:black; color:white; font-family:Monospace;

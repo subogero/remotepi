@@ -53,31 +53,66 @@ con.s2t = function(s) {
 }
 
 function Tab(name, callback) {
-    this.name  = name;
+    this.name = name;
     this.content = document.getElementById(name);
     this.button = document.getElementById('b' + name);
     this.callback = callback;
     this.toggle = function(on) {
         this.content.style.display = on ? 'block' : 'none';
         this.button.className = on ? 'tabhi' : 'tablo';
-        if (on) {
+        if (on && typeof this.callback == 'function') {
             this.callback();
         }
     };
 }
 
+con.init = function() {
+    con.tabs = [
+        new Tab('list', con.getStatus),
+        new Tab('home', rpi.ls),
+        new Tab('fm', rpifm.sendcmds),
+        new Tab('yt'),
+        new Tab('help'),
+    ];
+    con.itab = 0;
+    try {
+        con.hammer = new Hammer(document.body);
+    }
+    catch(err) {
+        return;
+    }
+    con.hammer.get('swipe').set({ velocity: 0.1, threshold: 0.5 });
+    con.hammer.on('swipeleft swiperight press', function(ev) {
+        console.log(ev.type);
+        switch (ev.type) {
+        case 'swiperight':
+            if (con.itab > 0) { con.itab--; }
+            break;
+        case 'swipeleft':
+            if (con.itab < con.tabs.length - 1) { con.itab++; }
+            break;
+        case 'press':
+            con.itab = con.tabs.length - 1;
+            break;
+        }
+        con.refresh = con.itab == 0;
+        for (var i = 0; i < con.tabs.length; i++) {
+            con.tabs[i].toggle(i == con.itab);
+        }
+    });
+}
+
+// This function is called at the end of the page, so create objects here
 con.browse = function(what) {
     if (typeof con.tabs === 'undefined') {
-        con.tabs = [
-            new Tab('list', con.getStatus),
-            new Tab('home', rpi.ls),
-            new Tab('fm', rpifm.sendcmds),
-            new Tab('yt'),
-            new Tab('help'),
-        ];
+        con.init();
     }
     con.refresh = what == 'list';
     for (var i = 0; i < con.tabs.length; i++) {
-        con.tabs[i].toggle(con.tabs[i].name == what);
+        var on = con.tabs[i].name == what;
+        con.tabs[i].toggle(on);
+        if (on) {
+            con.itab = i;
+        }
     }
 }
