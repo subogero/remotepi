@@ -1,5 +1,6 @@
 rpi = {};
 rpi.pwd = "/";
+rpi.from = '';
 
 rpi.ls = function() {
     var req = new XMLHttpRequest();
@@ -12,11 +13,25 @@ rpi.ls = function() {
     req.send();
 }
 
+rpi.scroll_to = function(id) {
+    var elem = document.getElementById(id);
+    if (elem == null) {
+        window.scrollTo(0, 0);
+        return;
+    }
+    var y = 0;
+    do {
+        y += elem.offsetTop;
+    } while (elem = elem.offsetParent);
+    window.scrollTo(0, y - 39);
+}
+
 rpi.ls2html = function(ls) {
     var html = '';
     for (i = 0; i < ls.length; i++) {
         var c = i % 2 ? 'odd' : 'even';
-        html += '<p class="' + c + '">';
+        var id = ls[i].name == rpi.from ? ' id="scrollhere"' : '';
+        html += '<p class="' + c + '"' + id + '>';
         var style = '';
         if (ls[i].ops.indexOf('cd') != -1) {
             html += '<a href="javascript:void(0)" ' +
@@ -42,13 +57,16 @@ rpi.ls2html = function(ls) {
         html += '</p>';
     }
     document.getElementById("home").innerHTML = html;
+    rpi.scroll_to('scrollhere');
 }
 
 rpi.cd = function(dir) {
     if (dir === "..") {
-        var regex = /[^\/]+\/$/;
+        var regex = /([^\/]+)\/$/;
+        rpi.from = regex.exec(rpi.pwd)[1]; // [1] for 1st capture group
         rpi.pwd = rpi.pwd.replace(regex, "");
     } else {
+        rpi.from = '';
         rpi.pwd += dir + "/";
     }
     rpi.ls();
