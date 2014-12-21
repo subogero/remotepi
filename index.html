@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>RemotePi by subogero</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>RemotePi</h1>
+        <h2>Raspberry Pi Remote Control - Lightweight Media Center</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/subogero/remotepi/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/subogero/remotepi/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/subogero/remotepi" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="remotepi----raspberry-pi-media-centre-with-remote-control" class="anchor" href="#remotepi----raspberry-pi-media-centre-with-remote-control" aria-hidden="true"><span class="octicon octicon-link"></span></a>RemotePi -- Raspberry Pi media centre with remote control</h1>
+
+<h2>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>DESCRIPTION</h2>
+
+<p>RemotePi is a remote control web app to browse your RaspberryPi's music/videos,
+internet radio stations or YouTube and play them via the omxd playlist daemon.</p>
+
+<p>RemotePi is optimized for small smartphone screens.</p>
+
+<p>RemotePi is strictly file and directory based and could not care less
+for MP3 tags in files. MP3 tags are evil and rude.</p>
+
+<p>Features:</p>
+
+<ul>
+<li>browse the Raspberry file system below a specified root dir</li>
+<li>browse internet radio stations using rpi.fm</li>
+<li>browse and play YouTube videos</li>
+<li>insert and append files, stremas or entire directories to the omxd playlist</li>
+<li>play files now on Jack or HDMI audio and then return to playlist</li>
+<li>play/pause, repeat, previous/next in playlist, RW/FF.</li>
+</ul>
+
+<p>RemotePi is a FastCGI (mod_fcgid) app.</p>
+
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>INSTALL</h2>
+
+<p>sudo make install</p>
+
+<p>This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, youtube-dl
+and the necessary Perl libraries.</p>
+
+<h2>
+<a id="use" class="anchor" href="#use" aria-hidden="true"><span class="octicon octicon-link"></span></a>USE</h2>
+
+<p>Point your PC/tablet/phone's browser to http://raspberry/remotepi on your
+home WiFi network. Enjoy.</p>
+
+<p>The buttons wear the name of the respctive omxd commands, see the tooltips,
+the "help" tab or omxd's README or man page.</p>
+
+<h2>
+<a id="rest-api" class="anchor" href="#rest-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>REST API</h2>
+
+<p>RemotePi offers a JSON-based REST API to control all functions:</p>
+
+<p>GET url/S* - playlist and playback status
+ POST url/S {"cmd":"x"} - playlist commands</p>
+
+<p>GET url/home/dir... - list dir on Raspberry Pi
+ POST url/home {"cmd":"x","file":"file"} - append file/dir to playlist</p>
+
+<p>GET url/fm/cmd1/... - rpi.fm command list for listings
+ POST url/fm ["cmd1",...] - rpi.fm command list ending with playlist command</p>
+
+<p>GET url/yt/search/term - YouTube search for term
+ POST url/yt {"cmd":"ẍ","query":"id"} - YouTube playback command</p>
+
+<h2>
+<a id="files" class="anchor" href="#files" aria-hidden="true"><span class="octicon octicon-link"></span></a>FILES</h2>
+
+<h3>
+<a id="etcomxdconf" class="anchor" href="#etcomxdconf" aria-hidden="true"><span class="octicon octicon-link"></span></a>/etc/omxd.conf</h3>
+
+<p>Omxd runs omxplayer as the user specified in this file.
+This user's home is the root directory for file browsing by RemotePi.
+If the file does not exist, the default root directory is /home.</p>
+
+<h3>
+<a id="remotepirpifm" class="anchor" href="#remotepirpifm" aria-hidden="true"><span class="octicon octicon-link"></span></a>remotepi/.rpi.fm</h3>
+
+<p>rpi.fm's genre cache and "My stations" database</p>
+
+<h3>
+<a id="varwwwremotepi" class="anchor" href="#varwwwremotepi" aria-hidden="true"><span class="octicon octicon-link"></span></a>/var/www/remotepi</h3>
+
+<p>A symlink to your remotepi directory</p>
+
+<h3>
+<a id="etcapache2confdremotepi" class="anchor" href="#etcapache2confdremotepi" aria-hidden="true"><span class="octicon octicon-link"></span></a>/etc/apache2/conf.d/remotepi</h3>
+
+<p>Apache2 config for the RemotePi app</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>
