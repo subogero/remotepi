@@ -83,7 +83,6 @@ con.init = function() {
     }
     con.hammer.get('swipe').set({ velocity: 0.1, threshold: 0.5 });
     con.hammer.on('swipeleft swiperight press', function(ev) {
-        console.log(ev.type);
         switch (ev.type) {
         case 'swiperight':
             if (con.itab > 0) { con.itab--; }
@@ -99,6 +98,7 @@ con.init = function() {
         for (var i = 0; i < con.tabs.length; i++) {
             con.tabs[i].toggle(i == con.itab);
         }
+        window.scrollTo(0, 0);
     });
 }
 
@@ -115,4 +115,5 @@ con.browse = function(what) {
             con.itab = i;
         }
     }
+    window.scrollTo(0, 0);
 }
