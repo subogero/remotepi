@@ -36,6 +36,9 @@ home WiFi network. Enjoy.
 The buttons wear the name of the respctive omxd commands, see the tooltips,
 the "help" tab or omxd's README or man page.
 
+If you have internet connection, the UI will use Hammer.js to change tabs
+with swipe and long-press gestures for the left/right and help tabs.
+
 ## REST API
 
 RemotePi offers a JSON-based REST API to control all functions:
