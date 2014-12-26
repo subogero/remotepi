@@ -29,7 +29,7 @@ con.getStatus = function() {
 }
 
 con.status2html = function(st) {
-    var html = '<p class="even">';
+    var html = '<p class="odd">';
     if (st.image) {
         html += '<img style="float:right" height="80" src="' + st.image + '">';
     }
