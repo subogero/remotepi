@@ -3,10 +3,14 @@ con = {};
 con.refresh = false;
 
 con.send = function(cmd) {
+    var body = { cmd: cmd };
+    if (arguments.length == 2) {
+        body.file = arguments[1];
+    }
     var req = new XMLHttpRequest();
     req.open("POST", "S", false);
     req.setRequestHeader("Content-type","application/json");
-    req.send(JSON.stringify({cmd: cmd}));
+    req.send(JSON.stringify(body));
     con.status2html(JSON.parse(req.responseText));
 }
 
@@ -41,8 +45,18 @@ con.status2html = function(st) {
              :                 100 * st.at/st.of).toString() + '%';
     html += '<div id="nowplaying"><div style="width:' + bar + '"></div></div>';
     for (i = 0; i < st.list.length; i++) {
-        var c = st.list[i] == st.what ? 'now' : i % 2 ? 'odd' : 'even';
-        html += '<p class="' + c + '">' + st.list[i] + '</p>';
+        var c = st.list[i].label == st.what ? 'now' : i % 2 ? 'odd' : 'even';
+        html += '<p class="' + c + '">';
+        var ops = st.list[i].ops;
+        for (var op = 0; op < ops.length; op++) {
+            if (ops[op] == 'cd') {
+                continue;
+            }
+            html += '<button onclick="con.send(&quot;' + ops[op] + '&quot;,' +
+                    '&quot;' + st.list[i].name + '&quot;)" ' +
+                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
+        }
+        html += st.list[i].label + '</p>';
     }
     document.getElementById("st").innerHTML = html;
 }

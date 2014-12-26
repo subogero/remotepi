@@ -60,7 +60,7 @@ while (my $cgi = new CGI::Fast) {
 sub status {
     my $data = shift;
     if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdD]$/) {
-        `omxd $data->{cmd}`;
+        `omxd $data->{cmd} $data->{file}`;
     }
     unless (open PLAY, "omxd S all |") {
         print header('text/html', '500 Unable to access omxd status');
@@ -74,7 +74,11 @@ sub status {
     $what =~ s/$root//;
     $what =~ s|.*rpyt.fifo$|/YouTube/$ytid|;
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
-    @{$response->{list}} = map { s/^(> )?$root(.+)\n/$2/; $_ } <PLAY>;
+    my $i = 0;
+    @{$response->{list}} = map {
+        s/^(> )?$root(.+)\n/$2/;
+        { name => $i++, label => $_, ops => [ 'x' ] }
+    } <PLAY>;
     $response->{image} = thumbnail $dir;
     print encode_json $response;
 }
