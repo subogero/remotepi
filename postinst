@@ -1,0 +1,13 @@
+#!/bin/sh
+[ "$DESTDIR" ] && exit 0
+curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+chown root:www-data /usr/share/remotepi
+chmod 775 /usr/share/remotepi
+cp /usr/share/remotepi/apache.cfg /etc/apache2/conf.d/remotepi
+ln -s /usr/share/remotepi /var/www
+a2enmod rewrite
+service apache2 restart
+host=`hostname`
+ip=`ifconfig | sed -rn 's/^.+inet addr:([0-9.]+).+$/\1/p' | sed '/127.0.0.1/d'`
+[ "$host" ] && echo Point your browser to http://$host/remotepi/ and go!
+[ "$ip"   ] && echo Point your browser to http://$ip/remotepi/ and go!
