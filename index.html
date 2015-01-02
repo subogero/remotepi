@@ -42,7 +42,7 @@
 and manage your playlist.</p>
 
 <h2>
-<a id="components" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMPONENTS</h2>
+<a id="components" class="anchor" href="#components" aria-hidden="true"><span class="octicon octicon-link"></span></a>COMPONENTS</h2>
 
 <table>
 <tr>
@@ -78,7 +78,7 @@ Backend components
 </table>
 
 <h2>
-<a id="absent" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>ABSENT FEATURES AND COMPONENTS</h2>
+<a id="absent" class="anchor" href="#absent" aria-hidden="true"><span class="octicon octicon-link"></span></a>ABSENT FEATURES AND COMPONENTS</h2>
 
 <ul>
 <li>No MP3 tags. They are evil. Just directories and files.</li>
@@ -89,5 +89,17 @@ Backend components
 <li>No Android/iOS/Windows/Linux clients. Just a web-app.</li>
 </ul>
 
+<h2>
+<a id="install" class="anchor" href="#install" aria-hidden="true"><span class="octicon octicon-link"></span></a>INSTALLATION ON RASPBIAN</h2>
+
+<p>Do all operations below as root.</p>
+<p>Create the file <code>/etc/apt/sources.list.d/subogero.list</code> with the following contents:</p>
+<pre>deb http://linux.subogero.com/deb/ /</pre>
+And then simply:
+<pre>
+apt-get update
+apt-get install remotepi
+</pre>
+<p>This will install all dependencies as well.</p>
   </body>
 </html>
