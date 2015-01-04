@@ -10,11 +10,15 @@ REL := .release
 all:
 install:
 	-mkdir -p $(DESTDIR)/usr/share/remotepi
-	cp -t $(DESTDIR)/usr/share/remotepi README apache.cfg api.pl *.js index.html style.css rpi.jpg
+	cp -t $(DESTDIR)/usr/share/remotepi README remotepi.conf api.pl *.js index.html style.css rpi.jpg
 	-./postinst
 uninstall:
 	rm -rf $(DESTDIR)/usr/share/remotepi
 	-./postrm
+itest:
+	-./postinst -s testpi
+utest:
+	-./postrm -s testpi
 clean:
 	rm -rf .release
 # Debug

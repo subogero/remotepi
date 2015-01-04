@@ -23,9 +23,11 @@ RemotePi is a FastCGI (mod_fcgid) app.
 
 ## INSTALL
 
-echo 'deb http://linux.subogero.com/deb/ /' | sudo tee /etc/apt/sources.list.d/subogero.list
-sudo apt-get update
-sudo apt-get install remotepi
+As root
+
+ echo deb http://linux.subogero.com/deb/ / >/etc/apt/sources.list.d/subogero.list
+ apt-get update
+ apt-get install remotepi
 
 This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, youtube-dl
 and the necessary Perl libraries.
@@ -73,6 +75,7 @@ A symlink to your remotepi directory
 
 rpi.fm's genre cache and "My stations" database
 
-### /etc/apache2/conf.d/remotepi
+### /etc/apache2/remotepi.conf
 
-Apache2 config for the RemotePi app
+Apache2 config for the RemotePi app. Gets included in the default virtual host
+config file /etc/apache2/sites-available/default during install.

@@ -1,5 +1,13 @@
 #!/bin/sh
-[ "$DESTDIR" ] && exit 0
-rm -f /etc/apache2/conf.d/remotepi
-rm -f /var/www/remotepi
+[ "$DESTDIR" ] && exit 0 # Do nothing during deb build
+if [ "$1" = -s -a "$2" -a "$2" != remotepi ]; then
+  site=$2
+  dir=`pwd`
+else
+  site=remotepi
+  dir=/usr/share/remotepi
+fi
+perl -lne "print unless /Include $site.conf/" -i /etc/apache2/sites-available/default
+rm -f /etc/apache2/$site.conf
+rm -f /var/www/$site
 service apache2 restart
