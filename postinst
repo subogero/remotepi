@@ -3,7 +3,7 @@
 curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 chown root:www-data /usr/share/remotepi
 chmod 775 /usr/share/remotepi
-cp /usr/share/remotepi/apache.cfg /etc/apache2/conf.d/remotepi
+cp /usr/share/remotepi/remotepi.conf /etc/apache2/conf.d/
 ln -s /usr/share/remotepi /var/www
 a2enmod rewrite
 service apache2 restart

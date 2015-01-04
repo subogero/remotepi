@@ -1,5 +1,5 @@
 #!/bin/sh
 [ "$DESTDIR" ] && exit 0
-rm -f /etc/apache2/conf.d/remotepi
+rm -f /etc/apache2/conf.d/remotepi.conf
 rm -f /var/www/remotepi
 service apache2 restart
