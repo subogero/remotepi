@@ -3,7 +3,8 @@
 curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 chown root:www-data /usr/share/remotepi
 chmod 775 /usr/share/remotepi
-cp /usr/share/remotepi/remotepi.conf /etc/apache2/conf.d/
+cp /usr/share/remotepi/remotepi.conf /etc/apache2/
+perl -lpe 'print "\tInclude remotepi.conf" if m|^</VirtualHost>|' -i /etc/apache2/sites-available/default
 ln -s /usr/share/remotepi /var/www
 a2enmod rewrite
 service apache2 restart

@@ -1,5 +1,6 @@
 #!/bin/sh
 [ "$DESTDIR" ] && exit 0
-rm -f /etc/apache2/conf.d/remotepi.conf
+perl -lne 'print unless /Include remotepi.conf/' -i /etc/apache2/sites-available/default
+rm -f /etc/apache2/remotepi.conf
 rm -f /var/www/remotepi
 service apache2 restart
