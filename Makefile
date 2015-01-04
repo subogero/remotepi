@@ -15,6 +15,10 @@ install:
 uninstall:
 	rm -rf $(DESTDIR)/usr/share/remotepi
 	-./postrm
+itest:
+	-./postinst -s testpi
+utest:
+	-./postrm -s testpi
 clean:
 	rm -rf .release
 # Debug

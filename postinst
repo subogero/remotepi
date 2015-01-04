@@ -1,14 +1,21 @@
 #!/bin/sh
-[ "$DESTDIR" ] && exit 0
+[ "$DESTDIR" ] && exit 0 # Do nothing during deb build
+if [ "$1" = -s -a "$2" -a "$2" != remotepi ]; then
+  site=$2
+  dir=`pwd`
+else
+  site=remotepi
+  dir=/usr/share/remotepi
+fi
 curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
-chown root:www-data /usr/share/remotepi
-chmod 775 /usr/share/remotepi
-cp /usr/share/remotepi/remotepi.conf /etc/apache2/
-perl -lpe 'print "\tInclude remotepi.conf" if m|^</VirtualHost>|' -i /etc/apache2/sites-available/default
-ln -s /usr/share/remotepi /var/www
+chown :www-data $dir
+chmod 775 $dir
+sed "s/remotepi/$site/g" $dir/remotepi.conf >/etc/apache2/$site.conf
+perl -lpe "print \"\tInclude $site.conf\" if m|^</VirtualHost>|" -i /etc/apache2/sites-available/default
+ln -s -T $dir /var/www/$site
 a2enmod rewrite
 service apache2 restart
 host=`hostname`
 ip=`ifconfig | sed -rn 's/^.+inet addr:([0-9.]+).+$/\1/p' | sed '/127.0.0.1/d'`
-[ "$host" ] && echo Point your browser to http://$host/remotepi/ and go!
-[ "$ip"   ] && echo Point your browser to http://$ip/remotepi/ and go!
+[ "$host" ] && echo Point your browser to http://$host/$site/ and go!
+[ "$ip"   ] && echo Point your browser to http://$ip/$site/ and go!
