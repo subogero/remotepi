@@ -34,20 +34,11 @@ rpifm.fm2html = function(fm) {
         } else {
             html += name + '</p>';
         }
-        var ops = fm[i].ops;
-        if (ops.length <= 1) {
+        if (fm[i].ops.length <= 1) {
             continue;
         }
         html += '<p class="' + c + '"' + style + '>';
-        for (op = 0; op < ops.length; op++) {
-            if (ops[op] == 'cd') {
-                continue;
-            }
-            html += '<button onclick="rpifm.lastcmd(' +
-                    '&quot;' + fm[i].name + '&quot;,' +
-                    '&quot;' + ops[op] + '&quot;)" ' +
-                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
-        }
+        html += util.ops_buttons('rpifm.lastcmd', fm[i]);
         html += '</p>';
     }
     document.getElementById("fm").innerHTML = html;
@@ -73,10 +64,8 @@ rpifm.addcmd = function() {
 }
 
 // Append rpi.fm command to list, send all, then clear list
-rpifm.lastcmd = function() {
-    for (var i = 0; i < arguments.length; i++) {
-        rpifm.cmds += (arguments[i] + "/");
-    }
+rpifm.lastcmd = function(op, file) {
+    rpifm.cmds += file + '/' + op + '/';
     rpifm.sendcmds();
     rpifm.cmds = "";
 }

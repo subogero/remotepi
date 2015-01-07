@@ -5,12 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="http://hammerjs.github.io/dist/hammer.min.js"></script>
+<script src="util.js"></script>
 <script src="raspberry.js"></script>
 <script src="fm.js"></script>
 <script src="u2b.js"></script>
 <script src="controls.js"></script>
 <link rel="stylesheet" type="text/css" href="style.css">
-<link rel="icon" href="rpi.jpg">
+<link rel="icon" href="img/rpi.jpg">
 </head>
 <body>
 <script>con.getStatus();</script>
@@ -22,28 +23,26 @@
 <button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
 </div>
 <div class="con" id="list">
-<table style="width:100%"><tr>
-<td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div>R</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div>r</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div>.</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div>p</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div>f</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div>F</div></a></td>
-</tr><tr>
-<td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div>N</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div>x</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div>X</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div>P</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div>s</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div>n</div></a></td>
-</tr><tr>
-<td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div>D</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div>h</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div>j</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div>k</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div>m</div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div>d</div></a></td>
-</tr></table>
+<div><table style="width:100%"><tr>
+<td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div><img height="22" src="img/r.png" alt="r"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div><img height="22" src="img/0.png" alt="."></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div><img height="22" src="img/p.png" alt="p"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div><img height="22" src="img/f.png" alt="f"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div><img height="22" src="img/F.png" alt="F"></div></a></td></tr><tr>
+<td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div><img height="22" src="img/N.png" alt="N"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div><img height="22" src="img/x.png" alt="x"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div><img height="22" src="img/X.png" alt="X"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div><img height="22" src="img/P.png" alt="P"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div><img height="22" src="img/s.png" alt="s"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div><img height="22" src="img/n.png" alt="n"></div></a></td></tr><tr>
+<td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div><img height="22" src="img/D.png" alt="D"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div><img height="22" src="img/h.png" alt="h"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div><img height="22" src="img/j.png" alt="j"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div><img height="22" src="img/k.png" alt="k"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
+<td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
+</tr></table></div>
 <div class="st" id="st">Status</div>
 </div>
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
@@ -57,37 +56,36 @@ onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 <div id="ythits"></div>
 </div>
 <div class="browse" id="help">
-<p class="even"><strong>Browsing</strong></p>
-<p class="odd" ><button>i</button> Insert into playlist before current</p>
-<p class="even"><button>a</button> Insert into playlist after current</p>
-<p class="odd" ><button>A</button> Append to the end of the playlist</p>
-<p class="even"><button>I</button> Interrupt playlist, play now</p>
-<p class="odd" ><button>H</button> interrupt playlist, play on HDMI</p>
-<p class="even"><button>J</button> interrupt playlist, play on Jack</p>
-<p class="odd" ><strong>Playlist</strong></p>
-<p class="even"><button>R</button> Rewind 600s </p>
-<p class="odd" ><button>r</button> Rewind 30s  </p>
-<p class="even"><button>.</button> Repeat      </p>
-<p class="odd" ><button>p</button> Play/Pause  </p>
-<p class="even"><button>f</button> Forward 30s </p>
-<p class="odd" ><button>F</button> Forward 600s</p>
-<p class="even"><button>N</button> Previous    </p>
-<p class="odd" ><button>x</button> Delete track</p>
-<p class="even"><button>X</button> Delete list </p>
-<p class="odd" ><button>P</button> Stop        </p>
-<p class="even"><button>s</button> Toggle subs </p>
-<p class="odd" ><button>n</button> Next        </p>
-<p class="even"><button>D</button> Previous dir</p>
-<p class="odd" ><button>h</button> HDMI Audio  </p>
-<p class="even"><button>j</button> Jack Audio  </p>
-<p class="odd" ><button>k</button> Next sound  </p>
-<p class="even"><button>m</button> Next subs   </p>
-<p class="odd" ><button>d</button> Next dir    </p>
-<p class="even"><strong>Gestures</strong></p>
-<p class="odd" >Swipe left - Change to tab right</p>
-<p class="even">Swipe right - Change to tab left</p>
+<h2 class="even">Browsing</h2>
+<p class="odd" ><button><img src="img/i.png" alt="i"></button> i Insert into playlist at current</p>
+<p class="even"><button><img src="img/a.png" alt="a"></button> a Insert into playlist after current</p>
+<p class="odd" ><button><img src="img/A.png" alt="A"></button> A Append to end of playlist</p>
+<p class="even"><button><img src="img/p.png" alt="I"></button> I Interrupt playlist, play now</p>
+<p class="odd" ><button><img src="img/H.png" alt="H"></button> H interrupt playlist, play on HDMI</p>
+<p class="even"><button><img src="img/J.png" alt="J"></button> J interrupt playlist, play on Jack</p>
+<h2 class="odd" >Playlist</h2>
+<p class="even"><button><img src="img/R.png" alt="R"></button> R Rewind 600s </p>
+<p class="odd" ><button><img src="img/r.png" alt="r"></button> r Rewind 30s  </p>
+<p class="even"><button><img src="img/0.png" alt="."></button> . Repeat      </p>
+<p class="odd" ><button><img src="img/p.png" alt="p"></button> p Play/Pause  </p>
+<p class="even"><button><img src="img/f.png" alt="f"></button> f Forward 30s </p>
+<p class="odd" ><button><img src="img/F.png" alt="F"></button> F Forward 600s</p>
+<p class="even"><button><img src="img/N.png" alt="N"></button> N Previous    </p>
+<p class="odd" ><button><img src="img/x.png" alt="x"></button> x Delete track</p>
+<p class="even"><button><img src="img/X.png" alt="X"></button> X Delete list </p>
+<p class="odd" ><button><img src="img/P.png" alt="P"></button> P Stop        </p>
+<p class="even"><button><img src="img/s.png" alt="s"></button> s Toggle subs </p>
+<p class="odd" ><button><img src="img/n.png" alt="n"></button> n Next        </p>
+<p class="even"><button><img src="img/D.png" alt="D"></button> D Previous dir</p>
+<p class="odd" ><button><img src="img/h.png" alt="h"></button> h HDMI Audio  </p>
+<p class="even"><button><img src="img/j.png" alt="j"></button> j Jack Audio  </p>
+<p class="odd" ><button><img src="img/k.png" alt="k"></button> k Next sound  </p>
+<p class="even"><button><img src="img/m.png" alt="m"></button> m Next subs   </p>
+<p class="odd" ><button><img src="img/d.png" alt="d"></button> d Next dir    </p>
+<h2 class="even">Gestures</h2>
+<p class="odd" >Swipe left/right - Change to next/prev tab</p>
 <p class="odd" >Long press - Change to Help tab</p>
-<p class="even"><strong>About RemotePi</strong></p>
+<h2 class="even">About RemotePi</h2>
 <p class="odd">
 remotepi 1.1<br>
 Free software, distributed under the GNU AGPL v3 license<br>

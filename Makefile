@@ -10,7 +10,7 @@ REL := .release
 all:
 install:
 	-mkdir -p $(DESTDIR)/usr/share/remotepi
-	cp -t $(DESTDIR)/usr/share/remotepi README remotepi.conf api.pl *.js index.html style.css rpi.jpg
+	cp -r -t $(DESTDIR)/usr/share/remotepi README remotepi.conf api.pl *.js index.html style.css img
 	-./postinst
 uninstall:
 	rm -rf $(DESTDIR)/usr/share/remotepi

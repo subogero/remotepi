@@ -59,7 +59,7 @@ while (my $cgi = new CGI::Fast) {
 # Print playlist status
 sub status {
     my $data = shift;
-    if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdD]$/) {
+    if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
         `omxd $data->{cmd} $data->{file}`;
     }
     unless (open PLAY, "omxd S all |") {
@@ -77,7 +77,7 @@ sub status {
     my $i = 0;
     @{$response->{list}} = map {
         s/^(> )?$root(.+)\n/$2/;
-        { name => $i++, label => $_, ops => [ 'x' ] }
+        { name => $i++, label => $_, ops => [ qw(g x) ] }
     } <PLAY>;
     $response->{image} = thumbnail $dir;
     print encode_json $response;

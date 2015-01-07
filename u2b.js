@@ -19,14 +19,8 @@ u2b.yt2html = function(yt) {
         var c = i % 2 ? 'even' : 'odd';
         var name = yt[i].label ? yt[i].label : yt[i].name;
         html += '<p class="' + c + '">' + name + '</p>';
-        var ops = yt[i].ops;
         html += '<p class="' + c + '">';
-        for (op = 0; op < ops.length; op++) {
-            html += '<button onclick="u2b.op(' +
-                    '&quot;' + ops[op] + '&quot;,' +
-                    '&quot;' + yt[i].name + '&quot;)" ' +
-                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
-        }
+        html += util.ops_buttons('u2b.op', yt[i]);
         html += '</p>';
         html += '<p class="' + c + '">';
         html += '<img src="' + yt[i].thumbnail + '">';

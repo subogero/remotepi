@@ -29,7 +29,14 @@ con.getStatus = function() {
 }
 
 con.status2html = function(st) {
-    var html = '<p class="odd">';
+    var html = '';
+    var bar = (st.of == 0    ? 0
+             : st.at > st.of ? 100
+             :                 100 * st.at/st.of).toString() + '%';
+    html += '<div id="nowpadding">' +
+            '<div id="nowplaying"><div style="width:' + bar + '"></div></div>' +
+            '</div>';
+    html += '<p class="odd">';
     if (st.image) {
         html += '<img style="float:right" height="80" src="' + st.image + '">';
     }
@@ -40,22 +47,11 @@ con.status2html = function(st) {
         html += st.what;
     }
     html += '</p>';
-    var bar = (st.of == 0    ? 0
-             : st.at > st.of ? 100
-             :                 100 * st.at/st.of).toString() + '%';
-    html += '<div id="nowplaying"><div style="width:' + bar + '"></div></div>';
     for (i = 0; i < st.list.length; i++) {
-        var c = st.list[i].label == st.what ? 'now' : i % 2 ? 'odd' : 'even';
-        html += '<p class="' + c + '">';
-        var ops = st.list[i].ops;
-        for (var op = 0; op < ops.length; op++) {
-            if (ops[op] == 'cd') {
-                continue;
-            }
-            html += '<button onclick="con.send(&quot;' + ops[op] + '&quot;,' +
-                    '&quot;' + st.list[i].name + '&quot;)" ' +
-                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
-        }
+        var c = i % 2 ? 'odd' : 'even';
+        var id = st.list[i].label == st.what ? ' id="now"' : '';
+        html += '<p class="' + c + '"' + id + '>';
+        html += util.ops_buttons('con.send', st.list[i]);
         html += st.list[i].label + '</p>';
     }
     document.getElementById("st").innerHTML = html;

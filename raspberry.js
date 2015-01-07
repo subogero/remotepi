@@ -41,19 +41,11 @@ rpi.ls2html = function(ls) {
         } else {
             html += ls[i].name + '</p>';
         }
-        var ops = ls[i].ops;
-        if (ops.length <= 1) {
+        if (ls[i].ops.length <= 1) {
             continue;
         }
         html += '<p class="' + c + '"' + style + '>';
-        for (op = 0; op < ops.length; op++) {
-            if (ops[op] == 'cd') {
-                continue;
-            }
-            html += '<button onclick="rpi.op(&quot;' + ops[op] + '&quot;,' +
-                    '&quot;' + ls[i].name + '&quot;)" ' +
-                    'title="' + ops[op] + '">' + ops[op] + '</button> ';
-        }
+        html += util.ops_buttons('rpi.op', ls[i]);
         html += '</p>';
     }
     document.getElementById("home").innerHTML = html;
