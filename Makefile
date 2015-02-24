@@ -23,7 +23,7 @@ clean:
 	rm -rf .release
 # Debug
 restart:
-	killall api.pl
+	service apache2 restart
 ps:
 	pstree -pu | grep api.pl
 # Release
