@@ -11,7 +11,7 @@ use Cwd;
 use JSON::XS;
 sub status; sub thumbnail;
 sub ls; sub fm; sub run_rpifm; sub rpifm_my; sub byalphanum; sub yt; sub logger;
-my ($root, $ytid, $rpi_my);
+my ($root, $ytid, %ythits, $rpi_my);
 
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -52,7 +52,7 @@ while (my $cgi = new CGI::Fast) {
         fm $cmd, $data;
     } elsif ($get_req =~ /^yt/) {
         (my $cmd = $get_req) =~ s|^yt/?||;
-        $ytid = yt $cmd, $data;
+        yt $cmd, $data;
     } elsif ($get_req) {
         print header 'text/html', '400 Bad request';
         print "<!-- $method $data $get_req -->\n";
@@ -89,7 +89,7 @@ sub status {
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
     # Replace track name with YouTube id if needed
-    $what =~ s|.*rpyt.fifo$|/YouTube/$ytid|;
+    $what =~ s|.*rpyt.fifo$|/YouTube $ytid/$ythits{$ytid}|;
     # Construct JSON response
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
@@ -246,7 +246,8 @@ sub yt {
         system qq(rpyt -$data->{cmd} "$data->{query}");
         logger qq(rpyt -$data->{cmd} "$data->{query}");
         print header 'text/plain';
-        return $data->{query};
+        $ytid = $data->{query};
+        return;
     }
     # Search command
     my @hits;
@@ -266,7 +267,9 @@ sub yt {
         $i++;
     }
     my $response = [];
+    %ythits = ();
     foreach (@hits) {
+        $ythits{$_->{url}} = $_->{title};
         push @$response, {
             name => $_->{url},
             ops => [ qw(I H J) ],
