@@ -10,8 +10,8 @@ use Fcntl ':mode';
 use Cwd;
 use JSON::XS;
 sub status; sub thumbnail;
-sub ls; sub fm; sub run_rpifm; sub byalphanum; sub yt; sub logger;
-my ($root, $ytid);
+sub ls; sub fm; sub run_rpifm; sub rpifm_my; sub byalphanum; sub yt; sub logger;
+my ($root, $ytid, $rpi_my);
 
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -29,6 +29,9 @@ if (open CFG, "/etc/omxd.conf") {
 # Open log file
 open LOG, ">remotepi.log";
 
+# Load radio station data
+rpifm_my;
+
 # FastCGI main loop to handle AJAX requests
 while (my $cgi = new CGI::Fast) {
     my $method = request_method;
@@ -40,7 +43,7 @@ while (my $cgi = new CGI::Fast) {
     }
     my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
-        status $data;
+        status $get_req, $data;
     } elsif ($get_req =~ /^home/) {
         (my $dir = $get_req) =~ s/^home//;
         ls $dir, $data;
@@ -58,6 +61,7 @@ while (my $cgi = new CGI::Fast) {
 
 # Print playlist status
 sub status {
+    my $cmd = shift;
     my $data = shift;
     if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
         `omxd $data->{cmd} $data->{file}`;
@@ -70,9 +74,23 @@ sub status {
     my $now = <PLAY>;
     chomp $now;
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    # Replace track name with internet radio if needed
+    foreach (keys %$rpi_my) {
+        next unless $rpi_my->{$_}{listen} eq $what;
+        my $url = $_;
+        $what = $rpi_my->{$_}{title};
+        if ($cmd =~ m|^S\d*/details|) {
+            my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
+            $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
+            $what .= "<br>$url<br>$1";
+        }
+    }
+    # Remove root from track name if local file
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
+    # Replace track name with YouTube id if needed
     $what =~ s|.*rpyt.fifo$|/YouTube/$ytid|;
+    # Construct JSON response
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
     @{$response->{list}} = map {
@@ -179,6 +197,7 @@ sub fm {
     }
     print header 'application/json';
     print encode_json $response;
+    rpifm_my;
 }
 
 sub run_rpifm {
@@ -199,6 +218,17 @@ sub run_rpifm {
     close IN;
     waitpid $pid, 0;
     return $title, %list;
+}
+
+sub rpifm_my {
+    return unless open RPI, ".rpi.fm";
+    my $dump;
+    while (<RPI>) {
+        $dump .= $_ if /MyStations/ || $dump; # Lines from MysStations on
+        last if $dump && /^  }/;              # until its closing brace
+    }
+    $dump =~ s/.+?\{/\$rpi_my = {/;
+    eval $dump;
 }
 
 sub byalphanum {
