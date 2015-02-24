@@ -82,7 +82,7 @@ sub status {
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
-            $what .= "<br>$url<br>$1";
+            $what .= "\n$url\n$1";
         }
     }
     # Remove root from track name if local file

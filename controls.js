@@ -14,14 +14,22 @@ con.send = function(cmd) {
     con.status2html(JSON.parse(req.responseText));
 }
 
-con.getStatus = function() {
+con.getStatus = function(suffix) {
+    if (suffix == null) {
+        suffix = '';
+    }
     var req = new XMLHttpRequest();
-    req.onreadystatechange = function() {
+    req.onreadystatechange = suffix ? function() {
+        if (req.readyState == 4 && req.status == 200) {
+            alert(JSON.parse(req.responseText).what);
+        }
+    } : function() {
         if (req.readyState == 4 && req.status == 200) {
             con.status2html(JSON.parse(req.responseText));
         }
     }
-    req.open("GET", "S" + Date.now().toString(), true);
+    var uri = "S" + Date.now().toString() + suffix;
+    req.open("GET", uri, true);
     req.send();
     if (con.refresh) {
         setTimeout("con.getStatus()", 2000);
@@ -54,7 +62,9 @@ con.status2html = function(st) {
         html += util.ops_buttons('con.send', st.list[i]);
         html += st.list[i].label + '</p>';
     }
-    document.getElementById("st").innerHTML = html;
+    var elem_st = document.getElementById("st");
+    elem_st.innerHTML = html;
+    elem_st.onclick = function() { con.getStatus('/details'); };
 }
 
 con.s2t = function(s) {
