@@ -11,7 +11,7 @@ use Cwd;
 use JSON::XS;
 sub status; sub thumbnail;
 sub ls; sub fm; sub run_rpifm; sub rpifm_my; sub byalphanum; sub yt; sub logger;
-my ($root, $ytid, %ythits, $rpi_my);
+my ($root, $ytid, %ythits, $fm_my);
 
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -75,10 +75,10 @@ sub status {
     chomp $now;
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
     # Replace track name with internet radio if needed
-    foreach (keys %$rpi_my) {
-        next unless $rpi_my->{$_}{listen} eq $what;
+    foreach (keys %$fm_my) {
+        next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
-        $what = $rpi_my->{$_}{title};
+        $what = $fm_my->{$_}{title};
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
@@ -227,7 +227,7 @@ sub rpifm_my {
         $dump .= $_ if /MyStations/ || $dump; # Lines from MysStations on
         last if $dump && /^  }/;              # until its closing brace
     }
-    $dump =~ s/.+?\{/\$rpi_my = {/;
+    $dump =~ s/.+?\{/\$fm_my = {/;
     eval $dump;
 }
 
