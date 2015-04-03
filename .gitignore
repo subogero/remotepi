@@ -8,3 +8,4 @@
 *.png
 *.PNG
 jar
+.release/
