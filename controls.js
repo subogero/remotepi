@@ -44,7 +44,7 @@ con.status2html = function(st) {
     html += '<div id="nowpadding">' +
             '<div id="nowplaying"><div style="width:' + bar + '"></div></div>' +
             '</div>';
-    html += '<p class="odd">';
+    html += '<p class="odd" id="stnow">';
     if (st.image) {
         html += '<img style="float:right" height="80" src="' + st.image + '">';
     }
@@ -64,7 +64,8 @@ con.status2html = function(st) {
     }
     var elem_st = document.getElementById("st");
     elem_st.innerHTML = html;
-    elem_st.onclick = function() { con.getStatus('/details'); };
+    var elem_stnow = document.getElementById("stnow");
+    elem_stnow.onclick = function() { con.getStatus('/details'); };
 }
 
 con.s2t = function(s) {
