@@ -9,6 +9,7 @@ use IPC::Open2;
 use Fcntl ':mode';
 use Cwd;
 use JSON::XS;
+use WWW::U2B;
 sub status; sub thumbnail;
 sub ls; sub fm; sub run_rpifm; sub rpifm_my; sub byalphanum; sub yt; sub logger;
 my ($root, $ytid, %ythits, $fm_my);
@@ -89,7 +90,7 @@ sub status {
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
     # Replace track name with YouTube id if needed
-    $what =~ s|.*rpyt.fifo$|/YouTube $ytid/$ythits{$ytid}|;
+    $what =~ s|.*\.u2bfifo$|/YouTube/$ythits{$ytid}|;
     # Construct JSON response
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
@@ -243,42 +244,21 @@ sub yt {
     my $data = shift;
     # Playback command
     if ($data) {
-        system qq(rpyt -$data->{cmd} "$data->{query}");
-        logger qq(rpyt -$data->{cmd} "$data->{query}");
+        my @streams = WWW::U2B::extract_streams $data->{query};
+        WWW::U2B::playback "omxd $data->{cmd}", $streams[0];
+        logger "omxd $data->{cmd} $streams[0]->{url}";
         print header 'text/plain';
         $ytid = $data->{query};
         return;
     }
     # Search command
-    my @hits;
-    my $i;
-    $query =~ s/ /%20/g;
-    $query = "https://gdata.youtube.com/feeds/api/videos?q=$query";
-    my $xml = `curl $query 2>/dev/null`;
-    while ($xml =~ m|^.*?<entry>(.+?)</media:group>(.*)|s) {
-        $xml = $2;
-        my $vid = $1;
-        next unless $vid =~ m|<link .+?href='([^']+?)&amp;|;
-        ($hits[$i]{url} = $1) =~ s/^.+=//;
-        $vid =~ m|<media:title type='plain'>(.+?)</media:title>|;
-        $hits[$i]{title} = $1;
-        $vid =~ m|<media:thumbnail url='([^']+?)' height='90'[^>]+?/>|;
-        $hits[$i]{thumbnail} = $1;
-        $i++;
-    }
-    my $response = [];
-    %ythits = ();
-    foreach (@hits) {
-        $ythits{$_->{url}} = $_->{title};
-        push @$response, {
-            name => $_->{url},
-            ops => [ qw(I H J) ],
-            label => $_->{title},
-            thumbnail => $_->{thumbnail},
-        };
+    my @response = WWW::U2B::search(split / /, $query);
+    foreach (@response) {
+        $_->{ops} = [ qw(I H J) ];
+        $ythits{$_->{name}} = $_->{label};
     }
     print header 'application/json';
-    print encode_json $response;
+    print encode_json \@response;
 }
 
 sub logger {
