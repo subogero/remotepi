@@ -76,7 +76,7 @@ debs:
 	echo                                                        >>$(DEB)/control
 	echo 'Package: remotepi'                                    >>$(DEB)/control
 	echo 'Architecture: all'                                    >>$(DEB)/control
-	echo 'Depends: $${shlibs:Depends}, $${misc:Depends}, apache2, libapache2-mod-fcgid, liburi-perl, libcgi-fast-perl, libjson-xs-perl, omxd, rpi.fm' >>$(DEB)/control
+	echo 'Depends: $${shlibs:Depends}, $${misc:Depends}, apache2, libapache2-mod-fcgid, liburi-perl, libcgi-fast-perl, libjson-xs-perl, omxd, rpi.fm, u2b' >>$(DEB)/control
 	echo "$$DESCR"                                              >>$(DEB)/control
 	grep Copyright index.html                      >$(DEB)/copyright
 	echo 'License: GNU AGPL v3'                   >>$(DEB)/copyright

@@ -39,5 +39,5 @@ u2b.op = function(cmd, file) {
     req.open("POST", 'yt', true);
     req.setRequestHeader("Content-type","application/json");
     req.send(JSON.stringify({ cmd: cmd, query: file }));
-    document.getElementById("ytstate").innerHTML = 'Waiting for youtube-dl...';
+    document.getElementById("ytstate").innerHTML = 'Extracting stream...';
 }
