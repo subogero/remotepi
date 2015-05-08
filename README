@@ -29,7 +29,7 @@ As root
  apt-get update
  apt-get install remotepi
 
-This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, youtube-dl
+This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, u2b
 and the necessary Perl libraries.
 
 ## USE

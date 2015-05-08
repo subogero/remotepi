@@ -7,7 +7,6 @@ else
   site=remotepi
   dir=/usr/share/remotepi
 fi
-curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 chown :www-data $dir
 chmod 775 $dir
 sed "s/remotepi/$site/g" $dir/remotepi.conf >/etc/apache2/$site.conf
