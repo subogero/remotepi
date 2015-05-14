@@ -100,6 +100,7 @@ sub status {
     } <PLAY>;
     $response->{image} = thumbnail $dir;
     print encode_json $response;
+    close PLAY;
 }
 
 # Get thumbnail image link from current playback directory
@@ -245,8 +246,13 @@ sub yt {
     # Playback command
     if ($data) {
         my @streams = WWW::U2B::extract_streams $data->{query};
-        WWW::U2B::playback "omxd $data->{cmd}", $streams[0];
-        logger "omxd $data->{cmd} $streams[0]->{url}";
+        my $streamidx;
+        for ($streamidx=0; $streamidx <= $#streams; $streamidx++){
+            last if $streams[$streamidx]->{type}=~/^video\/mp4/;
+        }
+        logger "Using stream ".$streamidx;
+        WWW::U2B::playback "omxd $data->{cmd}", $streams[$streamidx];
+        logger "omxd $data->{cmd} $streams[$streamidx]->{url}";
         print header 'text/plain';
         $ytid = $data->{query};
         return;
