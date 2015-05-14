@@ -247,7 +247,7 @@ sub yt {
     if ($data) {
         my @streams = WWW::U2B::extract_streams $data->{query};
         my $streamidx;
-        for ($streamidx=0; $streamidx le $#streams; $streamidx++){
+        for ($streamidx=0; $streamidx <= $#streams; $streamidx++){
             last if $streams[$streamidx]->{type}=~/^video\/mp4/;
         }
         logger "Using stream ".$streamidx;
