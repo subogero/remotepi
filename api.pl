@@ -38,7 +38,7 @@ while (my $cgi = new CGI::Fast) {
     my $method = request_method;
     my $data;
     if ($method eq 'POST'){
-        $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
+        $data = eval { decode_json $cgi->param('POSTDATA') };
         if ($@) {
             print header 'text/html', '400 Malformed JSON Request';
             next;
