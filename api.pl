@@ -100,6 +100,7 @@ sub status {
     } <PLAY>;
     $response->{image} = thumbnail $dir;
     print encode_json $response;
+    close PLAY;
 }
 
 # Get thumbnail image link from current playback directory
