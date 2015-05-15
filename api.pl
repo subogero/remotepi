@@ -37,10 +37,12 @@ rpifm_my;
 while (my $cgi = new CGI::Fast) {
     my $method = request_method;
     my $data;
-    $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
-    if ($@) {
-        print header 'text/html', '400 Malformed JSON Request';
-        next;
+    if ($method eq 'POST'){
+        $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
+        if ($@) {
+            print header 'text/html', '400 Malformed JSON Request';
+            next;
+        }
     }
     my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
