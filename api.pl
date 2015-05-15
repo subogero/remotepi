@@ -37,10 +37,12 @@ rpifm_my;
 while (my $cgi = new CGI::Fast) {
     my $method = request_method;
     my $data;
-    $data = eval { decode_json $cgi->param('POSTDATA') } if $method eq 'POST';
-    if ($@) {
-        print header 'text/html', '400 Malformed JSON Request';
-        next;
+    if ($method eq 'POST'){
+        $data = eval { decode_json $cgi->param('POSTDATA') };
+        if ($@) {
+            print header 'text/html', '400 Malformed JSON Request';
+            next;
+        }
     }
     my $get_req = uri_unescape $ENV{QUERY_STRING};
     if ($get_req =~ /^S/) {
@@ -100,6 +102,7 @@ sub status {
     } <PLAY>;
     $response->{image} = thumbnail $dir;
     print encode_json $response;
+    close PLAY;
 }
 
 # Get thumbnail image link from current playback directory
@@ -245,8 +248,13 @@ sub yt {
     # Playback command
     if ($data) {
         my @streams = WWW::U2B::extract_streams $data->{query};
-        WWW::U2B::playback "omxd $data->{cmd}", $streams[0];
-        logger "omxd $data->{cmd} $streams[0]->{url}";
+        foreach (@streams) {
+            next unless $_->{extension} eq 'mp4';
+            WWW::U2B::playback "omxd $data->{cmd}", $_;
+            logger "U2B: extension=".$_->{extension}.", quality=".$_->{quality};
+            logger "omxd $data->{cmd} $_->{url}";
+            last;
+        }
         print header 'text/plain';
         $ytid = $data->{query};
         return;
