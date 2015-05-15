@@ -246,8 +246,13 @@ sub yt {
     # Playback command
     if ($data) {
         my @streams = WWW::U2B::extract_streams $data->{query};
-        WWW::U2B::playback "omxd $data->{cmd}", $streams[0];
-        logger "omxd $data->{cmd} $streams[0]->{url}";
+        foreach (@streams) {
+            next unless $_->{extension} eq 'mp4';
+            WWW::U2B::playback "omxd $data->{cmd}", $_;
+            logger "U2B: extension=".$_->{extension}.", quality=".$_->{quality};
+            logger "omxd $data->{cmd} $_->{url}";
+            last;
+        }
         print header 'text/plain';
         $ytid = $data->{query};
         return;
