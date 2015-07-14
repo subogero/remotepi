@@ -7,5 +7,6 @@
 *.JPEG
 *.png
 *.PNG
+.u2bjar
 jar
 .release/
