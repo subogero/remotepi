@@ -4,7 +4,21 @@ use Mojolicious::Lite;
 
 # STARTUP
 sub status; sub thumbnail; sub logger;
+sub ls;
 my ($root);
+# Cleaun up albumart symlink upon exit
+$SIG{TERM} = sub { thumbnail };
+
+# Get root directory
+if (open CFG, "/etc/omxd.conf") {
+    $root = <CFG>;
+    chomp $root;
+    $root =~ s|user=|/home/|;
+    $root = "/home" unless -d $root;
+    close CFG;
+} else {
+    $root = "/home";
+}
 
 # ROUTES
 get '/' => sub {
@@ -20,22 +34,15 @@ get '/' => sub {
 any '/S*param' => { param => 'post' } => sub {
     my $c = shift;
     my $data = $c->req->json;
-    $c->render(json => status $c->stash('param'), $data);
+    $c->render(json => status($c->stash('param'), $data));
 };
 
-# Cleaun up albumart symlink upon exit
-$SIG{TERM} = sub { thumbnail };
+any '/home*param' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => ls($c->stash('param'), $data));
+};
 
-# Get root directory
-if (open CFG, "/etc/omxd.conf") {
-    $root = <CFG>;
-    chomp $root;
-    $root =~ s|user=|/home/|;
-    $root = "/home" unless -d $root;
-    close CFG;
-} else {
-    $root = "/home";
-}
 app->start('daemon');
 
 # HELPERS
@@ -88,6 +95,40 @@ sub thumbnail {
     }
     close DIR;
     return $img;
+}
+
+# Browse Raspberry Pi
+sub ls {
+    my $dir = shift;
+    my $data = shift;
+    if ($data) {
+        `omxd $data->{cmd} "$root$data->{file}"` if $data->{cmd} =~ /[iaAIHJ]/;
+        return [];
+    }
+    # Return to root dir upon dangerous attempts
+    $dir = $dir =~ /^\.|^$/ ? $root : "$root$dir";
+    # Sanitize dir: remove double slashes, cd .. until really dir
+    $dir =~ s|(.+)/.+|$1| while ! -d $dir;
+    opendir DIR, $dir;
+    my @files;
+    push @files, $_ while readdir DIR;
+    closedir DIR;
+    my $response = [];
+    foreach (sort { -d "$dir/$a" && -f "$dir/$b" ? -1
+                  : -f "$dir/$a" && -d "$dir/$b" ?  1
+                  :          $a     cmp      $b     } @files) {
+        next if /^\.$/;
+        next if /^\.\w/;
+        next if /^\.\.$/ && $dir eq "$root/";
+        if ($_ eq '..') {
+            push @$response, { name => $_, ops => [ qw(cd) ] };
+        } elsif (-d "$dir/$_") {
+            push @$response, { name => $_, ops => [ qw(cd i a A) ] };
+        } else {
+            push @$response, { name => $_, ops => [ qw(i a A I H J) ] };
+        }
+    }
+    return $response;
 }
 
 sub logger {
