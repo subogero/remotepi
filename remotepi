@@ -1,0 +1,98 @@
+#!/usr/bin/perl
+use feature state;
+use Mojolicious::Lite;
+
+# STARTUP
+sub status; sub thumbnail; sub logger;
+my ($root);
+
+# ROUTES
+get '/' => sub {
+    my $c = shift;
+    # Workaround for lack of $c->reply->static in old Mojo
+    open my $ifd, 'public/index.html' or die;
+    my $index;
+    $index .= $_ while <$ifd>;
+    close $ifd;
+    $c->render(text => $index);
+};
+
+any '/S*param' => { param => 'post' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => status $c->stash('param'), $data);
+};
+
+# Cleaun up albumart symlink upon exit
+$SIG{TERM} = sub { thumbnail };
+
+# Get root directory
+if (open CFG, "/etc/omxd.conf") {
+    $root = <CFG>;
+    chomp $root;
+    $root =~ s|user=|/home/|;
+    $root = "/home" unless -d $root;
+    close CFG;
+} else {
+    $root = "/home";
+}
+app->start('daemon');
+
+# HELPERS
+
+# Print playlist status
+sub status {
+    my $cmd = shift;
+    my $data = shift;
+    if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
+        `omxd $data->{cmd} $data->{file}`;
+    }
+    unless (open PLAY, "omxd S all |") {
+        return;
+    }
+    my $now = <PLAY>;
+    chomp $now;
+    my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    # Remove root from track name if local file
+    my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
+    $what =~ s/$root//;
+    # Construct JSON response
+    my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
+    my $i = 0;
+    @{$response->{list}} = map {
+        s/^(> )?$root(.+)\n/$2/;
+        { name => $i++, label => $_, ops => [ qw(g x) ] }
+    } <PLAY>;
+    close PLAY;
+    $response->{image} = thumbnail $dir;
+    return $response;
+}
+
+# Get thumbnail image link from current playback directory
+sub thumbnail {
+    my $dir = shift;
+    state ($dir_old, $img_old);
+    return $img_old if $dir eq $dir_old;
+    unlink $img_old;
+    $img_old = '';
+    $dir_old = $dir;
+    return unless $dir && opendir DIR, $dir;
+    my $img;
+    while (readdir DIR) {
+        next unless /(png|jpe?g)$/i;
+        next if $_ eq 'rpi.jpg';
+        symlink "$dir/$_", "public/$_" or logger "Unable to symlink $_";
+        $img_old = $_;
+        $img = $_;
+        last;
+    }
+    close DIR;
+    return $img;
+}
+
+sub logger {
+    print "@_\n";
+}
+__DATA__
+@@ not_found.html.ep
+/bin/bash: s: command not found
