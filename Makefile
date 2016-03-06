@@ -10,22 +10,17 @@ REL := .release
 all:
 install:
 	-mkdir -p $(DESTDIR)/usr/share/remotepi
-	cp -r -t $(DESTDIR)/usr/share/remotepi README remotepi.conf api.pl *.js index.html style.css img
-	-./postinst
+	cp -r -t $(DESTDIR)/usr/share/remotepi README remotepi public
 uninstall:
 	rm -rf $(DESTDIR)/usr/share/remotepi
-	-./postrm
-itest:
-	-./postinst -s testpi
-utest:
-	-./postrm -s testpi
 clean:
 	rm -rf .release
 # Debug
 restart:
-	service apache2 restart
+	-killall remotepi
+	$(DESTDIR)/usr/share/remotepi/remotepi &
 ps:
-	pstree -pu | grep api.pl
+	pstree -pu | grep remotepi
 # Release
 tag:
 	@git status | grep -q 'nothing to commit' || (echo Worktree dirty; exit 1)
@@ -76,7 +71,7 @@ debs:
 	echo                                                        >>$(DEB)/control
 	echo 'Package: remotepi'                                    >>$(DEB)/control
 	echo 'Architecture: all'                                    >>$(DEB)/control
-	echo 'Depends: $${shlibs:Depends}, $${misc:Depends}, libmojolicious-perl, liburi-perl, libjson-xs-perl, omxd, rpi.fm, u2b' >>$(DEB)/control
+	echo 'Depends: $${shlibs:Depends}, $${misc:Depends}, libmojolicious-perl, liburi-perl, libjson-xs-perl, omxd, rpi.fm, u2b, curl' >>$(DEB)/control
 	echo "$$DESCR"                                              >>$(DEB)/control
 	grep Copyright index.html                      >$(DEB)/copyright
 	echo 'License: GNU AGPL v3'                   >>$(DEB)/copyright
