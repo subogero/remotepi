@@ -2,12 +2,14 @@
 use feature state;
 use Mojolicious::Lite;
 use IPC::Open2;
+use WWW::U2B;
 
 # STARTUP
 sub status; sub thumbnail; sub logger;
 sub ls;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
-my ($root);
+sub yt;
+my ($root, $ytid, %ythits, $fm_my);
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
@@ -55,6 +57,12 @@ any '/fm*param/' => { param => '/' } => sub {
         $c->render(json => $response);
     }
     rpifm_my;
+};
+
+any '/yt*param' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => yt($c->stash('param'), $data));
 };
 
 app->start('daemon');
@@ -223,6 +231,36 @@ sub rpifm_my {
 sub byalphanum {
     return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
     return $a cmp $b;
+}
+
+# Browse and play YouTube
+sub yt {
+    (my $cmd = shift) =~ s|^/||;
+    $cmd =~ m|^([^/]+)/(.*)|;
+    my ($cmd, $query) = ($1, $2);
+
+    my $data = shift;
+
+    # Playback command
+    if ($data) {
+        my @streams = WWW::U2B::extract_streams $data->{query};
+        foreach (@streams) {
+            next unless $_->{extension} eq 'mp4';
+            WWW::U2B::playback "omxd $data->{cmd}", $_;
+            logger "U2B: extension=".$_->{extension}.", quality=".$_->{quality};
+            logger "omxd $data->{cmd} $_->{url}";
+            last;
+        }
+        $ytid = $data->{query};
+        return '';
+    }
+    # Search command
+    my @response = WWW::U2B::search(split / /, $query);
+    foreach (@response) {
+        $_->{ops} = [ qw(I H J) ];
+        $ythits{$_->{name}} = $_->{label};
+    }
+    return \@response;
 }
 
 sub logger {
