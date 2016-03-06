@@ -27,12 +27,7 @@ if (open CFG, "/etc/omxd.conf") {
 # ROUTES
 get '/' => sub {
     my $c = shift;
-    # Workaround for lack of $c->reply->static in old Mojo
-    open my $ifd, 'public/index.html' or die;
-    my $index;
-    $index .= $_ while <$ifd>;
-    close $ifd;
-    $c->render(text => $index);
+    $c->reply->static('index.html');
 };
 
 any '/S*param' => { param => 'post' } => sub {
@@ -261,7 +256,8 @@ sub byalphanum {
 sub yt {
     (my $cmd = shift) =~ s|^/||;
     $cmd =~ m|^([^/]+)/(.*)|;
-    my ($cmd, $query) = ($1, $2);
+    my $query;
+    ($cmd, $query) = ($1, $2);
 
     my $data = shift;
 
