@@ -1,10 +1,12 @@
 #!/usr/bin/perl
 use feature state;
 use Mojolicious::Lite;
+use IPC::Open2;
 
 # STARTUP
 sub status; sub thumbnail; sub logger;
 sub ls;
+sub rpifm_my; sub run_rpifm; sub byalphanum;
 my ($root);
 # Cleaun up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
@@ -41,6 +43,18 @@ any '/home*param' => { param => '/' } => sub {
     my $c = shift;
     my $data = $c->req->json;
     $c->render(json => ls($c->stash('param'), $data));
+};
+
+any '/fm*param/' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    my ($response, $code) = fm($c->stash('param'), $data);
+    if ($code) {
+        $c->render(text => $response, status => $code);
+    } else {
+        $c->render(json => $response);
+    }
+    rpifm_my;
 };
 
 app->start('daemon');
@@ -129,6 +143,86 @@ sub ls {
         }
     }
     return $response;
+}
+
+# Browse internet radio stations
+sub fm {
+    # Convert both URL and JSON list into multiline strings
+    (my $cmd = shift) =~ s|^/||;
+    $cmd =~ s|/|\n|g;
+    my $data = shift;
+    if (ref $data eq 'ARRAY') {
+        $data = join("\n", @$data);
+    }
+    if ($cmd =~ /\n[iaAIHJ]/) {
+        return "400 No playlist changes in GET requests", 400;
+    }
+    my $cmds = $data || $cmd;
+
+    my $response = [
+        { name => '/g', ops => [ 'cd' ], label => 'Genres' },
+        { name => '/m', ops => [ 'cd' ], label => 'My Stations' },
+    ];
+    my ($title, %list) = run_rpifm $cmds;
+    push @$response, { name => $title || 'Genres', ops => [] } if %list;
+    foreach (sort byalphanum keys %list) {
+        unless ($title) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $list{$_},
+            };
+        } elsif (/^[<>]$/) {
+            push @$response, {
+                name => $_,
+                ops => [ 'cd' ],
+                label => $_ eq '<' ? 'Previous' : 'Next',
+            };
+        } else {
+            push @$response, {
+                name => $_,
+                ops => [ qw(i a A I H J) ],
+                label => $list{$_},
+            };
+        }
+    }
+    return $response;
+}
+
+sub run_rpifm {
+    my $cmd = shift;
+    my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
+    print OUT $cmd;
+    close OUT;
+    my ($title, %list);
+    while (<IN>) {
+        s/\r|\n//g;
+        if (/^[a-zA-Z]/) {
+            $title = $_;
+            %list = ();
+        } elsif (/^ *(\d+|[<>]) +(.+)$/) {
+            $list{$1} = $2;
+        }
+    }
+    close IN;
+    waitpid $pid, 0;
+    return $title, %list;
+}
+
+sub rpifm_my {
+    return unless open RPI, ".rpi.fm";
+    my $dump;
+    while (<RPI>) {
+        $dump .= $_ if /MyStations/ || $dump; # Lines from MysStations on
+        last if $dump && /^  }/;              # until its closing brace
+    }
+    $dump =~ s/.+?\{/\$fm_my = {/;
+    eval $dump;
+}
+
+sub byalphanum {
+    return $a <=> $b if $a =~ /^\d+$/ && $b =~ /^\d+$/;
+    return $a cmp $b;
 }
 
 sub logger {
