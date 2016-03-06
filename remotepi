@@ -5,7 +5,7 @@ use IPC::Open2;
 use WWW::U2B;
 
 # STARTUP
-sub status; sub thumbnail; sub logger;
+sub status; sub thumbnail; sub decorate; sub logger;
 sub ls;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
 sub yt;
@@ -65,6 +65,7 @@ any '/yt*param' => { param => '/' } => sub {
     $c->render(json => yt($c->stash('param'), $data));
 };
 
+rpifm_my;
 app->start('daemon');
 
 # HELPERS
@@ -85,6 +86,7 @@ sub status {
     # Remove root from track name if local file
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
+    $what = decorate $cmd, $what;
     # Construct JSON response
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
@@ -97,12 +99,33 @@ sub status {
     return $response;
 }
 
+# Decorate currect track with FM/YouTube info
+sub decorate {
+    my $cmd = shift;
+    my $what = shift;
+    # Replace track name with internet radio if needed
+    foreach (keys %$fm_my) {
+        next unless $fm_my->{$_}{listen} eq $what;
+        my $url = $_;
+        $what = $fm_my->{$_}{title};
+        if ($cmd =~ m|^S\d*/details|) {
+            my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
+            $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
+            $what .= "\n$url\n$1";
+        }
+    }
+    # Replace track name with YouTube id if needed
+    $what =~ s|.*\.u2bfifo$|/YouTube/$ythits{$ytid}|;
+
+    return $what;
+}
+
 # Get thumbnail image link from current playback directory
 sub thumbnail {
     my $dir = shift;
     state ($dir_old, $img_old);
-    return $img_old if $dir eq $dir_old;
-    unlink $img_old;
+    return $img_old if $dir && $dir_old && $dir eq $dir_old;
+    unlink $img_old if $img_old;;
     $img_old = '';
     $dir_old = $dir;
     return unless $dir && opendir DIR, $dir;
@@ -218,7 +241,8 @@ sub run_rpifm {
 }
 
 sub rpifm_my {
-    return unless open RPI, ".rpi.fm";
+    my $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
+    return unless open RPI, $cfgfile;
     my $dump;
     while (<RPI>) {
         $dump .= $_ if /MyStations/ || $dump; # Lines from MysStations on
