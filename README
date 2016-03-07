@@ -1,6 +1,13 @@
 RemotePi -- Raspberry Pi media centre with remote control
 =========================================================
 
+## DISCLAIMER
+
+Version 1.5 was the last Apache2-FCGI app.
+The next one will be a Mojolicious app with a built-in webserver,
+much easier installation, but listening on port 3000 by default.
+You've been warned.
+
 ## DESCRIPTION
 
 RemotePi is a remote control web app to browse your RaspberryPi's music/videos,
