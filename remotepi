@@ -10,7 +10,7 @@ sub ls;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
 sub yt;
 my ($root, $ytid, %ythits, $fm_my);
-# Cleaun up albumart symlink upon exit
+# Clean up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
 # Get root directory
@@ -61,7 +61,8 @@ any '/yt*param' => { param => '/' } => sub {
 };
 
 rpifm_my;
-app->start('daemon');
+my $port = 31100;
+app->start('daemon', '-l' => "http://*:$port");
 
 # HELPERS
 
