@@ -1,0 +1,10 @@
+[Unit]
+Description=Raspberry Pi lightweight media centre
+Requires=omxd
+
+[Service]
+ExecStart=/usr/share/remotepi/remotepi
+
+[Install]
+WantedBy=multi-user.target
+Alias=remotepi

@@ -10,7 +10,7 @@ REL := .release
 all:
 install:
 	-mkdir -p $(DESTDIR)/usr/share/remotepi
-	cp -r -t $(DESTDIR)/usr/share/remotepi README remotepi public
+	cp -r -t $(DESTDIR)/usr/share/remotepi README remotepi public remotepi.service
 uninstall:
 	rm -rf $(DESTDIR)/usr/share/remotepi
 clean:
@@ -85,7 +85,8 @@ debs:
 	echo '#!/usr/bin/make -f' > $(DEB)/rules
 	echo '%:'                >> $(DEB)/rules
 	echo '	dh $$@'          >> $(DEB)/rules
-	cp -t $(DEB) post*
+	cp -t $(DEB) prerm
+	cp -t $(DEB) postinst
 	chmod 755 $(DEB)/rules
 	mkdir -p $(DEB)/source
 	echo '3.0 (quilt)' > $(DEB)/source/format

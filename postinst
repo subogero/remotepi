@@ -1,0 +1,4 @@
+#!/bin/sh
+echo Running remotepi postinst >&2
+systemctl enable /usr/share/remotepi/remotepi.service
+systemctl start remotepi

@@ -1,0 +1,4 @@
+#!/bin/sh
+echo Running remotepi prerm >&2
+systemctl stop remotepi || true
+systemctl disable remotepi || true
