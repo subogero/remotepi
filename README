@@ -1,13 +1,6 @@
 RemotePi -- Raspberry Pi media centre with remote control
 =========================================================
 
-## DISCLAIMER
-
-Version 1.5 was the last Apache2-FCGI app.
-The next one will be a Mojolicious app with a built-in webserver,
-much easier installation, but listening on port 3000 by default.
-You've been warned.
-
 ## DESCRIPTION
 
 RemotePi is a remote control web app to browse your RaspberryPi's music/videos,
@@ -26,7 +19,8 @@ Features:
  - play files now on Jack or HDMI audio and then return to playlist
  - play/pause, repeat, previous/next in playlist, RW/FF.
 
-RemotePi is a FastCGI (mod_fcgid) app.
+RemotePi is a Perl Mojolicious webapp with its own standalone webserver
+listening on port 31100.
 
 ## INSTALL
 
@@ -36,19 +30,19 @@ As root
  apt-get update
  apt-get install remotepi
 
-This installs RemotePi's dependencies too: apache2, omxd, rpi.fm, u2b
+This installs RemotePi's dependencies too: omxd, rpi.fm, u2b
 and the necessary Perl libraries.
 
 ## USE
 
-Point your PC/tablet/phone's browser to http://raspberry/remotepi on your
-home WiFi network. Enjoy.
+Point your PC/tablet/phone's browser to http://raspberry:31100 on your
+home network. Enjoy.
 
 The buttons wear the name of the respctive omxd commands, see the tooltips,
 the "help" tab or omxd's README or man page.
 
-If you have internet connection, the UI will use Hammer.js to change tabs
-with swipe and long-press gestures for the left/right and help tabs.
+The UI uses Hammer.js to change tabs with swipe and long-press gestures
+for the left/right and help tabs.
 
 ## REST API
 
@@ -74,15 +68,6 @@ Omxd runs omxplayer as the user specified in this file.
 This user's home is the root directory for file browsing by RemotePi.
 If the file does not exist, the default root directory is /home.
 
-### /var/www/remotepi
-
-A symlink to your remotepi directory
-
-### /var/www/remotepi/.rpi.fm
+### /usr/share/remotepi/.rpi.fm
 
 rpi.fm's genre cache and "My stations" database
-
-### /etc/apache2/remotepi.conf
-
-Apache2 config for the RemotePi app. Gets included in the default virtual host
-config file /etc/apache2/sites-available/default during install.

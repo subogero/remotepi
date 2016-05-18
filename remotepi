@@ -1,20 +1,16 @@
 #!/usr/bin/perl
-# (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3
 use feature state;
-use URI::Escape;
-use CGI qw(:standard);
-use CGI::Carp qw(fatalsToBrowser);
-use CGI::Fast;
+use Mojolicious::Lite;
 use IPC::Open2;
-use Fcntl ':mode';
-use Cwd;
-use JSON::XS;
 use WWW::U2B;
-sub status; sub thumbnail;
-sub ls; sub fm; sub run_rpifm; sub rpifm_my; sub byalphanum; sub yt; sub logger;
-my ($root, $ytid, %ythits, $fm_my);
 
-# Cleaun up albumart symlink upon exit
+# STARTUP
+sub status; sub thumbnail; sub decorate; sub logger;
+sub ls;
+sub rpifm_my; sub run_rpifm; sub byalphanum;
+sub yt;
+my ($root, $ytid, %ythits, $fm_my);
+# Clean up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
 # Get root directory
@@ -27,40 +23,48 @@ if (open CFG, "/etc/omxd.conf") {
 } else {
     $root = "/home";
 }
-# Open log file
-open LOG, ">remotepi.log";
 
-# Load radio station data
+# ROUTES
+get '/' => sub {
+    my $c = shift;
+    $c->reply->static('index.html');
+};
+
+any '/S*param' => { param => 'post' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => status($c->stash('param'), $data));
+};
+
+any '/home*param' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => ls($c->stash('param'), $data));
+};
+
+any '/fm*param/' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    my ($response, $code) = fm($c->stash('param'), $data);
+    if ($code) {
+        $c->render(text => $response, status => $code);
+    } else {
+        $c->render(json => $response);
+    }
+    rpifm_my;
+};
+
+any '/yt*param' => { param => '/' } => sub {
+    my $c = shift;
+    my $data = $c->req->json;
+    $c->render(json => yt($c->stash('param'), $data));
+};
+
 rpifm_my;
+my $port = 31100;
+app->start('daemon', '-l' => "http://*:$port");
 
-# FastCGI main loop to handle AJAX requests
-while (my $cgi = new CGI::Fast) {
-    my $method = request_method;
-    my $data;
-    if ($method eq 'POST'){
-        $data = eval { decode_json $cgi->param('POSTDATA') };
-        if ($@) {
-            print header 'text/html', '400 Malformed JSON Request';
-            next;
-        }
-    }
-    my $get_req = uri_unescape $ENV{QUERY_STRING};
-    if ($get_req =~ /^S/) {
-        status $get_req, $data;
-    } elsif ($get_req =~ /^home/) {
-        (my $dir = $get_req) =~ s/^home//;
-        ls $dir, $data;
-    } elsif ($get_req =~ /^fm/) {
-        (my $cmd = $get_req) =~ s|^fm/?||;
-        fm $cmd, $data;
-    } elsif ($get_req =~ /^yt/) {
-        (my $cmd = $get_req) =~ s|^yt/?||;
-        yt $cmd, $data;
-    } elsif ($get_req) {
-        print header 'text/html', '400 Bad request';
-        print "<!-- $method $data $get_req -->\n";
-    }
-}
+# HELPERS
 
 # Print playlist status
 sub status {
@@ -70,13 +74,31 @@ sub status {
         `omxd $data->{cmd} $data->{file}`;
     }
     unless (open PLAY, "omxd S all |") {
-        print header('text/html', '500 Unable to access omxd status');
         return;
     }
-    print header(-type => 'application/json', -charset => 'utf-8');
     my $now = <PLAY>;
     chomp $now;
     my ($doing, $at, $of, $what) = split /[\s\/]/, $now, 4;
+    # Remove root from track name if local file
+    my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
+    $what =~ s/$root//;
+    $what = decorate $cmd, $what;
+    # Construct JSON response
+    my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
+    my $i = 0;
+    @{$response->{list}} = map {
+        s/^(> )?$root(.+)\n/$2/;
+        { name => $i++, label => $_, ops => [ qw(g x) ] }
+    } <PLAY>;
+    close PLAY;
+    $response->{image} = thumbnail $dir;
+    return $response;
+}
+
+# Decorate currect track with FM/YouTube info
+sub decorate {
+    my $cmd = shift;
+    my $what = shift;
     # Replace track name with internet radio if needed
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
@@ -88,29 +110,18 @@ sub status {
             $what .= "\n$url\n$1";
         }
     }
-    # Remove root from track name if local file
-    my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
-    $what =~ s/$root//;
     # Replace track name with YouTube id if needed
     $what =~ s|.*\.u2bfifo$|/YouTube/$ythits{$ytid}|;
-    # Construct JSON response
-    my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
-    my $i = 0;
-    @{$response->{list}} = map {
-        s/^(> )?$root(.+)\n/$2/;
-        { name => $i++, label => $_, ops => [ qw(g x) ] }
-    } <PLAY>;
-    $response->{image} = thumbnail $dir;
-    print encode_json $response;
-    close PLAY;
+
+    return $what;
 }
 
 # Get thumbnail image link from current playback directory
 sub thumbnail {
     my $dir = shift;
     state ($dir_old, $img_old);
-    return $img_old if $dir eq $dir_old;
-    unlink $img_old;
+    return $img_old if $dir && $dir_old && $dir eq $dir_old;
+    unlink $img_old if $img_old;;
     $img_old = '';
     $dir_old = $dir;
     return unless $dir && opendir DIR, $dir;
@@ -118,7 +129,7 @@ sub thumbnail {
     while (readdir DIR) {
         next unless /(png|jpe?g)$/i;
         next if $_ eq 'rpi.jpg';
-        symlink "$dir/$_", $_ or logger "Unable to symlink $_";
+        symlink "$dir/$_", "public/$_" or logger "Unable to symlink $_";
         $img_old = $_;
         $img = $_;
         last;
@@ -132,9 +143,8 @@ sub ls {
     my $dir = shift;
     my $data = shift;
     if ($data) {
-        print header 'text/plain';
         `omxd $data->{cmd} "$root$data->{file}"` if $data->{cmd} =~ /[iaAIHJ]/;
-        return;
+        return [];
     }
     # Return to root dir upon dangerous attempts
     $dir = $dir =~ /^\.|^$/ ? $root : "$root$dir";
@@ -159,19 +169,23 @@ sub ls {
             push @$response, { name => $_, ops => [ qw(i a A I H J) ] };
         }
     }
-    print header 'application/json';
-    print encode_json $response;
+    return $response;
 }
 
 # Browse internet radio stations
 sub fm {
-    (my $cmd = shift) =~ s|/|\n|g;     # /-separated from GET
-    my $data = join("\n", @{shift()}); # JSON array from POST
+    # Convert both URL and JSON list into multiline strings
+    (my $cmd = shift) =~ s|^/||;
+    $cmd =~ s|/|\n|g;
+    my $data = shift;
+    if (ref $data eq 'ARRAY') {
+        $data = join("\n", @$data);
+    }
     if ($cmd =~ /\n[iaAIHJ]/) {
-        print header 'text/plain', '400 No playlist changes in GET requests';
-        return;
+        return "400 No playlist changes in GET requests", 400;
     }
     my $cmds = $data || $cmd;
+
     my $response = [
         { name => '/g', ops => [ 'cd' ], label => 'Genres' },
         { name => '/m', ops => [ 'cd' ], label => 'My Stations' },
@@ -199,9 +213,7 @@ sub fm {
             };
         }
     }
-    print header 'application/json';
-    print encode_json $response;
-    rpifm_my;
+    return $response;
 }
 
 sub run_rpifm {
@@ -225,7 +237,8 @@ sub run_rpifm {
 }
 
 sub rpifm_my {
-    return unless open RPI, ".rpi.fm";
+    my $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
+    return unless open RPI, $cfgfile;
     my $dump;
     while (<RPI>) {
         $dump .= $_ if /MyStations/ || $dump; # Lines from MysStations on
@@ -242,9 +255,13 @@ sub byalphanum {
 
 # Browse and play YouTube
 sub yt {
-    (my $cmd = shift) =~ m|^([^/]+)/(.*)|;
-    my ($cmd, $query) = ($1, $2);
+    (my $cmd = shift) =~ s|^/||;
+    $cmd =~ m|^([^/]+)/(.*)|;
+    my $query;
+    ($cmd, $query) = ($1, $2);
+
     my $data = shift;
+
     # Playback command
     if ($data) {
         my @streams = WWW::U2B::extract_streams $data->{query};
@@ -255,9 +272,8 @@ sub yt {
             logger "omxd $data->{cmd} $_->{url}";
             last;
         }
-        print header 'text/plain';
         $ytid = $data->{query};
-        return;
+        return '';
     }
     # Search command
     my @response = WWW::U2B::search(split / /, $query);
@@ -265,13 +281,12 @@ sub yt {
         $_->{ops} = [ qw(I H J) ];
         $ythits{$_->{name}} = $_->{label};
     }
-    print header 'application/json';
-    print encode_json \@response;
+    return \@response;
 }
 
 sub logger {
-    return if tell LOG == -1;
-    my $msg = shift;
-    local $| = 1; # autoflush to logfile
-    print LOG "\n", time(), " PID: $$\n", $msg, "\n";
+    print "@_\n";
 }
+__DATA__
+@@ not_found.html.ep
+/bin/bash: s: command not found
