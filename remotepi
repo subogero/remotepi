@@ -13,7 +13,7 @@ my ($root, $ytid, %ythits, $fm_my);
 # Clean up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
-# Get root directory
+# Get ls root directory
 if (open CFG, "/etc/omxd.conf") {
     $root = <CFG>;
     chomp $root;
@@ -23,6 +23,11 @@ if (open CFG, "/etc/omxd.conf") {
 } else {
     $root = "/home";
 }
+
+# Run in /var/tmp/remotepi
+my $cwd = '/var/tmp/remotepi';
+-d $cwd or mkdir $cwd;
+chdir $cwd;
 
 # ROUTES
 get '/' => sub {
@@ -237,7 +242,7 @@ sub run_rpifm {
 }
 
 sub rpifm_my {
-    my $cfgfile = $ENV{HOME} ? "$ENV{HOME}/.rpi.fm" : ".rpi.fm";
+    my $cfgfile = ".rpi.fm";
     return unless open RPI, $cfgfile;
     my $dump;
     while (<RPI>) {
