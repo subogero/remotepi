@@ -16,9 +16,12 @@ uninstall:
 clean:
 	rm -rf .release
 # Debug
-restart:
+debug:
+	-systemctl stop remotepi
+	-./remotepi
+udebug:
 	-killall remotepi
-	$(DESTDIR)/usr/share/remotepi/remotepi &
+	-systemctl start remotepi
 ps:
 	pstree -pu | grep remotepi
 # Release
