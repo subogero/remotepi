@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-use feature state;
 use Mojolicious::Lite;
 use IPC::Open2;
 use WWW::U2B;
@@ -10,6 +9,7 @@ sub ls;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
 sub yt;
 my ($root, $ytid, %ythits, $fm_my);
+our ($img_dir, $img);
 # Clean up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
@@ -33,6 +33,16 @@ chdir $cwd;
 get '/' => sub {
     my $c = shift;
     $c->reply->static('index.html');
+};
+
+get "/thumbs*thumb" => { thumb => '/' } => sub {
+    my $c = shift;
+    logger 'Thumb route fund!';
+    if ($img) {
+        $c->reply->static($img)
+    } else {
+        $c->render(template => 'not_found');
+    }
 };
 
 any '/S*param' => { param => 'post' } => sub {
@@ -66,6 +76,7 @@ any '/yt*param' => { param => '/' } => sub {
 };
 
 rpifm_my;
+push @{ app->static->paths }, $cwd;
 my $port = 31100;
 app->start('daemon', '-l' => "http://*:$port");
 
@@ -96,7 +107,8 @@ sub status {
         { name => $i++, label => $_, ops => [ qw(g x) ] }
     } <PLAY>;
     close PLAY;
-    $response->{image} = thumbnail $dir;
+
+    $response->{image} = "thumbs/$img" if thumbnail $dir;
     return $response;
 }
 
@@ -122,24 +134,22 @@ sub decorate {
 }
 
 # Get thumbnail image link from current playback directory
+# GET /thumbs/$img -> /var/tmp/remotepi/$img -> $dir/$img
 sub thumbnail {
     my $dir = shift;
-    state ($dir_old, $img_old);
-    return $img_old if $dir && $dir_old && $dir eq $dir_old;
-    unlink $img_old if $img_old;;
-    $img_old = '';
-    $dir_old = $dir;
-    return unless $dir && opendir DIR, $dir;
-    my $img;
-    while (readdir DIR) {
-        next unless /(png|jpe?g)$/i;
-        next if $_ eq 'rpi.jpg';
-        symlink "$dir/$_", "public/$_" or logger "Unable to symlink $_";
-        $img_old = $_;
-        $img = $_;
-        last;
-    }
-    close DIR;
+    return $img if $dir && $img_dir && $dir eq $img_dir;
+    unlink $img if $img;
+    $img = '';
+    $img_dir = $dir;
+
+    return $img unless $dir && opendir DIR, $dir;
+
+    my @imgs = sort grep { /(png|jpe?g)$/i && $_ ne 'rpi.jpg' } readdir DIR;
+    closedir DIR;
+    return $img unless @imgs;
+
+    $img = $imgs[0];
+    symlink "$dir/$img", $img or logger "Unable to symlink $img";
     return $img;
 }
 
@@ -292,6 +302,8 @@ sub yt {
 sub logger {
     print "@_\n";
 }
+
 __DATA__
+
 @@ not_found.html.ep
-/bin/bash: s: command not found
+404 Not found
