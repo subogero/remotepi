@@ -293,6 +293,7 @@ sub yt {
     # Search command
     my @response = WWW::U2B::search(split / /, $query);
     foreach (@response) {
+        $_->{thumbnail} =~ s/https:/http:/;
         $_->{ops} = [ qw(I H J) ];
         $ythits{$_->{name}} = $_->{label};
     }

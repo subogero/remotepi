@@ -23,7 +23,7 @@ u2b.yt2html = function(yt) {
         html += util.ops_buttons('u2b.op', yt[i]);
         html += '</p>';
         html += '<p class="' + c + '">';
-        html += '<img src="' + yt[i].thumbnail + '">';
+        html += '<img width="300" src="' + yt[i].thumbnail + '">';
         html += '</p>';
     }
     document.getElementById("ythits").innerHTML = html;
