@@ -103,7 +103,9 @@ sub status {
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
     @{$response->{list}} = map {
-        s/^(> )?$root(.+)\n/$2/;
+        chomp;
+        s/^> //;
+        s/^$root(.+)/$1/;
         { name => $i++, label => $_, ops => [ qw(g x) ] }
     } <PLAY>;
     close PLAY;
