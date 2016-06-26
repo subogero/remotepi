@@ -16,6 +16,10 @@ uninstall:
 clean:
 	rm -rf .release
 # Debug
+restart:
+	-systemctl stop remotepi
+	$(MAKE) install
+	-systemctl start remotepi
 debug:
 	-systemctl stop remotepi
 	-./remotepi
