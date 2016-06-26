@@ -106,6 +106,7 @@ sub status {
         chomp;
         s/^> //;
         s/^$root(.+)/$1/;
+        $_ = decorate undef, $_;
         { name => $i++, label => $_, ops => [ qw(g x) ] }
     } <PLAY>;
     close PLAY;
@@ -122,7 +123,7 @@ sub decorate {
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
-        $what = $fm_my->{$_}{title};
+        $what = "rpi.fm - $fm_my->{$_}{title}";
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
