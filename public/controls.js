@@ -2,6 +2,22 @@
 con = {};
 con.refresh = false;
 
+// Websocket object for status updates
+con.ws = new WebSocket('ws://' + window.location.host + '/diff');
+con.ws.onmessage = function(event) {
+    var elem_st = document.getElementById("st");
+    elem_st.innerHTML = event.data;
+    // var diff = JSON.parse(event.data);
+    // con.status2html(diff);
+};
+con.ws.onopen = function(event) {
+    con.ws.send(JSON.stringify({ msg: 'Hello' }));
+};
+con.ws.onclose = function(event) {
+    var elem_st = document.getElementById("st");
+    elem_st.innerHTML = 'Websocket to remotepi closed';
+};
+
 con.send = function(cmd) {
     var body = { cmd: cmd };
     if (arguments.length == 2) {
@@ -89,7 +105,7 @@ function Tab(name, callback) {
 
 con.init = function() {
     con.tabs = [
-        new Tab('list', con.getStatus),
+        new Tab('list'),
         new Tab('home', rpi.ls),
         new Tab('fm', rpifm.sendcmds),
         new Tab('yt'),
