@@ -35,9 +35,9 @@ div.browse { display:none }
 .even { background-color:#303030; margin:0; line-height:180% }
 .odd  { background-color:black; margin:0; line-height:180% }
 #now  { color:#c0ff60 }
-#nowpadding { background-color:black; padding:10px; }
-#nowplaying { background-color:#303030; padding:0px; }
-#nowplaying > div { background-color:#c0ff60; height:5px }
+#nowpadding { background-color:#303030; padding:10px; }
+#nowof { background-color:black; padding:0px; }
+#nowat { background-color:#c0ff60; height:5px }
 a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
 a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }
 hr { border:0; padding:0 }

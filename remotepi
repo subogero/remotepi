@@ -103,9 +103,11 @@ Mojo::IOLoop->recurring(1 => sub {
         $st_new->{$key} //= '';
         if ($st_new->{$key} ne $st_old->{$key}) {
             $diff->{$key} = $st_new->{$key};
+            $diff->{of} = $st_new->{of} if $key eq 'at';
+            $diff->{image} = $st_new->{image} if $key eq 'what';
         }
     }
-    if (@{$st_new->{list}} != @{$st_old->{list}}) {
+    if (@{$st_new->{list}} != @{$st_old->{list}} || $diff->{what}) {
         $diff->{list} = $st_new->{list};
     } else {
         for (0 .. scalar @{$st_new->{list}} - 1) {
@@ -170,7 +172,7 @@ sub decorate {
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
-        $what = "rpi.fm - $fm_my->{$_}{title}";
+        $what = "/rpi.fm/$fm_my->{$_}{title}";
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;

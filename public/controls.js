@@ -6,9 +6,9 @@ con.refresh = false;
 con.ws = new WebSocket('ws://' + window.location.host + '/diff');
 con.ws.onmessage = function(event) {
     var elem_st = document.getElementById("st");
-    elem_st.innerHTML = event.data;
-    // var diff = JSON.parse(event.data);
-    // con.status2html(diff);
+    // elem_st.innerHTML = event.data;
+    var diff = JSON.parse(event.data);
+    con.status2html(diff);
 };
 con.ws.onopen = function(event) {
     con.ws.send(JSON.stringify({ msg: 'Hello' }));
@@ -53,35 +53,50 @@ con.getStatus = function(suffix) {
 }
 
 con.status2html = function(st) {
-    var html = '';
-    var bar = (st.of == 0    ? 0
-             : st.at > st.of ? 100
-             :                 100 * st.at/st.of).toString() + '%';
-    html += '<div id="nowpadding">' +
-            '<div id="nowplaying"><div style="width:' + bar + '"></div></div>' +
-            '</div>';
-    html += '<p class="odd" id="stnow">';
-    if (st.image) {
-        html += '<img style="float:right" height="80" src="' + st.image + '">';
+    var stnow = document.getElementById('stnow');
+    stnow.onclick = function() { con.getStatus('/details'); };
+    if (st.doing != null) {
+        document.getElementById('doing').innerHTML = st.doing;
     }
-    html += st.doing + ' ' + con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
-    if (st.what.charAt(0) == '/') {
-        html += st.what.substring(1).split('/').join('<br>');
-    } else {
-        html += st.what;
+    if (st.at != null) {
+        var bar = (st.of == 0    ?   0
+                 : st.at > st.of ? 100
+                 :                 100 * st.at/st.of).toString()
+                + '%';
+        document.getElementById('nowat').style.width = bar;
+        document.getElementById('atof').innerHTML =
+            con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
     }
-    html += '</p>';
-    for (i = 0; i < st.list.length; i++) {
-        var c = i % 2 ? 'odd' : 'even';
-        var id = st.list[i].label == st.what ? ' id="now"' : '';
-        html += '<p class="' + c + '"' + id + '>';
-        html += util.ops_buttons('con.send', st.list[i]);
-        html += st.list[i].label + '</p>';
+    if (st.what != null) {
+        var html = st.what.charAt(0) == '/'
+            ? st.what.substring(1).split('/').join('<br>')
+            : st.what;
+        document.getElementById('what').innerHTML = html;
     }
-    var elem_st = document.getElementById("st");
-    elem_st.innerHTML = html;
-    var elem_stnow = document.getElementById("stnow");
-    elem_stnow.onclick = function() { con.getStatus('/details'); };
+    if (st.image != null) {
+        var first = stnow.children[0];
+        if (first.tagName == 'IMG') {
+            stnow.removeChild(first);
+        }
+        if (st.image != '') {
+            var img = document.createElement('img');
+            img.style.float = "right";
+            img.height = stnow.clientHeight;
+            img.src = st.image;
+            stnow.insertBefore(img, stnow.firstChild);
+        }
+    }
+    if (st.list != null) {
+        var html = '';
+        for (i = 0; i < st.list.length; i++) {
+            var c = i % 2 ? 'even' : 'odd';
+            var id = st.list[i].label == st.what ? ' id="now"' : '';
+            html += '<p class="' + c + '"' + id + '>';
+            html += util.ops_buttons('con.send', st.list[i]);
+            html += st.list[i].label + '</p>';
+        }
+        document.getElementById('playlist').innerHTML = html;
+    }
 }
 
 con.s2t = function(s) {
