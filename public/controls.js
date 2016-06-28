@@ -1,6 +1,5 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
 con = {};
-con.refresh = false;
 
 // Websocket object for status updates
 con.ws = new WebSocket('ws://' + window.location.host + '/diff');
@@ -27,7 +26,6 @@ con.send = function(cmd) {
     req.open("POST", "S", false);
     req.setRequestHeader("Content-type","application/json");
     req.send(JSON.stringify(body));
-    con.status2html(JSON.parse(req.responseText));
 }
 
 con.getStatus = function(suffix) {
@@ -47,9 +45,6 @@ con.getStatus = function(suffix) {
     var uri = "S" + Date.now().toString() + suffix;
     req.open("GET", uri, true);
     req.send();
-    if (con.refresh) {
-        setTimeout("con.getStatus()", 2000);
-    }
 }
 
 con.status2html = function(st) {
@@ -177,7 +172,6 @@ con.init = function() {
             con.itab = con.tabs.length - 1;
             break;
         }
-        con.refresh = con.itab == 0;
         for (var i = 0; i < con.tabs.length; i++) {
             con.tabs[i].toggle(i == con.itab);
         }
@@ -190,7 +184,6 @@ con.browse = function(what) {
     if (typeof con.tabs === 'undefined') {
         con.init();
     }
-    con.refresh = what == 'list';
     for (var i = 0; i < con.tabs.length; i++) {
         var on = con.tabs[i].name == what;
         con.tabs[i].toggle(on);
