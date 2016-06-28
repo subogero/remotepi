@@ -73,19 +73,7 @@ con.status2html = function(st) {
             : st.what;
         document.getElementById('what').innerHTML = html;
     }
-    if (st.image != null) {
-        var first = stnow.children[0];
-        if (first.tagName == 'IMG') {
-            stnow.removeChild(first);
-        }
-        if (st.image != '') {
-            var img = document.createElement('img');
-            img.style.float = "right";
-            img.height = stnow.clientHeight;
-            img.src = st.image;
-            stnow.insertBefore(img, stnow.firstChild);
-        }
-    }
+    con.setimage(st.image);
     if (st.list != null) {
         var html = '';
         for (i = 0; i < st.list.length; i++) {
@@ -96,6 +84,27 @@ con.status2html = function(st) {
             html += st.list[i].label + '</p>';
         }
         document.getElementById('playlist').innerHTML = html;
+    }
+}
+
+con.setimage = function(src) {
+    var stnow = document.getElementById('stnow');
+    var first = stnow.children[0];
+    if (src == null) {
+        if (first.tagName == 'IMG') {
+            first.height = stnow.clientHeight;
+        }
+    } else {
+        if (first.tagName == 'IMG') {
+            stnow.removeChild(first);
+        }
+        if (src != '') {
+            var img = document.createElement('img');
+            img.style.float = "right";
+            img.height = stnow.clientHeight;
+            img.src = src
+            stnow.insertBefore(img, stnow.firstChild);
+        }
     }
 }
 
@@ -120,7 +129,7 @@ function Tab(name, callback) {
 
 con.init = function() {
     con.tabs = [
-        new Tab('list'),
+        new Tab('list', con.setimage),
         new Tab('home', rpi.ls),
         new Tab('fm', rpifm.sendcmds),
         new Tab('yt'),
