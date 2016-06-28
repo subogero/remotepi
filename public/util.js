@@ -15,7 +15,7 @@ util.ops_buttons = function(callback, elem) {
                 '&quot;' + elem.name + '&quot;)" ' +
                 'title="' + ops[op] + '">' +
                 '<img src="img/' + img + '" alt="' + ops[op] + '">' +
-                '</button> ';
+                '</button>';
     }
     return html;
 }

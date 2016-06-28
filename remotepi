@@ -107,7 +107,7 @@ Mojo::IOLoop->recurring(1 => sub {
             $diff->{image} = $st_new->{image} if $key eq 'what';
         }
     }
-    if (@{$st_new->{list}} != @{$st_old->{list}} || $diff->{what}) {
+    if (@{$st_new->{list}} != @{$st_old->{list}}) {
         $diff->{list} = $st_new->{list};
     } else {
         for (0 .. scalar @{$st_new->{list}} - 1) {

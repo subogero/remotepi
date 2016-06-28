@@ -74,16 +74,38 @@ con.status2html = function(st) {
         document.getElementById('what').innerHTML = html;
     }
     con.setimage(st.image);
-    if (st.list != null) {
+    con.setlist(st.list, st.what);
+}
+
+con.setlist = function(list, what) {
+    if (list == null && what == null) {
+        return;
+    } else if (list != null) {
+        if (what == null) {
+            var what_old = document.getElementById('what').innerHTML;
+            what = '/' + what_old.split('<br>').join('/');
+        }
         var html = '';
-        for (i = 0; i < st.list.length; i++) {
+        for (i = 0; i < list.length; i++) {
             var c = i % 2 ? 'even' : 'odd';
-            var id = st.list[i].label == st.what ? ' id="now"' : '';
+            var id = list[i].label == what ? ' id="now"' : '';
             html += '<p class="' + c + '"' + id + '>';
-            html += util.ops_buttons('con.send', st.list[i]);
-            html += st.list[i].label + '</p>';
+            html += util.ops_buttons('con.send', list[i]);
+            html += list[i].label + '</p>';
         }
         document.getElementById('playlist').innerHTML = html;
+    } else { // list == null && what != null
+        list = document.getElementById('playlist').children;
+        for (i = 0; i < list.length; i++) {
+            var label = list[i].lastChild.textContent;
+            var c = i % 2 ? 'even' : 'odd';
+            list[i].className = c;
+            if (label == what) {
+                list[i].id = 'now';
+            } else {
+                list[i].removeAttribute('id');
+            }
+        }
     }
 }
 
