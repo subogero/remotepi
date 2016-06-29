@@ -2,7 +2,7 @@ rpifm = {};
 rpifm.cmds = "";
 
 rpifm.sendcmds = function() {
-    document.getElementById("fm").innerHTML = "Waiting for rpi.fm...";
+    document.getElementById("statusbar").innerHTML = "Waiting for rpi.fm...";
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
@@ -20,6 +20,7 @@ rpifm.sendcmds = function() {
 }
 
 rpifm.fm2html = function(fm) {
+    document.getElementById("statusbar").innerHTML = "";
     var html = '';
     for (i = 0; i < fm.length; i++) {
         var c = i % 2 ? 'odd' : 'even';

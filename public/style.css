@@ -1,11 +1,13 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
+* { margin: 0; padding: 0; border: 0 }
+
 html, body {
   background-color:black; color:white; font-family:Monospace;
   height: 100%;
 }
 button {
   background-color:rgba(255,255,255,0.15); color:white; font-family:Monospace;
-  border: 0px; margin:2px
+  margin:2px
 }
 table, th, td {
   background-color:rgba(255,255,255,0.10);
@@ -18,26 +20,40 @@ td.dev { width:100%; height:100% }
 td a:link { color:white }
 input[type=button] {
   background-color:black; color:white; font-family:Monospace;
-  border: 1px solid white; padding:0px
+  border: 1px solid white;
 }
+
+#tabselect {
+  background-color: black;
+  top: 0; position: fixed; width: 100%; height: 32px;
+}
+#tabs {
+  padding-top: 32px; padding-bottom: 20px;
+}
+#statusbar {
+  bottom: 0; position: fixed; width: 100%; height: 15px;
+  padding-top: 5px;
+}
+
 div.st {
   background-color:black; color:white;
   font-size:80%; font-weight:bold; text-align:left;
 }
 div.con { text-align:center }
 div.con button { color:white }
-button.tabhi { margin:0px; border:none; background-color:#303030; font-weight:bold; font-size:200% }
-button.tablo { margin:0px; border:none; background-color:black }
+button.tabhi { border:none; background-color:#303030; font-weight:bold; font-size:200% }
+button.tablo { border:none; background-color:black }
 #list { background-color:#303030; display:none }
 div.browse { display:none }
 #fm { background-color:#303030 }
 #yt { background-color:#303030 }
-.even { background-color:#303030; margin:0; line-height:180% }
-.odd  { background-color:black; margin:0; line-height:180% }
+.even { background-color:#303030; line-height:180% }
+.odd  { background-color:black; line-height:180% }
 #now  { color:#c0ff60 }
 #nowpadding { background-color:#303030; padding:10px; }
-#nowof { background-color:black; padding:0px; }
+#nowof { background-color:black; }
 #nowat { background-color:#c0ff60; height:5px }
+
 a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
 a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }
-hr { border:0; padding:0 }
+hr { border:0; }

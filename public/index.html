@@ -15,14 +15,17 @@
 <link rel="icon" href="img/rpi.jpg">
 <link rel="apple-touch-icon" href="img/rpi.jpg" />
 </head>
+
 <body>
-<div class="con">
+<div class="con" id="tabselect">
 <button id="blist" onclick="con.browse('list')" title="Playlist">now</button>
 <button id="bhome" onclick="con.browse('home')" title="Local stuff">pi</button>
 <button id="bfm"   onclick="con.browse('fm')"   title="Internet Radio">fm</button>
 <button id="byt"   onclick="con.browse('yt')"   title="YouTube">yt</button>
 <button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
 </div>
+
+<div id="tabs">
 <div class="con" id="list">
   <div><table style="width:100%"><tr>
   <td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
@@ -44,6 +47,7 @@
   <td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
   <td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
   </tr></table></div>
+
   <div class="st" id="st">
     <p class="odd" id="stnow">
       <span id="doing"></span>
@@ -56,16 +60,19 @@
     <div id="playlist"></div>
   </div>
 </div>
+
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
+
 <div class="browse" id="fm">Internet Radio Stations</div>
+
 <div class="browse" id="yt">Search YouTube<br>
 <form name="ytsearch">
 <input type="text" name="ytq" size="35" maxlength="80"
 onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 </form>
-<div id="ytstate"><br></div>
 <div id="ythits"></div>
 </div>
+
 <div class="browse" id="help">
 <h2 class="even">Browsing</h2>
 <p class="odd" ><button><img src="img/i.png" alt="i"></button> i Insert into playlist at current</p>
@@ -105,6 +112,10 @@ Copyright 2013-2016 SZABO Gergely <szg@subogero.com>
 <a href="mailto:szg@subogero.com">szg@subogero.com</a>
 </p>
 </div>
+</div>
+
+<div id="statusbar" class="st"></div>
+
 <script>con.browse('list');</script>
 </body>
 </html>

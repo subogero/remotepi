@@ -13,7 +13,7 @@ con.ws.onopen = function(event) {
     con.ws.send(JSON.stringify({ msg: 'Hello' }));
 };
 con.ws.onclose = function(event) {
-    var elem_st = document.getElementById("st");
+    var elem_st = document.getElementById("statusbar");
     elem_st.innerHTML = 'Websocket to remotepi closed';
 };
 
