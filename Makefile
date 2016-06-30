@@ -19,6 +19,7 @@ clean:
 restart:
 	-systemctl stop remotepi
 	$(MAKE) install
+	-systemctl daemon-reload
 	-systemctl start remotepi
 debug:
 	-systemctl stop remotepi

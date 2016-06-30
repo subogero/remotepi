@@ -1,21 +1,29 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
 con = {};
 
-// Websocket object for status updates
-con.ws = new WebSocket('ws://' + window.location.host + '/diff');
-con.ws.onmessage = function(event) {
-    var elem_st = document.getElementById("st");
-    // elem_st.innerHTML = event.data;
-    var diff = JSON.parse(event.data);
-    con.status2html(diff);
-};
-con.ws.onopen = function(event) {
-    con.ws.send(JSON.stringify({ msg: 'Hello' }));
-};
-con.ws.onclose = function(event) {
-    var elem_st = document.getElementById("statusbar");
-    elem_st.innerHTML = 'Websocket to remotepi closed';
-};
+// Websocket for status updates
+con.connect = function() {
+    if (con.ws != null && con.ws.readyState != 3) {
+        return;
+    }
+    con.ws = new WebSocket('ws://' + window.location.host + '/diff');
+    con.ws.onmessage = function(event) {
+        var elem_st = document.getElementById("st");
+        var diff = JSON.parse(event.data);
+        con.status2html(diff);
+        var elem_st = document.getElementById("statusbar");
+        if (elem_st.innerHTML = 'Websocket to remotepi closed') {
+            elem_st.innerHTML = '';
+        }
+    };
+    con.ws.onopen = function(event) {
+        con.ws.send(JSON.stringify({ msg: 'Hello' }));
+    };
+    con.ws.onclose = function(event) {
+        var elem_st = document.getElementById("statusbar");
+        elem_st.innerHTML = 'Websocket to remotepi closed';
+    };
+}
 
 con.send = function(cmd) {
     var body = { cmd: cmd };
@@ -192,4 +200,5 @@ con.browse = function(what) {
         }
     }
     window.scrollTo(0, 0);
+    con.connect();
 }
