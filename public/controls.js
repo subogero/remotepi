@@ -25,6 +25,16 @@ con.connect = function() {
     };
 }
 
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        console.log('disconnecting');
+        con.ws.close();
+    } else {
+        console.log('connecting');
+        con.connect();
+    }
+});
+
 con.send = function(cmd) {
     var body = { cmd: cmd };
     if (arguments.length == 2) {
