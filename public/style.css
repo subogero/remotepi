@@ -31,7 +31,8 @@ input[type=button] {
   padding-top: 32px; padding-bottom: 20px;
 }
 #statusbar {
-  bottom: 0; position: fixed; width: 100%; height: 15px;
+  background-color: #303030;
+  bottom: 0; position: fixed;
   padding-top: 5px;
 }
 
