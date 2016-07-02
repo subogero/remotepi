@@ -15,48 +15,64 @@
 <link rel="icon" href="img/rpi.jpg">
 <link rel="apple-touch-icon" href="img/rpi.jpg" />
 </head>
+
 <body>
-<script>con.getStatus();</script>
-<div class="con">
+<div class="con" id="tabselect">
 <button id="blist" onclick="con.browse('list')" title="Playlist">now</button>
 <button id="bhome" onclick="con.browse('home')" title="Local stuff">pi</button>
 <button id="bfm"   onclick="con.browse('fm')"   title="Internet Radio">fm</button>
 <button id="byt"   onclick="con.browse('yt')"   title="YouTube">yt</button>
 <button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
 </div>
+
+<div id="tabs">
 <div class="con" id="list">
-<div><table style="width:100%"><tr>
-<td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div><img height="22" src="img/r.png" alt="r"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div><img height="22" src="img/0.png" alt="."></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div><img height="22" src="img/p.png" alt="p"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div><img height="22" src="img/f.png" alt="f"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div><img height="22" src="img/F.png" alt="F"></div></a></td></tr><tr>
-<td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div><img height="22" src="img/N.png" alt="N"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div><img height="22" src="img/x.png" alt="x"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div><img height="22" src="img/X.png" alt="X"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div><img height="22" src="img/P.png" alt="P"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div><img height="22" src="img/s.png" alt="s"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div><img height="22" src="img/n.png" alt="n"></div></a></td></tr><tr>
-<td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div><img height="22" src="img/D.png" alt="D"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div><img height="22" src="img/h.png" alt="h"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div><img height="22" src="img/j.png" alt="j"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div><img height="22" src="img/k.png" alt="k"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
-<td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
-</tr></table></div>
-<div class="st" id="st">Status</div>
+  <div><table style="width:100%"><tr>
+  <td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div><img height="22" src="img/r.png" alt="r"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div><img height="22" src="img/0.png" alt="."></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div><img height="22" src="img/p.png" alt="p"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div><img height="22" src="img/f.png" alt="f"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div><img height="22" src="img/F.png" alt="F"></div></a></td></tr><tr>
+  <td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div><img height="22" src="img/N.png" alt="N"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div><img height="22" src="img/x.png" alt="x"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div><img height="22" src="img/X.png" alt="X"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div><img height="22" src="img/P.png" alt="P"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div><img height="22" src="img/s.png" alt="s"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div><img height="22" src="img/n.png" alt="n"></div></a></td></tr><tr>
+  <td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div><img height="22" src="img/D.png" alt="D"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div><img height="22" src="img/h.png" alt="h"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div><img height="22" src="img/j.png" alt="j"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div><img height="22" src="img/k.png" alt="k"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
+  </tr></table></div>
+
+  <div class="st" id="st">
+    <p class="odd" id="stnow">
+      <span id="doing"></span>
+      <span id="atof"></span>
+      <span id="what"></span>
+    </p>
+    <div id="nowpadding">
+      <div id="nowof"><div id="nowat" style="width:0%"></div></div>
+    </div>
+    <div id="playlist"></div>
+  </div>
 </div>
+
 <div class="browse" id="home">Stuff on the Raspberry Pi</div>
+
 <div class="browse" id="fm">Internet Radio Stations</div>
+
 <div class="browse" id="yt">Search YouTube<br>
 <form name="ytsearch">
 <input type="text" name="ytq" size="35" maxlength="80"
 onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
 </form>
-<div id="ytstate"><br></div>
 <div id="ythits"></div>
 </div>
+
 <div class="browse" id="help">
 <h2 class="even">Browsing</h2>
 <p class="odd" ><button><img src="img/i.png" alt="i"></button> i Insert into playlist at current</p>
@@ -96,6 +112,10 @@ Copyright 2013-2016 SZABO Gergely <szg@subogero.com>
 <a href="mailto:szg@subogero.com">szg@subogero.com</a>
 </p>
 </div>
+</div>
+
+<div id="statusbar" class="st"></div>
+
 <script>con.browse('list');</script>
 </body>
 </html>

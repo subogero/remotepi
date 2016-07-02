@@ -1,6 +1,37 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
 con = {};
-con.refresh = false;
+
+// Websocket for status updates
+con.connect = function() {
+    if (con.ws != null && con.ws.readyState != 3) {
+        return;
+    }
+    con.ws = new WebSocket('ws://' + window.location.host + '/diff');
+    con.ws.onmessage = function(event) {
+        var elem_st = document.getElementById("st");
+        var diff = JSON.parse(event.data);
+        con.status2html(diff);
+        var elem_st = document.getElementById("statusbar");
+        if (elem_st.innerHTML = 'Websocket to remotepi closed') {
+            elem_st.innerHTML = '';
+        }
+    };
+    con.ws.onopen = function(event) {
+        con.ws.send(JSON.stringify({ msg: 'Hello' }));
+    };
+    con.ws.onclose = function(event) {
+        var elem_st = document.getElementById("statusbar");
+        elem_st.innerHTML = 'Websocket to remotepi closed';
+    };
+}
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        con.ws.close();
+    } else {
+        con.connect();
+    }
+});
 
 con.send = function(cmd) {
     var body = { cmd: cmd };
@@ -11,7 +42,6 @@ con.send = function(cmd) {
     req.open("POST", "S", false);
     req.setRequestHeader("Content-type","application/json");
     req.send(JSON.stringify(body));
-    con.status2html(JSON.parse(req.responseText));
 }
 
 con.getStatus = function(suffix) {
@@ -31,41 +61,84 @@ con.getStatus = function(suffix) {
     var uri = "S" + Date.now().toString() + suffix;
     req.open("GET", uri, true);
     req.send();
-    if (con.refresh) {
-        setTimeout("con.getStatus()", 2000);
-    }
 }
 
 con.status2html = function(st) {
-    var html = '';
-    var bar = (st.of == 0    ? 0
-             : st.at > st.of ? 100
-             :                 100 * st.at/st.of).toString() + '%';
-    html += '<div id="nowpadding">' +
-            '<div id="nowplaying"><div style="width:' + bar + '"></div></div>' +
-            '</div>';
-    html += '<p class="odd" id="stnow">';
-    if (st.image) {
-        html += '<img style="float:right" height="80" src="' + st.image + '">';
+    var stnow = document.getElementById('stnow');
+    stnow.onclick = function() { con.getStatus('/details'); };
+    if (st.doing != null) {
+        document.getElementById('doing').innerHTML = st.doing;
     }
-    html += st.doing + ' ' + con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
-    if (st.what.charAt(0) == '/') {
-        html += st.what.substring(1).split('/').join('<br>');
+    if (st.at != null) {
+        var bar = (st.of == 0    ?   0
+                 : st.at > st.of ? 100
+                 :                 100 * st.at/st.of).toString()
+                + '%';
+        document.getElementById('nowat').style.width = bar;
+        document.getElementById('atof').innerHTML =
+            con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
+    }
+    if (st.what != null) {
+        var html = st.what.charAt(0) == '/'
+            ? st.what.substring(1).split('/').join('<br>')
+            : st.what;
+        document.getElementById('what').innerHTML = html;
+    }
+    con.setimage(st.image);
+    con.setlist(st.list, st.what);
+}
+
+con.setlist = function(list, what) {
+    if (list == null && what == null) {
+        return;
+    } else if (list != null) {
+        if (what == null) {
+            var what_old = document.getElementById('what').innerHTML;
+            what = '/' + what_old.split('<br>').join('/');
+        }
+        var html = '';
+        for (i = 0; i < list.length; i++) {
+            var c = i % 2 ? 'even' : 'odd';
+            var id = list[i].label == what ? ' id="now"' : '';
+            html += '<p class="' + c + '"' + id + '>';
+            html += util.ops_buttons('con.send', list[i]);
+            html += list[i].label + '</p>';
+        }
+        document.getElementById('playlist').innerHTML = html;
+    } else { // list == null && what != null
+        list = document.getElementById('playlist').children;
+        for (i = 0; i < list.length; i++) {
+            var label = list[i].lastChild.textContent;
+            var c = i % 2 ? 'even' : 'odd';
+            list[i].className = c;
+            if (label == what) {
+                list[i].id = 'now';
+            } else {
+                list[i].removeAttribute('id');
+            }
+        }
+    }
+}
+
+con.setimage = function(src) {
+    var stnow = document.getElementById('stnow');
+    var first = stnow.children[0];
+    if (src == null) {
+        if (first.tagName == 'IMG') {
+            first.height = stnow.clientHeight;
+        }
     } else {
-        html += st.what;
+        if (first.tagName == 'IMG') {
+            stnow.removeChild(first);
+        }
+        if (src != '') {
+            var img = document.createElement('img');
+            img.style.float = "right";
+            img.height = stnow.clientHeight;
+            img.src = src
+            stnow.insertBefore(img, stnow.firstChild);
+        }
     }
-    html += '</p>';
-    for (i = 0; i < st.list.length; i++) {
-        var c = i % 2 ? 'odd' : 'even';
-        var id = st.list[i].label == st.what ? ' id="now"' : '';
-        html += '<p class="' + c + '"' + id + '>';
-        html += util.ops_buttons('con.send', st.list[i]);
-        html += st.list[i].label + '</p>';
-    }
-    var elem_st = document.getElementById("st");
-    elem_st.innerHTML = html;
-    var elem_stnow = document.getElementById("stnow");
-    elem_stnow.onclick = function() { con.getStatus('/details'); };
 }
 
 con.s2t = function(s) {
@@ -89,7 +162,7 @@ function Tab(name, callback) {
 
 con.init = function() {
     con.tabs = [
-        new Tab('list', con.getStatus),
+        new Tab('list', con.setimage),
         new Tab('home', rpi.ls),
         new Tab('fm', rpifm.sendcmds),
         new Tab('yt'),
@@ -115,7 +188,6 @@ con.init = function() {
             con.itab = con.tabs.length - 1;
             break;
         }
-        con.refresh = con.itab == 0;
         for (var i = 0; i < con.tabs.length; i++) {
             con.tabs[i].toggle(i == con.itab);
         }
@@ -128,7 +200,6 @@ con.browse = function(what) {
     if (typeof con.tabs === 'undefined') {
         con.init();
     }
-    con.refresh = what == 'list';
     for (var i = 0; i < con.tabs.length; i++) {
         var on = con.tabs[i].name == what;
         con.tabs[i].toggle(on);
@@ -137,4 +208,5 @@ con.browse = function(what) {
         }
     }
     window.scrollTo(0, 0);
+    con.connect();
 }

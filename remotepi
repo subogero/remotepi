@@ -1,7 +1,9 @@
 #!/usr/bin/perl
 use Mojolicious::Lite;
+use Mojo::IOLoop;
 use IPC::Open2;
 use WWW::U2B;
+use YAML::XS;
 
 # STARTUP
 sub status; sub thumbnail; sub decorate; sub logger;
@@ -75,6 +77,53 @@ any '/yt*param' => { param => '/' } => sub {
     $c->render(json => yt($c->stash('param'), $data));
 };
 
+my %clients;
+my $st_old;
+websocket '/diff' => sub {
+    my $c = shift;
+    my $id = sprintf "%s", $c->tx;
+    $clients{$id} = $c->tx;
+    $c->on(json => sub {
+        my $n = keys %clients;
+        app->log->debug("new connection, $n clients");
+        $clients{$id}->send({ json => $st_old })
+    });
+    $c->on(finish => sub {
+        delete $clients{$id};
+        my $n = keys %clients;
+        app->log->debug("connection closed, $n clients remain");
+    });
+};
+
+Mojo::IOLoop->recurring(1 => sub {
+    # Get diff between status 1s before and now
+    my $st_new = status;
+    $st_old //= $st_new;
+    my $diff = {};
+    foreach my $key (qw(doing at of what image)) {
+        $st_new->{$key} //= '';
+        if ($st_new->{$key} ne $st_old->{$key}) {
+            $diff->{$key} = $st_new->{$key};
+            $diff->{of} = $st_new->{of} if $key eq 'at';
+            $diff->{image} = $st_new->{image} if $key eq 'what';
+        }
+    }
+    if (@{$st_new->{list}} != @{$st_old->{list}}) {
+        $diff->{list} = $st_new->{list};
+    } else {
+        for (0 .. scalar @{$st_new->{list}} - 1) {
+            next if $st_new->{list}[$_]{label} eq $st_old->{list}[$_]{label};
+            $diff->{list} = $st_new->{list};
+            last;
+        }
+    }
+    $st_old = $st_new;
+    # Send diff to all clients
+    foreach (keys %clients) {
+        $clients{$_}->send({ json => $diff });
+    }
+});
+
 rpifm_my;
 push @{ app->static->paths }, $cwd;
 my $port = 31100;
@@ -84,7 +133,7 @@ app->start('daemon', '-l' => "http://*:$port");
 
 # Print playlist status
 sub status {
-    my $cmd = shift;
+    my $cmd = shift // 'post';
     my $data = shift;
     if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
         `omxd $data->{cmd} $data->{file}`;
@@ -106,6 +155,7 @@ sub status {
         chomp;
         s/^> //;
         s/^$root(.+)/$1/;
+        $_ = decorate 'post', $_;
         { name => $i++, label => $_, ops => [ qw(g x) ] }
     } <PLAY>;
     close PLAY;
@@ -122,7 +172,7 @@ sub decorate {
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
-        $what = $fm_my->{$_}{title};
+        $what = "/rpi.fm/$fm_my->{$_}{title}";
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
