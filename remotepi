@@ -84,13 +84,14 @@ websocket '/diff' => sub {
     my $id = sprintf "%s", $c->tx;
     $clients{$id} = $c->tx;
     $c->on(json => sub {
-        app->log->debug("new client $id");
-        app->log->debug(Dump $st_old);
+        my $n = keys %clients;
+        app->log->debug("new connection, $n clients");
         $clients{$id}->send({ json => $st_old })
     });
     $c->on(finish => sub {
-        app->log->debug("delete client $id");
-        delete $clients{$id}
+        delete $clients{$id};
+        my $n = keys %clients;
+        app->log->debug("connection closed, $n clients remain");
     });
 };
 
@@ -119,7 +120,6 @@ Mojo::IOLoop->recurring(1 => sub {
     $st_old = $st_new;
     # Send diff to all clients
     foreach (keys %clients) {
-        app->log->debug("sending diff to client $_ " . Dump $diff);
         $clients{$_}->send({ json => $diff });
     }
 });
