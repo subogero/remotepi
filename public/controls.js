@@ -81,7 +81,7 @@ con.status2html = function(st) {
     if (st.what != null) {
         var html = st.what.charAt(0) == '/'
             ? st.what.substring(1).split('/').join('<br>')
-            : st.what;
+            : st.what.split('://').join('<br>');
         document.getElementById('what').innerHTML = html;
     }
     con.setimage(st.image);

@@ -172,7 +172,7 @@ sub decorate {
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
-        $what = "/rpi.fm/$fm_my->{$_}{title}";
+        $what = "rpi.fm://$fm_my->{$_}{title}";
         if ($cmd =~ m|^S\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
@@ -180,7 +180,7 @@ sub decorate {
         }
     }
     # Replace track name with YouTube id if needed
-    $what =~ s|.*\.u2bfifo$|/YouTube/$ythits{$ytid}|;
+    $what =~ s|.*\.u2bfifo$|YouTube://$ythits{$ytid}|;
 
     return $what;
 }
