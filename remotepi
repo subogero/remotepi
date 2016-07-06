@@ -6,7 +6,7 @@ use WWW::U2B;
 use YAML::XS;
 
 # STARTUP
-sub status; sub thumbnail; sub decorate; sub logger;
+sub statusdiff; sub status; sub thumbnail; sub decorate; sub logger;
 sub ls;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
 sub yt;
@@ -47,10 +47,11 @@ get "/thumbs*thumb" => { thumb => '/' } => sub {
     }
 };
 
-any '/S*param' => { param => 'post' } => sub {
+any '/S*param' => { param => '' } => sub {
     my $c = shift;
     my $data = $c->req->json;
     $c->render(json => status($c->stash('param'), $data));
+    statusdiff if $data;
 };
 
 any '/home*param' => { param => '/' } => sub {
@@ -95,8 +96,17 @@ websocket '/diff' => sub {
     });
 };
 
-Mojo::IOLoop->recurring(1 => sub {
-    # Get diff between status 1s before and now
+Mojo::IOLoop->recurring(1 => \&statusdiff);
+
+rpifm_my;
+
+push @{ app->static->paths }, $cwd;
+my $port = 31100;
+app->start('daemon', '-l' => "http://*:$port");
+
+# HELPERS
+# Get diff between status 1s before and now, send to websocket clients
+sub statusdiff {
     my $st_new = status;
     $st_old //= $st_new;
     my $diff = {};
@@ -122,21 +132,15 @@ Mojo::IOLoop->recurring(1 => sub {
     foreach (keys %clients) {
         $clients{$_}->send({ json => $diff });
     }
-});
-
-rpifm_my;
-push @{ app->static->paths }, $cwd;
-my $port = 31100;
-app->start('daemon', '-l' => "http://*:$port");
-
-# HELPERS
+}
 
 # Print playlist status
 sub status {
-    my $cmd = shift // 'post';
+    my $param = shift // '';
     my $data = shift;
     if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
         `omxd $data->{cmd} $data->{file}`;
+        return;
     }
     unless (open PLAY, "omxd S all |") {
         return;
@@ -147,7 +151,7 @@ sub status {
     # Remove root from track name if local file
     my ($dir) = $what =~ m|^(/.+)/[^/]+$|;
     $what =~ s/$root//;
-    $what = decorate $cmd, $what;
+    $what = decorate $param, $what;
     # Construct JSON response
     my $response = { doing => $doing, at => $at+0, of => $of+0, what => $what };
     my $i = 0;
@@ -166,14 +170,14 @@ sub status {
 
 # Decorate currect track with FM/YouTube info
 sub decorate {
-    my $cmd = shift;
+    my $param = shift;
     my $what = shift;
     # Replace track name with internet radio if needed
     foreach (keys %$fm_my) {
         next unless $fm_my->{$_}{listen} eq $what;
         my $url = $_;
         $what = "rpi.fm://$fm_my->{$_}{title}";
-        if ($cmd =~ m|^S\d*/details|) {
+        if ($param =~ m|\d*/details|) {
             my $st_page = `curl -L "internet-radio.com/search/?radio=$url" 2>/dev/null`;
             $st_page =~ m|<br>[\s\n]*<b>(.+?)</b>|s;
             $what .= "\n$url\n$1";
