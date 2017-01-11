@@ -22,8 +22,7 @@ restart:
 	-systemctl daemon-reload
 	-systemctl start remotepi
 debug:
-	-systemctl stop remotepi
-	-./remotepi
+	-./remotepi 3000
 udebug:
 	-killall remotepi
 	-systemctl start remotepi

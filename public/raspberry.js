@@ -23,13 +23,14 @@ rpi.scroll_to = function(id) {
     do {
         y += elem.offsetTop;
     } while (elem = elem.offsetParent);
-    window.scrollTo(0, y - 39);
+    window.scrollTo(0, y - 69); // consider tabbar and navbar above
 }
 
 rpi.ls2html = function(ls) {
-    var html = '';
+    var html = rpi.navbar();
+    html += '<div class="homels">';
     for (i = 0; i < ls.length; i++) {
-        var c = i % 2 ? 'odd' : 'even';
+        var c = i % 2 ? 'even' : 'odd';
         var id = ls[i].name == rpi.from ? ' id="scrollhere"' : '';
         html += '<p class="' + c + '"' + id + '>';
         var style = '';
@@ -48,13 +49,36 @@ rpi.ls2html = function(ls) {
         html += util.ops_buttons('rpi.op', ls[i]);
         html += '</p>';
     }
+    html += '</div>';
     document.getElementById("home").innerHTML = html;
     rpi.scroll_to('scrollhere');
 }
 
+rpi.navbar = function() {
+    var html = '<div class="homenavbar">';
+
+    var dirs = rpi.pwd.split('/');
+    dirs.pop();
+
+    var dir = '';
+    for (i = 0; i < dirs.length; i++) {
+        var label = dirs[i] + '/';
+        dir += label;
+        html += '<a href="javascript:void(0)" ' +
+                'onclick="rpi.cd(&quot;' + dir + '&quot;);">' +
+                label + '</a> ';
+    }
+
+    html += '</div>';
+    return html;
+}
+
 rpi.cd = function(dir) {
-    if (dir === "..") {
-        var regex = /([^\/]+)\/$/;
+    if (dir.substr(0, 1) === '/') {
+        rpi.from = '';
+        rpi.pwd = dir;
+    } else if (dir === "..") {
+        var regex = /([^\/]+)\/$/; // pwd shall always end in /
         rpi.from = regex.exec(rpi.pwd)[1]; // [1] for 1st capture group
         rpi.pwd = rpi.pwd.replace(regex, "");
     } else {
