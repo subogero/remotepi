@@ -39,7 +39,7 @@ con.send = function(cmd) {
         body.file = arguments[1];
     }
     var req = new XMLHttpRequest();
-    req.open("POST", "S", false);
+    req.open("POST", "S", true);
     req.setRequestHeader("Content-type","application/json");
     req.send(JSON.stringify(body));
 }
@@ -79,9 +79,12 @@ con.status2html = function(st) {
             con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
     }
     if (st.what != null) {
-        var html = st.what.charAt(0) == '/'
-            ? st.what.substring(1).split('/').join('<br>')
-            : st.what.split('://').join('<br>');
+        var html =
+            '<pre>' +
+            (st.what.charAt(0) == '/'
+                ? st.what.substring(1).split('/').join('\n')
+                : st.what.split('://').join('\n'))
+            + '</pre>';
         document.getElementById('what').innerHTML = html;
     }
     con.setimage(st.image);

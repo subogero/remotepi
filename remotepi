@@ -140,7 +140,7 @@ sub status {
     my $data = shift;
     if ($data && $data->{cmd} =~ /^[NRr.pPfFnxXhjdDg]$/) {
         `omxd $data->{cmd} $data->{file}`;
-        return;
+        return {};
     }
     unless (open PLAY, "omxd S all |") {
         return;
