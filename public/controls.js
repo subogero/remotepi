@@ -79,13 +79,13 @@ con.status2html = function(st) {
             con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
     }
     if (st.what != null) {
-        var html =
-            '<pre>' +
-            (st.what.charAt(0) == '/'
-                ? st.what.substring(1).split('/').join('\n')
-                : st.what.split('://').join('\n'))
-            + '</pre>';
-        document.getElementById('what').innerHTML = html;
+        var pre = document.createElement('pre');
+        pre.innerHTML = st.what.charAt(0) == '/'
+            ? st.what.substring(1).split('/').join('\n')
+            : st.what.split('://').join('\n');
+        var what = document.getElementById('what');
+        if (what.firstChild) { what.removeChild(what.firstChild) }
+        what.appendChild(pre);
     }
     con.setimage(st.image);
     con.setlist(st.list, st.what);
@@ -99,15 +99,20 @@ con.setlist = function(list, what) {
             var what_old = document.getElementById('what').innerHTML;
             what = '/' + what_old.split('<br>').join('/');
         }
-        var html = '';
-        for (i = 0; i < list.length; i++) {
-            var c = i % 2 ? 'even' : 'odd';
-            var id = list[i].label == what ? ' id="now"' : '';
-            html += '<p class="' + c + '"' + id + '>';
-            html += util.ops_buttons('con.send', list[i]);
-            html += list[i].label + '</p>';
+        var pl = document.getElementById('playlist');
+        while (pl.hasChildNodes()) {
+            pl.removeChild(pl.lastChild)
         }
-        document.getElementById('playlist').innerHTML = html;
+        for (i = 0; i < list.length; i++) {
+            var p = document.createElement('p');
+            p.class = i % 2 ? 'even' : 'odd';
+            p.setAttribute('id', list[i].label == what ? 'now' : '');
+            util.ops_buttons_dom(con.send, list[i]).forEach(function(i) {
+                p.appendChild(i)
+            });
+            p.appendChild(document.createTextNode(list[i].label));
+            pl.appendChild(p);
+        }
     } else { // list == null && what != null
         list = document.getElementById('playlist').children;
         for (i = 0; i < list.length; i++) {
