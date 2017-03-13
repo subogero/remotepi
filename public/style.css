@@ -54,6 +54,14 @@ div.browse { display:none }
 #nowpadding { background-color:#303030; padding:10px; }
 #nowof { background-color:black; }
 #nowat { background-color:#c0ff60; height:5px }
+div.homenavbar {
+  top: 32px; position: fixed; width: 100%; height: 25px;
+  background-color: #333; line-height:180%;
+  white-space: nowrap;
+  border-bottom: 3px solid black;
+}
+div.homenavbar a:link { color: #c0ff60; }
+div.homels { padding-top: 30px }
 
 a:link    { font-weight:bold; color:#b0b0ff; text-decoration:none }
 a:visited { font-weight:bold; color:#b0b0ff; text-decoration:none }

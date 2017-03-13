@@ -101,7 +101,7 @@ Mojo::IOLoop->recurring(1 => \&statusdiff);
 rpifm_my;
 
 push @{ app->static->paths }, $cwd;
-my $port = 31100;
+my $port = shift // 31100;
 app->start('daemon', '-l' => "http://*:$port");
 
 # HELPERS
