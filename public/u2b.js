@@ -14,19 +14,32 @@ u2b.search = function(query) {
 
 u2b.yt2html = function(yt) {
     document.getElementById("statusbar").innerHTML = "";
-    var html = '';
+    var ythits = document.getElementById("ythits");
+    while (ythits.firstChild) { ythits.removeChild(ythits.firstChild) }
     for (i = 0; i < yt.length; i++) {
         var c = i % 2 ? 'even' : 'odd';
         var name = yt[i].label ? yt[i].label : yt[i].name;
-        html += '<p class="' + c + '">' + name + '</p>';
-        html += '<p class="' + c + '">';
-        html += util.ops_buttons('u2b.op', yt[i]);
-        html += '</p>';
-        html += '<p class="' + c + '">';
-        html += '<img width="300" src="' + yt[i].thumbnail + '">';
-        html += '</p>';
+
+        var p1 = document.createElement('p');
+        p1.className = c;
+        p1.appendChild(document.createTextNode(name));
+        ythits.appendChild(p1);
+
+        var p2 = document.createElement('p');
+        p2.className = c;
+        util.ops_buttons_dom(u2b.op, yt[i]).forEach(function(i) {
+            p2.appendChild(i)
+        });
+        ythits.appendChild(p2);
+
+        var p3 = document.createElement('p');
+        p3.className = c;
+        var img = document.createElement('img');
+        img.width = 300;
+        img.src = yt[i].thumbnail;
+        p3.appendChild(img);
+        ythits.appendChild(p3);
     }
-    document.getElementById("ythits").innerHTML = html;
 }
 
 u2b.op = function(cmd, file) {
