@@ -27,50 +27,63 @@ rpi.scroll_to = function(id) {
 }
 
 rpi.ls2html = function(ls) {
-    var html = rpi.navbar();
-    html += '<div class="homels">';
+    var home = document.getElementById("home");
+    while (home.firstChild) { home.removeChild(home.firstChild) }
+    home.appendChild(rpi.navbar());
+
+    var homels = document.createElement('div');
+    homels.className = 'homels';
     for (i = 0; i < ls.length; i++) {
         var c = i % 2 ? 'even' : 'odd';
-        var id = ls[i].name == rpi.from ? ' id="scrollhere"' : '';
-        html += '<p class="' + c + '"' + id + '>';
+        var name = ls[i].name;
+
+        var p = document.createElement('p');
+        p.className = c;
+        if (name == rpi.from) { p.id = 'scrollhere' }
+
         var style = '';
         if (ls[i].ops.indexOf('cd') != -1) {
-            html += '<a href="javascript:void(0)" ' +
-                    'onclick="rpi.cd(&quot;' + ls[i].name + '&quot;);">' +
-                    ls[i].name + '/</a></p>';
-            style = ' style="text-align:right"';
+            var a = document.createElement('a');
+            a.href = 'javascript:void(0)';
+            a.onclick = function(n) { return function() { rpi.cd(n) } }(name);
+            a.appendChild(document.createTextNode(name));
+            p.appendChild(a);
+            style = 'text-align:right';
         } else {
-            html += ls[i].name + '</p>';
+            p.appendChild(document.createTextNode(name));
         }
-        if (ls[i].ops.length <= 1) {
-            continue;
-        }
-        html += '<p class="' + c + '"' + style + '>';
-        html += util.ops_buttons('rpi.op', ls[i]);
-        html += '</p>';
+        homels.appendChild(p);
+
+        if (ls[i].ops.length <= 1) { continue; }
+
+        var p2 = document.createElement('p');
+        p2.className = c;
+        if (style) { p2.style = style }
+        util.ops_buttons_dom(rpi.op, ls[i]).forEach(function(i) {
+            p2.appendChild(i);
+        });
+        homels.appendChild(p2);
     }
-    html += '</div>';
-    document.getElementById("home").innerHTML = html;
+    home.appendChild(homels);
     rpi.scroll_to('scrollhere');
 }
 
 rpi.navbar = function() {
-    var html = '<div class="homenavbar">';
-
+    var navbar = document.createElement('div');
+    navbar.className = 'homenavbar';
     var dirs = rpi.pwd.split('/');
     dirs.pop();
-
     var dir = '';
     for (i = 0; i < dirs.length; i++) {
         var label = dirs[i] + '/';
         dir += label;
-        html += '<a href="javascript:void(0)" ' +
-                'onclick="rpi.cd(&quot;' + dir + '&quot;);">' +
-                label + '</a> ';
+        var a = document.createElement('a');
+        a.href = 'javascript:void(0)';
+        a.onclick = function(dir) { return function() { rpi.cd(dir) } }(dir);
+        a.appendChild(document.createTextNode(label));
+        navbar.appendChild(a);
     }
-
-    html += '</div>';
-    return html;
+    return navbar;
 }
 
 rpi.cd = function(dir) {
