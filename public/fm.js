@@ -21,28 +21,34 @@ rpifm.sendcmds = function() {
 
 rpifm.fm2html = function(fm) {
     document.getElementById("statusbar").innerHTML = "";
-    var html = '';
+    var fmlist = document.getElementById('fm');
+    while (fmlist.firstChild) { fmlist.removeChild(fmlist.firstChild) }
     for (i = 0; i < fm.length; i++) {
         var c = i % 2 ? 'odd' : 'even';
-        var name = fm[i].label ? fm[i].label : fm[i].name;
-        html += '<p class="' + c + '">';
-        var style = '';
+        var label = fm[i].label ? fm[i].label : fm[i].name;
+        var p1 = document.createElement('p');
+        p1.className = c;
         if (fm[i].ops.indexOf('cd') != -1) {
-            html += '<a href="javascript:void(0)" ' +
-                    'onclick="rpifm.addcmd(&quot;' + fm[i].name + '&quot;);">' +
-                    name + '</a></p>';
-            style = ' style="text-align:right"';
+            var a = document.createElement('a');
+            a.href = 'javascript:void(0)';
+            a.onclick = function(name) {
+                return function() { rpifm.addcmd(name) };
+            }(fm[i].name);
+            a.appendChild(document.createTextNode(label));
+            p1.appendChild(a);
         } else {
-            html += name + '</p>';
+            p1.appendChild(document.createTextNode(label));
         }
-        if (fm[i].ops.length <= 1) {
-            continue;
-        }
-        html += '<p class="' + c + '"' + style + '>';
-        html += util.ops_buttons('rpifm.lastcmd', fm[i]);
-        html += '</p>';
+        fmlist.appendChild(p1);
+
+        var p2 = document.createElement('p');
+        p2.className = c;
+        if (fm[i].ops.indexOf('cd') != -1) { p2.style = 'text-align:right' }
+        util.ops_buttons_dom(rpifm.lastcmd, fm[i]).forEach(function(i) {
+            p2.appendChild(i);
+        });
+        fmlist.appendChild(p2);
     }
-    document.getElementById("fm").innerHTML = html;
 }
 
 // Send one rpi.fm command
@@ -54,7 +60,7 @@ rpifm.cmd = function(command) {
 // Append rpi.fm command to list, send all
 rpifm.addcmd = function() {
     for (var i = 0; i < arguments.length; i++) {
-        var cmd = arguments[i];
+        var cmd = arguments[i].toString();
         if (cmd.search(/^\//) != -1) {
             cmd = cmd.replace(/^\//, '');
             rpifm.cmds = '';

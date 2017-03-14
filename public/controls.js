@@ -105,7 +105,7 @@ con.setlist = function(list, what) {
         }
         for (i = 0; i < list.length; i++) {
             var p = document.createElement('p');
-            p.class = i % 2 ? 'even' : 'odd';
+            p.className = i % 2 ? 'even' : 'odd';
             p.setAttribute('id', list[i].label == what ? 'now' : '');
             util.ops_buttons_dom(con.send, list[i]).forEach(function(i) {
                 p.appendChild(i)
