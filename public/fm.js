@@ -2,7 +2,7 @@ rpifm = {};
 rpifm.cmds = "";
 
 rpifm.sendcmds = function() {
-    document.getElementById("statusbar").innerHTML = "Waiting for rpi.fm...";
+    util.byId("statusbar").innerHTML = "Waiting for rpi.fm...";
     var req = new XMLHttpRequest();
     req.onreadystatechange = function() {
         if (req.readyState == 4 && req.status == 200) {
@@ -20,33 +20,30 @@ rpifm.sendcmds = function() {
 }
 
 rpifm.fm2html = function(fm) {
-    document.getElementById("statusbar").innerHTML = "";
-    var fmlist = document.getElementById('fm');
-    while (fmlist.firstChild) { fmlist.removeChild(fmlist.firstChild) }
+    util.byId("statusbar").innerHTML = "";
+    var fmlist = util.byIdEmpty('fm');
     for (i = 0; i < fm.length; i++) {
         var c = i % 2 ? 'odd' : 'even';
         var label = fm[i].label ? fm[i].label : fm[i].name;
-        var p1 = document.createElement('p');
+        var p1 = util.newEl('p');
         p1.className = c;
         if (fm[i].ops.indexOf('cd') != -1) {
-            var a = document.createElement('a');
+            var a = util.newEl('a');
             a.href = 'javascript:void(0)';
             a.onclick = function(name) {
                 return function() { rpifm.addcmd(name) };
             }(fm[i].name);
-            a.appendChild(document.createTextNode(label));
+            util.appendTxt(a, label);
             p1.appendChild(a);
         } else {
-            p1.appendChild(document.createTextNode(label));
+            util.appendTxt(p1, label);
         }
         fmlist.appendChild(p1);
 
-        var p2 = document.createElement('p');
+        var p2 = util.newEl('p');
         p2.className = c;
         if (fm[i].ops.indexOf('cd') != -1) { p2.style = 'text-align:right' }
-        util.ops_buttons_dom(rpifm.lastcmd, fm[i]).forEach(function(i) {
-            p2.appendChild(i);
-        });
+        util.appendOpsButtons(p2, rpifm.lastcmd, fm[i]);
         fmlist.appendChild(p2);
     }
 }

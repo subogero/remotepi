@@ -8,10 +8,10 @@ con.connect = function() {
     }
     con.ws = new WebSocket('ws://' + window.location.host + '/diff');
     con.ws.onmessage = function(event) {
-        var elem_st = document.getElementById("st");
+        var elem_st = util.byId("st");
         var diff = JSON.parse(event.data);
         con.status2html(diff);
-        var elem_st = document.getElementById("statusbar");
+        var elem_st = util.byId("statusbar");
         if (elem_st.innerHTML = 'Websocket to remotepi closed') {
             elem_st.innerHTML = '';
         }
@@ -20,7 +20,7 @@ con.connect = function() {
         con.ws.send(JSON.stringify({ msg: 'Hello' }));
     };
     con.ws.onclose = function(event) {
-        var elem_st = document.getElementById("statusbar");
+        var elem_st = util.byId("statusbar");
         elem_st.innerHTML = 'Websocket to remotepi closed';
     };
 }
@@ -64,26 +64,26 @@ con.getStatus = function(suffix) {
 }
 
 con.status2html = function(st) {
-    var stnow = document.getElementById('stnow');
+    var stnow = util.byId('stnow');
     stnow.onclick = function() { con.getStatus('/details'); };
     if (st.doing != null) {
-        document.getElementById('doing').innerHTML = st.doing;
+        util.byId('doing').innerHTML = st.doing;
     }
     if (st.at != null) {
         var bar = (st.of == 0    ?   0
                  : st.at > st.of ? 100
                  :                 100 * st.at/st.of).toString()
                 + '%';
-        document.getElementById('nowat').style.width = bar;
-        document.getElementById('atof').innerHTML =
+        util.byId('nowat').style.width = bar;
+        util.byId('atof').innerHTML =
             con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
     }
     if (st.what != null) {
-        var pre = document.createElement('pre');
+        var pre = util.newEl('pre');
         pre.innerHTML = st.what.charAt(0) == '/'
             ? st.what.substring(1).split('/').join('\n')
             : st.what.split('://').join('\n');
-        var what = document.getElementById('what');
+        var what = util.byId('what');
         if (what.firstChild) { what.removeChild(what.firstChild) }
         what.appendChild(pre);
     }
@@ -96,25 +96,20 @@ con.setlist = function(list, what) {
         return;
     } else if (list != null) {
         if (what == null) {
-            var what_old = document.getElementById('what').innerHTML;
+            var what_old = util.byId('what').innerHTML;
             what = '/' + what_old.split('<br>').join('/');
         }
-        var pl = document.getElementById('playlist');
-        while (pl.hasChildNodes()) {
-            pl.removeChild(pl.lastChild)
-        }
+        var pl = util.byIdEmpty('playlist');
         for (i = 0; i < list.length; i++) {
-            var p = document.createElement('p');
+            var p = util.newEl('p');
             p.className = i % 2 ? 'even' : 'odd';
-            p.setAttribute('id', list[i].label == what ? 'now' : '');
-            util.ops_buttons_dom(con.send, list[i]).forEach(function(i) {
-                p.appendChild(i)
-            });
-            p.appendChild(document.createTextNode(list[i].label));
+            if (list[i].label == what) { p.id = 'now' }
+            util.appendOpsButtons(p, con.send, list[i]);
+            util.appendTxt(p, list[i].label);
             pl.appendChild(p);
         }
     } else { // list == null && what != null
-        list = document.getElementById('playlist').children;
+        list = util.byId('playlist').children;
         for (i = 0; i < list.length; i++) {
             var label = list[i].lastChild.textContent;
             var c = i % 2 ? 'even' : 'odd';
@@ -129,7 +124,7 @@ con.setlist = function(list, what) {
 }
 
 con.setimage = function(src) {
-    var stnow = document.getElementById('stnow');
+    var stnow = util.byId('stnow');
     var first = stnow.children[0];
     if (src == null) {
         if (first.tagName == 'IMG') {
@@ -140,7 +135,7 @@ con.setimage = function(src) {
             stnow.removeChild(first);
         }
         if (src != '') {
-            var img = document.createElement('img');
+            var img = util.newEl('img');
             img.style.float = "right";
             img.height = stnow.clientHeight;
             img.src = src
@@ -156,8 +151,8 @@ con.s2t = function(s) {
 
 function Tab(name, callback) {
     this.name = name;
-    this.content = document.getElementById(name);
-    this.button = document.getElementById('b' + name);
+    this.content = util.byId(name);
+    this.button = util.byId('b' + name);
     this.callback = callback;
     this.toggle = function(on) {
         this.content.style.display = on ? 'block' : 'none';

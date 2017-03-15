@@ -14,7 +14,7 @@ rpi.ls = function() {
 }
 
 rpi.scroll_to = function(id) {
-    var elem = document.getElementById(id);
+    var elem = util.byId(id);
     if (elem == null) {
         window.scrollTo(0, 0);
         return;
@@ -27,41 +27,38 @@ rpi.scroll_to = function(id) {
 }
 
 rpi.ls2html = function(ls) {
-    var home = document.getElementById("home");
-    while (home.firstChild) { home.removeChild(home.firstChild) }
+    var home = util.byIdEmpty("home");
     home.appendChild(rpi.navbar());
 
-    var homels = document.createElement('div');
+    var homels = util.newEl('div');
     homels.className = 'homels';
     for (i = 0; i < ls.length; i++) {
         var c = i % 2 ? 'even' : 'odd';
         var name = ls[i].name;
 
-        var p = document.createElement('p');
+        var p = util.newEl('p');
         p.className = c;
         if (name == rpi.from) { p.id = 'scrollhere' }
 
         var style = '';
         if (ls[i].ops.indexOf('cd') != -1) {
-            var a = document.createElement('a');
+            var a = util.newEl('a');
             a.href = 'javascript:void(0)';
             a.onclick = function(n) { return function() { rpi.cd(n) } }(name);
-            a.appendChild(document.createTextNode(name));
+            util.appendTxt(a, name);
             p.appendChild(a);
             style = 'text-align:right';
         } else {
-            p.appendChild(document.createTextNode(name));
+            util.appendTxt(p, name);
         }
         homels.appendChild(p);
 
         if (ls[i].ops.length <= 1) { continue; }
 
-        var p2 = document.createElement('p');
+        var p2 = util.newEl('p');
         p2.className = c;
         if (style) { p2.style = style }
-        util.ops_buttons_dom(rpi.op, ls[i]).forEach(function(i) {
-            p2.appendChild(i);
-        });
+        util.appendOpsButtons(p2, rpi.op, ls[i]);
         homels.appendChild(p2);
     }
     home.appendChild(homels);
@@ -69,7 +66,7 @@ rpi.ls2html = function(ls) {
 }
 
 rpi.navbar = function() {
-    var navbar = document.createElement('div');
+    var navbar = util.newEl('div');
     navbar.className = 'homenavbar';
     var dirs = rpi.pwd.split('/');
     dirs.pop();
@@ -77,10 +74,10 @@ rpi.navbar = function() {
     for (i = 0; i < dirs.length; i++) {
         var label = dirs[i] + '/';
         dir += label;
-        var a = document.createElement('a');
+        var a = util.newEl('a');
         a.href = 'javascript:void(0)';
         a.onclick = function(dir) { return function() { rpi.cd(dir) } }(dir);
-        a.appendChild(document.createTextNode(label));
+        util.appendTxt(a, label);
         navbar.appendChild(a);
     }
     return navbar;
