@@ -18,34 +18,34 @@
 
 <body>
 <div class="con" id="tabselect">
-<button id="blist" onclick="con.browse('list')" title="Playlist">now</button>
-<button id="bhome" onclick="con.browse('home')" title="Local stuff">pi</button>
-<button id="bfm"   onclick="con.browse('fm')"   title="Internet Radio">fm</button>
-<button id="byt"   onclick="con.browse('yt')"   title="YouTube">yt</button>
-<button id="bhelp" onclick="con.browse('help')" title="Help">?</button>
+<button id="bplay" onclick="play.browse('play')" title="Playlist">play</button>
+<button id="bhome" onclick="play.browse('home')" title="Local stuff">pi</button>
+<button id="bfm"   onclick="play.browse('fm')"   title="Internet Radio">fm</button>
+<button id="byt"   onclick="play.browse('yt')"   title="YouTube">yt</button>
+<button id="bhelp" onclick="play.browse('help')" title="Help">?</button>
 </div>
 
 <div id="tabs">
-<div class="con" id="list">
+<div class="con" id="play">
   <div><table style="width:100%"><tr>
-  <td><a href="javascript:void(0)" onclick="con.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('r')" title="Rewind 30s"  ><div><img height="22" src="img/r.png" alt="r"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('.')" title="Repeat"      ><div><img height="22" src="img/0.png" alt="."></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('p')" title="Play/Pause"  ><div><img height="22" src="img/p.png" alt="p"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('f')" title="Forward 30s" ><div><img height="22" src="img/f.png" alt="f"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('F')" title="Forward 600s"><div><img height="22" src="img/F.png" alt="F"></div></a></td></tr><tr>
-  <td><a href="javascript:void(0)" onclick="con.send('N')" title="Previous"    ><div><img height="22" src="img/N.png" alt="N"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('x')" title="Delete track"><div><img height="22" src="img/x.png" alt="x"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('X')" title="Delete list" ><div><img height="22" src="img/X.png" alt="X"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('P')" title="Stop"        ><div><img height="22" src="img/P.png" alt="P"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('s')" title="Toggle subs" ><div><img height="22" src="img/s.png" alt="s"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('n')" title="Next"        ><div><img height="22" src="img/n.png" alt="n"></div></a></td></tr><tr>
-  <td><a href="javascript:void(0)" onclick="con.send('D')" title="Previous dir"><div><img height="22" src="img/D.png" alt="D"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('h')" title="HDMI Audio"  ><div><img height="22" src="img/h.png" alt="h"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('j')" title="Jack Audio"  ><div><img height="22" src="img/j.png" alt="j"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('k')" title="Next sound"  ><div><img height="22" src="img/k.png" alt="k"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
-  <td><a href="javascript:void(0)" onclick="con.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('R')" title="Rewind 600s" ><div><img height="22" src="img/R.png" alt="R"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('r')" title="Rewind 30s"  ><div><img height="22" src="img/r.png" alt="r"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('.')" title="Repeat"      ><div><img height="22" src="img/0.png" alt="."></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('p')" title="Play/Pause"  ><div><img height="22" src="img/p.png" alt="p"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('f')" title="Forward 30s" ><div><img height="22" src="img/f.png" alt="f"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('F')" title="Forward 600s"><div><img height="22" src="img/F.png" alt="F"></div></a></td></tr><tr>
+  <td><a href="javascript:void(0)" onclick="play.send('N')" title="Previous"    ><div><img height="22" src="img/N.png" alt="N"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('x')" title="Delete track"><div><img height="22" src="img/x.png" alt="x"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('X')" title="Delete list" ><div><img height="22" src="img/X.png" alt="X"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('P')" title="Stop"        ><div><img height="22" src="img/P.png" alt="P"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('s')" title="Toggle subs" ><div><img height="22" src="img/s.png" alt="s"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('n')" title="Next"        ><div><img height="22" src="img/n.png" alt="n"></div></a></td></tr><tr>
+  <td><a href="javascript:void(0)" onclick="play.send('D')" title="Previous dir"><div><img height="22" src="img/D.png" alt="D"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('h')" title="HDMI Audio"  ><div><img height="22" src="img/h.png" alt="h"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('j')" title="Jack Audio"  ><div><img height="22" src="img/j.png" alt="j"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('k')" title="Next sound"  ><div><img height="22" src="img/k.png" alt="k"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('m')" title="Next subs"   ><div><img height="22" src="img/m.png" alt="m"></div></a></td>
+  <td><a href="javascript:void(0)" onclick="play.send('d')" title="Next dir"    ><div><img height="22" src="img/d.png" alt="d"></div></a></td>
   </tr></table></div>
 
   <div class="st" id="st">
@@ -122,6 +122,6 @@ Copyright 2013-2016 SZABO Gergely <szg@subogero.com>
 
 <div id="statusbar" class="st"></div>
 
-<script>con.browse('list');</script>
+<script>play.browse('play');</script>
 </body>
 </html>

@@ -1,25 +1,25 @@
 /* (C) 2013 SZABO Gergely <szg@subogero.com> GNU AGPL v3 */
-con = {};
+play = {};
 
 // Websocket for status updates
-con.connect = function() {
-    if (con.ws != null && con.ws.readyState != 3) {
+play.connect = function() {
+    if (play.ws != null && play.ws.readyState != 3) {
         return;
     }
-    con.ws = new WebSocket('ws://' + window.location.host + '/diff');
-    con.ws.onmessage = function(event) {
+    play.ws = new WebSocket('ws://' + window.location.host + '/diff');
+    play.ws.onmessage = function(event) {
         var elem_st = util.byId("st");
         var diff = JSON.parse(event.data);
-        con.status2html(diff);
+        play.status2html(diff);
         var elem_st = util.byId("statusbar");
         if (elem_st.innerHTML = 'Websocket to remotepi closed') {
             elem_st.innerHTML = '';
         }
     };
-    con.ws.onopen = function(event) {
-        con.ws.send(JSON.stringify({ msg: 'Hello' }));
+    play.ws.onopen = function(event) {
+        play.ws.send(JSON.stringify({ msg: 'Hello' }));
     };
-    con.ws.onclose = function(event) {
+    play.ws.onclose = function(event) {
         var elem_st = util.byId("statusbar");
         elem_st.innerHTML = 'Websocket to remotepi closed';
     };
@@ -27,13 +27,13 @@ con.connect = function() {
 
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
-        con.ws.close();
+        play.ws.close();
     } else {
-        con.connect();
+        play.connect();
     }
 });
 
-con.send = function(cmd) {
+play.send = function(cmd) {
     var body = { cmd: cmd };
     if (arguments.length == 2) {
         body.file = arguments[1];
@@ -44,7 +44,7 @@ con.send = function(cmd) {
     req.send(JSON.stringify(body));
 }
 
-con.getStatus = function(suffix) {
+play.getStatus = function(suffix) {
     if (suffix == null) {
         suffix = '';
     }
@@ -55,7 +55,7 @@ con.getStatus = function(suffix) {
         }
     } : function() {
         if (req.readyState == 4 && req.status == 200) {
-            con.status2html(JSON.parse(req.responseText));
+            play.status2html(JSON.parse(req.responseText));
         }
     }
     var uri = "S" + Date.now().toString() + suffix;
@@ -63,9 +63,9 @@ con.getStatus = function(suffix) {
     req.send();
 }
 
-con.status2html = function(st) {
+play.status2html = function(st) {
     var stnow = util.byId('stnow');
-    stnow.onclick = function() { con.getStatus('/details'); };
+    stnow.onclick = function() { play.getStatus('/details'); };
     if (st.doing != null) {
         util.byId('doing').innerHTML = st.doing;
     }
@@ -76,7 +76,7 @@ con.status2html = function(st) {
                 + '%';
         util.byId('nowat').style.width = bar;
         util.byId('atof').innerHTML =
-            con.s2t(st.at) + ' / ' + con.s2t(st.of) + '<br>';
+            play.s2t(st.at) + ' / ' + play.s2t(st.of) + '<br>';
     }
     if (st.what != null) {
         var pre = util.newEl('pre');
@@ -87,11 +87,11 @@ con.status2html = function(st) {
         if (what.firstChild) { what.removeChild(what.firstChild) }
         what.appendChild(pre);
     }
-    con.setimage(st.image);
-    con.setlist(st.list, st.what);
+    play.setimage(st.image);
+    play.setlist(st.list, st.what);
 }
 
-con.setlist = function(list, what) {
+play.setlist = function(list, what) {
     if (list == null && what == null) {
         return;
     } else if (list != null) {
@@ -104,7 +104,7 @@ con.setlist = function(list, what) {
             var p = util.newEl('p');
             p.className = i % 2 ? 'even' : 'odd';
             if (list[i].label == what) { p.id = 'now' }
-            util.appendOpsButtons(p, con.send, list[i]);
+            util.appendOpsButtons(p, play.send, list[i]);
             util.appendTxt(p, list[i].label);
             pl.appendChild(p);
         }
@@ -123,7 +123,7 @@ con.setlist = function(list, what) {
     }
 }
 
-con.setimage = function(src) {
+play.setimage = function(src) {
     var stnow = util.byId('stnow');
     var first = stnow.children[0];
     if (src == null) {
@@ -144,7 +144,7 @@ con.setimage = function(src) {
     }
 }
 
-con.s2t = function(s) {
+play.s2t = function(s) {
     var t = new Date(s * 1000);
     return t.toUTCString().split(' ')[4];
 }
@@ -163,53 +163,53 @@ function Tab(name, callback) {
     };
 }
 
-con.init = function() {
-    con.tabs = [
-        new Tab('list', con.setimage),
+play.init = function() {
+    play.tabs = [
+        new Tab('play', play.setimage),
         new Tab('home', rpi.ls),
         new Tab('fm', rpifm.sendcmds),
         new Tab('yt'),
         new Tab('help'),
     ];
-    con.itab = 0;
+    play.itab = 0;
     try {
-        con.hammer = new Hammer(document.body);
+        play.hammer = new Hammer(document.body);
     }
     catch(err) {
         return;
     }
-    con.hammer.get('swipe').set({ velocity: 0.1, threshold: 0.5 });
-    con.hammer.on('swipeleft swiperight press', function(ev) {
+    play.hammer.get('swipe').set({ velocity: 0.1, threshold: 0.5 });
+    play.hammer.on('swipeleft swiperight press', function(ev) {
         switch (ev.type) {
         case 'swiperight':
-            if (con.itab > 0) { con.itab--; }
+            if (play.itab > 0) { play.itab--; }
             break;
         case 'swipeleft':
-            if (con.itab < con.tabs.length - 1) { con.itab++; }
+            if (play.itab < play.tabs.length - 1) { play.itab++; }
             break;
         case 'press':
-            con.itab = con.tabs.length - 1;
+            play.itab = play.tabs.length - 1;
             break;
         }
-        for (var i = 0; i < con.tabs.length; i++) {
-            con.tabs[i].toggle(i == con.itab);
+        for (var i = 0; i < play.tabs.length; i++) {
+            play.tabs[i].toggle(i == play.itab);
         }
         window.scrollTo(0, 0);
     });
 }
 
 // This function is called at the end of the page, so create objects here
-con.browse = function(what) {
-    if (typeof con.tabs === 'undefined') {
-        con.init();
+play.browse = function(what) {
+    if (typeof play.tabs === 'undefined') {
+        play.init();
     }
-    for (var i = 0; i < con.tabs.length; i++) {
-        var on = con.tabs[i].name == what;
-        con.tabs[i].toggle(on);
+    for (var i = 0; i < play.tabs.length; i++) {
+        var on = play.tabs[i].name == what;
+        play.tabs[i].toggle(on);
         if (on) {
-            con.itab = i;
+            play.itab = i;
         }
     }
     window.scrollTo(0, 0);
-    con.connect();
+    play.connect();
 }

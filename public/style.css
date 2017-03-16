@@ -44,7 +44,7 @@ div.con { text-align:center }
 div.con button { color:white }
 button.tabhi { border:none; background-color:#303030; font-weight:bold; font-size:200% }
 button.tablo { border:none; background-color:black }
-#list { background-color:#303030; display:none }
+#play { background-color:#303030; display:none }
 div.browse { display:none }
 #fm { background-color:#303030 }
 #yt { background-color:#303030 }
