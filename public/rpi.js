@@ -27,7 +27,7 @@ rpi.scroll_to = function(id) {
 }
 
 rpi.ls2html = function(ls) {
-    var home = util.byIdEmpty("home");
+    var home = util.byIdEmpty("rpi");
     home.appendChild(rpi.navbar());
 
     var homels = util.newEl('div');

@@ -154,23 +154,40 @@ function Tab(name, callback) {
     this.content = util.byId(name);
     this.button = util.byId('b' + name);
     this.callback = callback;
-    this.toggle = function(on) {
-        this.content.style.display = on ? 'block' : 'none';
-        this.button.className = on ? 'tabhi' : 'tablo';
-        if (on && typeof this.callback == 'function') {
-            this.callback();
+    this.toggle = function(self) {
+        return function(on) {
+            self.content.style.display = on ? 'block' : 'none';
+            self.button.className = on ? 'tabhi' : 'tablo';
+            if (on && typeof self.callback == 'function') {
+                self.callback();
+            }
         }
-    };
+    }(this);
 }
 
 play.init = function() {
-    play.tabs = [
-        new Tab('play', play.setimage),
-        new Tab('home', rpi.ls),
-        new Tab('fm', rpifm.sendcmds),
-        new Tab('yt'),
-        new Tab('help'),
+    var tabselect = util.byId('tabselect');
+    var tabs = [
+        { name: 'play', callback: play.settings, label: "playlist" },
+        { name: 'rpi', callback: rpi.ls, label: "Local stuff" },
+        { name: 'fm', callback: rpifm.sendcmds, label: "Internet Radio" },
+        { name: 'u2b', callback: null, label: "YouTube" },
+        { name: 'help', callback: null, label: "Help" },
     ];
+    play.tabs = [];
+    for (var i = 0; i < tabs.length; i++) {
+        var blabel = 'b' + tabs[i].name;
+        var b = util.newEl('button');
+        b.id = blabel;
+        b.title = tabs[i].label;
+        b.onclick = function(name) {
+            return function() { play.browse(name) };
+        }(tabs[i].name);
+        util.appendTxt(b, tabs[i].name);
+        tabselect.appendChild(b);
+        util.appendTxt(tabselect, ' ');
+        play.tabs.push(new Tab(tabs[i].name, tabs[i].callback));
+    }
     play.itab = 0;
     try {
         play.hammer = new Hammer(document.body);

@@ -17,13 +17,7 @@
 </head>
 
 <body>
-<div class="con" id="tabselect">
-<button id="bplay" onclick="play.browse('play')" title="Playlist">play</button>
-<button id="bhome" onclick="play.browse('home')" title="Local stuff">pi</button>
-<button id="bfm"   onclick="play.browse('fm')"   title="Internet Radio">fm</button>
-<button id="byt"   onclick="play.browse('yt')"   title="YouTube">yt</button>
-<button id="bhelp" onclick="play.browse('help')" title="Help">?</button>
-</div>
+<div class="con" id="tabselect"></div>
 
 <div id="tabs">
 <div class="con" id="play">
@@ -61,11 +55,11 @@
   </div>
 </div>
 
-<div class="browse" id="home">Stuff on the Raspberry Pi</div>
+<div class="browse" id="rpi">Stuff on the Raspberry Pi</div>
 
 <div class="browse" id="fm">Internet Radio Stations</div>
 
-<div class="browse" id="yt">Search YouTube<br>
+<div class="browse" id="u2b">Search YouTube<br>
 <form name="ytsearch">
 <input type="text" name="ytq" size="35" maxlength="80"
 onkeydown="if (event.keyCode == 13) { u2b.search(this.value); return false; }">
