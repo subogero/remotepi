@@ -170,7 +170,7 @@ play.init = function() {
     var tabs = [
         { name: 'play', callback: play.settings, label: "playlist" },
         { name: 'rpi', callback: rpi.ls, label: "Local stuff" },
-        { name: 'fm', callback: rpifm.sendcmds, label: "Internet Radio" },
+        { name: 'fm', callback: fm.sendcmds, label: "Internet Radio" },
         { name: 'u2b', callback: null, label: "YouTube" },
         { name: 'help', callback: null, label: "Help" },
     ];
