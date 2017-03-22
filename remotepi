@@ -3,7 +3,6 @@ use Mojolicious::Lite;
 use Mojo::IOLoop;
 use IPC::Open2;
 use WWW::U2B;
-use YAML::XS;
 
 # STARTUP
 sub statusdiff; sub status; sub thumbnail; sub decorate; sub logger;
