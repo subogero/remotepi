@@ -79,10 +79,14 @@ any '/yt*param' => { param => '/' } => sub {
 
 my %clients;
 my $st_old;
+my $loop;
 websocket '/diff' => sub {
     my $c = shift;
     my $id = sprintf "%s", $c->tx;
+    $loop = Mojo::IOLoop->recurring(1 => \&statusdiff) unless keys %clients;
     $clients{$id} = $c->tx;
+    my $n = keys %clients;
+    app->log->debug("connection opened, $n clients");
     $c->on(json => sub {
         my $n = keys %clients;
         app->log->debug("new connection, $n clients");
@@ -91,11 +95,10 @@ websocket '/diff' => sub {
     $c->on(finish => sub {
         delete $clients{$id};
         my $n = keys %clients;
+        Mojo::IOLoop->remove($loop) unless $n;
         app->log->debug("connection closed, $n clients remain");
     });
 };
-
-Mojo::IOLoop->recurring(1 => \&statusdiff);
 
 rpifm_my;
 
