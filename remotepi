@@ -14,21 +14,27 @@ our ($img_dir, $img);
 # Clean up albumart symlink upon exit
 $SIG{TERM} = sub { thumbnail };
 
-# Get ls root directory
-if (open CFG, "/etc/omxd.conf") {
-    $root = <CFG>;
-    chomp $root;
-    $root =~ s|user=|/home/|;
-    $root = "/home" unless -d $root;
-    close CFG;
-} else {
-    $root = "/home";
-}
+# Check user
+my @userdata = getpwuid $< or die "Unkown user id $<";
+my ($user, $home) = @userdata[0, -2];
 
-# Run in /var/tmp/remotepi
-my $cwd = '/var/tmp/remotepi';
+# Run in /var/tmp/remotepi or ~/.remotepi
+my $cwd = $user eq 'root' ? '/var/tmp/remotepi' : "$home/.remotepi";
 -d $cwd or mkdir $cwd;
 chdir $cwd;
+
+# Start own omxd instance unless running as root
+system "omxd" if $user ne 'root';
+
+# Get ls root directory
+my $cfgfile = $user eq 'root' ? '/etc/remotepi.conf' : "$home/.remotepi.conf";
+$root = '/home';
+if (open my $cfg, $cfgfile) {
+    while (<$cfg>) {
+        chomp;
+        $root = $1 if /rootdir=(.*)/ && -d $1;
+    }
+}
 
 # ROUTES
 get '/' => sub {
@@ -102,6 +108,7 @@ websocket '/diff' => sub {
 
 rpifm_my;
 
+# START APP
 push @{ app->static->paths }, $cwd;
 my $port = shift // 31100;
 app->start('daemon', '-l' => "http://*:$port");
@@ -291,6 +298,9 @@ sub fm {
 
 sub run_rpifm {
     my $cmd = shift;
+    # Force rpi.fm to store status in current dir
+    local %ENV;
+    delete $ENV{HOME};
     my $pid = open2(\*IN, \*OUT, '/usr/bin/rpi.fm') or die $!;
     print OUT $cmd;
     close OUT;
