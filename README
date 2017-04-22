@@ -33,6 +33,20 @@ As root
 This installs RemotePi's dependencies too: omxd, rpi.fm, u2b
 and the necessary Perl libraries.
 
+## RUNNING REMOTEPI AS NON_ROOT USER
+
+Mounting your media as a FUSE filesystem as a non-root user may necessitate
+running the remotepi stack as the same user.
+
+This is entirely possible, by e.g. a simple entry in the user's crontab
+
+ @reboot /usr/share/remotepi/remotepi 3000 >~/.remotepi.log 2>&1 &
+
+In this case remotepi will listen on port 3000 and run it's own omxd instance
+as the same user, with all control and log files in folder ~/.remotepi.
+
+Location of the config file will change to ~/.remotepi.conf. See FILES.
+
 ## USE
 
 Point your PC/tablet/phone's browser to http://raspberry:31100 on your
@@ -62,12 +76,13 @@ RemotePi offers a JSON-based REST API to control all functions:
 
 ## FILES
 
-### /etc/omxd.conf
+Location of files depends on whether remotepi runs as root.
 
-Omxd runs omxplayer as the user specified in this file.
-This user's home is the root directory for file browsing by RemotePi.
+### /etc/remotepi.conf ~/.remotepi.conf
+
+Contains the rootdir options for remotepi's pi file-browsing tab.
 If the file does not exist, the default root directory is /home.
 
-### /usr/share/remotepi/.rpi.fm
+### /usr/share/remotepi/.rpi.fm ~/.remotepi/.rpi.fm
 
 rpi.fm's genre cache and "My stations" database
