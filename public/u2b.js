@@ -8,7 +8,7 @@ u2b.search = function(query) {
             u2b.yt2html(JSON.parse(req.responseText));
         }
     }
-    req.open("GET", "yt/search/" + query, true);
+    req.open("GET", "u2b/search/" + query, true);
     req.send();
 }
 
@@ -46,7 +46,7 @@ u2b.op = function(cmd, file) {
             util.byId("statusbar").innerHTML = file + ' started';
         }
     }
-    req.open("POST", 'yt', true);
+    req.open("POST", 'u2b', true);
     req.setRequestHeader("Content-type","application/json");
     req.send(JSON.stringify({ cmd: cmd, query: file }));
     util.byId("statusbar").innerHTML = 'Extracting stream...';

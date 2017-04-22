@@ -6,9 +6,9 @@ use WWW::U2B;
 
 # STARTUP
 sub statusdiff; sub status; sub thumbnail; sub decorate; sub logger;
-sub ls;
+sub rpi;
 sub rpifm_my; sub run_rpifm; sub byalphanum;
-sub yt;
+sub u2b;
 my ($root, $ytid, %ythits, $fm_my);
 our ($img_dir, $img);
 # Clean up albumart symlink upon exit
@@ -62,7 +62,7 @@ any '/S*param' => { param => '' } => sub {
 any '/home*param' => { param => '/' } => sub {
     my $c = shift;
     my $data = $c->req->json;
-    $c->render(json => ls($c->stash('param'), $data));
+    $c->render(json => rpi($c->stash('param'), $data));
 };
 
 any '/fm*param/' => { param => '/' } => sub {
@@ -77,10 +77,10 @@ any '/fm*param/' => { param => '/' } => sub {
     rpifm_my;
 };
 
-any '/yt*param' => { param => '/' } => sub {
+any '/u2b*param' => { param => '/' } => sub {
     my $c = shift;
     my $data = $c->req->json;
-    $c->render(json => yt($c->stash('param'), $data));
+    $c->render(json => u2b($c->stash('param'), $data));
 };
 
 my %clients;
@@ -219,7 +219,7 @@ sub thumbnail {
 }
 
 # Browse Raspberry Pi
-sub ls {
+sub rpi {
     my $dir = shift;
     my $data = shift;
     if ($data) {
@@ -337,7 +337,7 @@ sub byalphanum {
 }
 
 # Browse and play YouTube
-sub yt {
+sub u2b {
     (my $cmd = shift) =~ s|^/||;
     $cmd =~ m|^([^/]+)/(.*)|;
     my $query;
